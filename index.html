@@ -1,49 +1,210 @@
 ﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>AI Toolbox</title>
-<style>
-body{
-font-family:sans-serif;
-max-width:800px;
-margin:40px auto;
-padding:20px;
-line-height:1.6;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>不動産AIツール | toolbox</title>
+  <meta name="description" content="不動産実務向けのAIツール一覧" />
+  <style>
+    :root {
+      --main: #008080;
+      --accent: #DFE6E9;
+      --text: #2D3748;
+      --bg: #F8FAFB;
+      --card: #FFFFFF;
+      --border: #D9E2E8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.7;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #ffffff 0%, #f1f8f8 100%);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 24px;
+      margin-bottom: 28px;
+    }
+
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: 2rem;
+      line-height: 1.3;
+    }
+
+    .hero p {
+      margin: 0;
+      color: #4A5568;
+    }
+
+    .section-title {
+      margin: 0 0 16px;
+      font-size: 1.2rem;
+      border-left: 6px solid var(--main);
+      padding-left: 12px;
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .tool-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tool-card h3 {
+      margin: 0;
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
+
+    .tool-card p {
+      margin: 0;
+      color: #4A5568;
+      font-size: 0.95rem;
+    }
+
+    .tool-meta {
+      font-size: 0.85rem;
+      color: #718096;
+    }
+
+    .tool-link {
+      margin-top: auto;
+      display: inline-block;
+      text-decoration: none;
+      background: var(--main);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      text-align: center;
+      transition: opacity 0.2s ease;
+    }
+
+    .tool-link:hover {
+      opacity: 0.9;
+    }
+
+    .note-box {
+      margin-top: 28px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 20px;
+      color: #4A5568;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.9rem;
+      color: #718096;
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 20px 14px 48px;
+      }
+
+      .hero {
+        padding: 24px 18px;
+      }
+
+      .hero h1 {
+        font-size: 1.6rem;
+      }
+    }
+    .x-link{
+  color:#008080;
+  font-weight:600;
+  text-decoration:none;
 }
-h1{
-border-bottom:2px solid #008080;
-padding-bottom:10px;
+
+.x-link:hover{
+  text-decoration:underline;
 }
-.tool{
-padding:12px;
-border:1px solid #ddd;
-margin:10px 0;
-border-radius:6px;
-}
-a{
-text-decoration:none;
-color:#008080;
-font-weight:bold;
-}
-</style>
+  </style>
 </head>
-
 <body>
+  <main class="container">
+    <section class="hero">
+      <h1>不動産AIツール一覧</h1>
+      <p>
+        賃貸管理・仲介の現場で使える、シンプルなWebツールをまとめています。
+        今後このページに順次追加していく想定です。
+      </p>
+    </section>
 
-<h1>不動産AIツール</h1>
+    <section>
+      <h2 class="section-title">公開中のツール</h2>
 
-<div class="tool">
-<a href="tools/rent-increase-check/">家賃値上げリスク診断</a>
-</div>
+      <div class="tools-grid">
+        <article class="tool-card">
+          <h3>家賃値上げリスク診断</h3>
+          <p>
+            現在賃料と提案条件などをもとに、値上げリスクをざっくり整理するためのツール。
+          </p>
+          <div class="tool-meta">カテゴリ：賃貸管理</div>
+          <a class="tool-link" href="./tools/rent-increase-check/">ツールを開く</a>
+        </article>
 
-<div class="tool">
-<a href="tools/home-rent-vs-buy/">賃貸 vs 購入シミュレーター</a>
-</div>
+        <article class="tool-card">
+          <h3>賃貸 vs 購入シミュレーター</h3>
+          <p>
+            持ち家と賃貸の比較をざっくり可視化するシミュレーター。
+          </p>
+          <div class="tool-meta">カテゴリ：比較シミュレーション</div>
+          <a class="tool-link" href="./tools/home-rent-vs-buy/">ツールを開く</a>
+        </article>
 
-<div class="tool">
-<a href="tools/initial-cost/">初期費用計算ツール</a>
-</div>
+        <article class="tool-card">
+          <h3>初期費用計算ツール</h3>
+          <p>
+            敷金・礼金・仲介手数料などを整理して、初期費用の目安を確認するためのツール。
+          </p>
+          <div class="tool-meta">カテゴリ：賃貸契約</div>
+          <a class="tool-link" href="./tools/initial-cost-calculator/">ツールを開く</a>
+        </article>
+      </div>
+    </section>
 
+    <section class="note-box">
+      <strong>追加方法</strong><br />
+      新しいツールを増やすときは、<code>tools/ツール名/</code> を作って、
+      この <code>index.html</code> にカードを1つ追加すればOKです。
+    </section>
+
+    <footer>
+      © toolbox / 賃貸管理・不動産の窓口  
+      <br>
+      <a class="x-link" href="https://x.com/ai_gakumon" target="_blank" rel="noopener">
+      X（旧Twitter）:@ai_gakumon
+     </a>
+</footer>
 </body>
 </html>
