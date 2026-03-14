@@ -4,207 +4,415 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>不動産AIツール | toolbox</title>
-  <meta name="description" content="不動産実務向けのAIツール一覧" />
+  <meta name="description" content="賃貸管理・仲介の現場で使えるAIツール集" />
+
   <style>
-    :root {
-      --main: #008080;
-      --accent: #DFE6E9;
-      --text: #2D3748;
-      --bg: #F8FAFB;
-      --card: #FFFFFF;
-      --border: #D9E2E8;
+    :root{
+      --main:#008080;
+      --accent:#DFE6E9;
+      --text:#2D3748;
+      --bg:#F7FAFC;
+      --card:#FFFFFF;
+      --border:#E2E8F0;
     }
 
-    * {
-      box-sizing: border-box;
+    *{
+      box-sizing:border-box;
     }
 
-    body {
-      margin: 0;
-      font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
-      color: var(--text);
-      background: var(--bg);
-      line-height: 1.7;
+    body{
+      margin:0;
+      font-family:"Noto Sans JP", system-ui, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.7;
     }
 
-    .container {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 32px 20px 64px;
+    .site-header{
+      background:#fff;
+      border-bottom:1px solid var(--border);
     }
 
-    .hero {
-      background: linear-gradient(135deg, #ffffff 0%, #f1f8f8 100%);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 32px 24px;
-      margin-bottom: 28px;
+    .header-inner{
+      max-width:960px;
+      margin:auto;
+      padding:16px 20px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
     }
 
-    .hero h1 {
-      margin: 0 0 12px;
-      font-size: 2rem;
-      line-height: 1.3;
+    .site-title{
+      font-weight:700;
+      font-size:1.1rem;
     }
 
-    .hero p {
-      margin: 0;
-      color: #4A5568;
+    .site-nav{
+      display:flex;
+      gap:18px;
+      flex-wrap:wrap;
     }
 
-    .section-title {
-      margin: 0 0 16px;
-      font-size: 1.2rem;
-      border-left: 6px solid var(--main);
-      padding-left: 12px;
+    .site-nav a{
+      text-decoration:none;
+      color:var(--main);
+      font-weight:600;
     }
 
-    .tools-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
+    .container{
+      max-width:960px;
+      margin:auto;
+      padding:30px 20px 48px;
     }
 
-    .tool-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    .hero{
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:28px;
+      margin-bottom:24px;
     }
 
-    .tool-card h3 {
-      margin: 0;
-      font-size: 1.05rem;
-      line-height: 1.5;
+    .hero-badge{
+      display:inline-block;
+      margin-bottom:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:var(--accent);
+      color:var(--main);
+      font-size:.82rem;
+      font-weight:700;
     }
 
-    .tool-card p {
-      margin: 0;
-      color: #4A5568;
-      font-size: 0.95rem;
+    .hero h1{
+      margin:0 0 10px 0;
+      font-size:1.8rem;
+      line-height:1.4;
     }
 
-    .tool-meta {
-      font-size: 0.85rem;
-      color: #718096;
+    .hero p{
+      margin:0;
+      color:#4A5568;
     }
 
-    .tool-link {
-      margin-top: auto;
-      display: inline-block;
-      text-decoration: none;
-      background: var(--main);
-      color: #fff;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-weight: 700;
-      text-align: center;
-      transition: opacity 0.2s ease;
+    .hero-actions{
+      margin-top:18px;
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
     }
 
-    .tool-link:hover {
-      opacity: 0.9;
+    .hero-button{
+      display:inline-block;
+      padding:10px 16px;
+      border-radius:10px;
+      text-decoration:none;
+      font-weight:700;
+      transition:.15s;
     }
 
-    .note-box {
-      margin-top: 28px;
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 18px 20px;
-      color: #4A5568;
+    .hero-button.primary{
+      background:var(--main);
+      color:#fff;
     }
 
-    footer {
-      margin-top: 40px;
-      font-size: 0.9rem;
-      color: #718096;
-      text-align: center;
+    .hero-button.secondary{
+      background:#fff;
+      color:var(--main);
+      border:1px solid var(--border);
     }
 
-    @media (max-width: 640px) {
-      .container {
-        padding: 20px 14px 48px;
-      }
-
-      .hero {
-        padding: 24px 18px;
-      }
-
-      .hero h1 {
-        font-size: 1.6rem;
-      }
+    .hero-button:hover{
+      transform:translateY(-1px);
+      opacity:.95;
     }
+
+    .section-title{
+      border-left:6px solid var(--main);
+      padding-left:10px;
+      margin:30px 0 16px;
+      font-size:1.1rem;
+    }
+
+    .tools-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+      gap:16px;
+    }
+
+    .tool-card{
+      display:block;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:18px;
+      text-decoration:none;
+      color:inherit;
+      transition:.15s;
+      box-shadow:0 3px 10px rgba(0,0,0,.03);
+    }
+
+    .tool-card:hover{
+      transform:translateY(-4px);
+      box-shadow:0 8px 22px rgba(0,0,0,.08);
+    }
+
+    .tool-card h3{
+      margin:0 0 8px;
+      font-size:1.05rem;
+      line-height:1.5;
+    }
+
+    .tool-card p{
+      margin:0;
+      font-size:.93rem;
+      color:#4A5568;
+    }
+
+    .tool-meta{
+      margin-top:8px;
+      font-size:.8rem;
+      color:#718096;
+    }
+
+    .tool-card.soon{
+      background:#FCFCFC;
+      border-style:dashed;
+    }
+
+    .tool-status{
+      display:inline-block;
+      margin-top:10px;
+      font-size:.78rem;
+      font-weight:700;
+      color:#B7791F;
+      background:#FEF3C7;
+      padding:4px 8px;
+      border-radius:999px;
+    }
+
+    .note-box{
+      margin-top:28px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:16px;
+      font-size:.9rem;
+      color:#4A5568;
+    }
+
+    .loading,
+    .error-message,
+    .empty-message{
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:18px;
+      color:#4A5568;
+    }
+
+    footer{
+      margin-top:40px;
+      text-align:center;
+      font-size:.9rem;
+      color:#718096;
+    }
+
     .x-link{
-  color:#008080;
-  font-weight:600;
-  text-decoration:none;
-}
+      color:var(--main);
+      text-decoration:none;
+      font-weight:600;
+    }
 
-.x-link:hover{
-  text-decoration:underline;
-}
+    .x-link:hover{
+      text-decoration:underline;
+    }
+
+    @media(max-width:640px){
+      .header-inner{
+        align-items:flex-start;
+        flex-direction:column;
+      }
+
+      .hero{
+        padding:22px 18px;
+      }
+
+      .hero h1{
+        font-size:1.4rem;
+      }
+
+      .container{
+        padding:22px 14px 40px;
+      }
+    }
   </style>
 </head>
 <body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="site-title">AI Toolbox</div>
+
+      <nav class="site-nav">
+        <a href="https://x.com/ai_gakumon" target="_blank" rel="noopener noreferrer">X</a>
+        <a href="https://github.com/gakumon8800/toolbox" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
   <main class="container">
+
     <section class="hero">
-      <h1>不動産AIツール一覧</h1>
+      <div class="hero-badge">賃貸管理・仲介の現場向け</div>
+
+      <h1>不動産AIツール</h1>
+
       <p>
-        賃貸管理・仲介の現場で使える、シンプルなWebツールをまとめています。
-        今後このページに順次追加していく想定です。
+        賃貸管理・仲介の現場で使える、
+        シンプルなWebツールをまとめています。
+        実務で使いながら順次追加・改善していく想定です。
       </p>
+
+      <div class="hero-actions">
+        <a class="hero-button primary" href="#tools-list">ツールを見る</a>
+        <a class="hero-button secondary" href="https://x.com/ai_gakumon" target="_blank" rel="noopener noreferrer">Xを見る</a>
+      </div>
     </section>
 
     <section>
-      <h2 class="section-title">公開中のツール</h2>
+      <h2 class="section-title" id="tools-list">公開ツール</h2>
 
-      <div class="tools-grid">
-        <article class="tool-card">
-          <h3>家賃値上げリスク診断</h3>
-          <p>
-            現在賃料と提案条件などをもとに、値上げリスクをざっくり整理するためのツール。
-          </p>
-          <div class="tool-meta">カテゴリ：賃貸管理</div>
-          <a class="tool-link" href="./tools/rent-increase-check/">ツールを開く</a>
-        </article>
+      <div id="tools-loading" class="loading">
+        ツール一覧を読み込み中です...
+      </div>
 
-        <article class="tool-card">
-          <h3>賃貸 vs 購入シミュレーター</h3>
-          <p>
-            持ち家と賃貸の比較をざっくり可視化するシミュレーター。
-          </p>
-          <div class="tool-meta">カテゴリ：比較シミュレーション</div>
-          <a class="tool-link" href="./tools/home-rent-vs-buy/">ツールを開く</a>
-        </article>
+      <div class="tools-grid" id="tools-container" style="display:none;"></div>
 
-        <article class="tool-card">
-          <h3>初期費用計算ツール</h3>
-          <p>
-            敷金・礼金・仲介手数料などを整理して、初期費用の目安を確認するためのツール。
-          </p>
-          <div class="tool-meta">カテゴリ：賃貸契約</div>
-          <a class="tool-link" href="./tools/initial-cost-calculator/">ツールを開く</a>
-        </article>
+      <div id="tools-error" class="error-message" style="display:none;">
+        ツール一覧の読み込みに失敗しました。
+      </div>
+
+      <div id="tools-empty" class="empty-message" style="display:none;">
+        まだ公開ツールがありません。
       </div>
     </section>
 
     <section class="note-box">
-      <strong>追加方法</strong><br />
-      新しいツールを増やすときは、<code>tools/ツール名/</code> を作って、
-      この <code>index.html</code> にカードを1つ追加すればOKです。
+      <strong>管理メモ</strong><br>
+      新しいツール追加手順<br>
+      1. <code>tools/ツール名</code> フォルダ作成<br>
+      2. その中に <code>index.html</code> を配置<br>
+      3. Push するとトップに自動反映
     </section>
 
     <footer>
-      © toolbox / 賃貸管理・不動産の窓口  
+      © toolbox / 賃貸管理・不動産の窓口
       <br>
-      <a class="x-link" href="https://x.com/ai_gakumon" target="_blank" rel="noopener">
-      X（旧Twitter）:@ai_gakumon
-     </a>
-</footer>
+      <a class="x-link" href="https://x.com/ai_gakumon" target="_blank" rel="noopener noreferrer">
+        X : @ai_gakumon
+      </a>
+    </footer>
+
+  </main>
+
+  <script>
+    const repoOwner = "gakumon8800";
+    const repoName = "toolbox";
+
+    const loadingEl = document.getElementById("tools-loading");
+    const toolsContainer = document.getElementById("tools-container");
+    const errorEl = document.getElementById("tools-error");
+    const emptyEl = document.getElementById("tools-empty");
+
+    function formatToolName(folderName) {
+      const customNames = {
+        "rent-increase-check": "家賃値上げリスク診断",
+        "home-rent-vs-buy": "賃貸 vs 購入シミュレーター",
+        "initial-cost-calculator": "初期費用計算ツール"
+      };
+
+      if (customNames[folderName]) {
+        return customNames[folderName];
+      }
+
+      return folderName
+        .split("-")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+    }
+
+    function getToolDescription(folderName) {
+      const descriptions = {
+        "rent-increase-check": "現在賃料と提案条件から値上げリスクを整理するツール",
+        "home-rent-vs-buy": "賃貸と持ち家のコスト比較を行うツール",
+        "initial-cost-calculator": "敷金・礼金・仲介手数料などから概算初期費用を算出"
+      };
+
+      return descriptions[folderName] || "ツールを開く";
+    }
+
+    function getToolCategory(folderName) {
+      const categories = {
+        "rent-increase-check": "カテゴリ：賃貸管理",
+        "home-rent-vs-buy": "カテゴリ：比較シミュレーション",
+        "initial-cost-calculator": "カテゴリ：賃貸契約"
+      };
+
+      return categories[folderName] || `フォルダ名：${folderName}`;
+    }
+
+    function createToolCard(folderName) {
+      const card = document.createElement("a");
+      card.className = "tool-card";
+      card.href = `./tools/${folderName}/`;
+
+      card.innerHTML = `
+        <h3>${formatToolName(folderName)}</h3>
+        <p>${getToolDescription(folderName)}</p>
+        <div class="tool-meta">${getToolCategory(folderName)}</div>
+      `;
+
+      return card;
+    }
+
+    async function loadTools() {
+      try {
+        const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/tools`;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error("GitHub API request failed");
+        }
+
+        const data = await response.json();
+
+        const folders = data
+          .filter(item => item.type === "dir")
+          .sort((a, b) => a.name.localeCompare(b.name, "ja"));
+
+        loadingEl.style.display = "none";
+
+        if (folders.length === 0) {
+          emptyEl.style.display = "block";
+          return;
+        }
+
+        folders.forEach(folder => {
+          toolsContainer.appendChild(createToolCard(folder.name));
+        });
+
+        toolsContainer.style.display = "grid";
+      } catch (error) {
+        console.error(error);
+        loadingEl.style.display = "none";
+        errorEl.style.display = "block";
+      }
+    }
+
+    loadTools();
+  </script>
+
 </body>
 </html>
