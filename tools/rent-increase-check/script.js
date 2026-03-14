@@ -9,9 +9,90 @@ const negativeCount = document.getElementById('negativeCount');
 const reasonList = document.getElementById('reasonList');
 const meter = document.getElementById('meter');
 const lead = document.getElementById('lead');
+const formError = document.getElementById('formError');
+const increaseRateCard = increaseRate.closest('.mini');
+
+const fieldRules = {
+  currentRent: {
+    label: '現在賃料',
+    required: true,
+    min: 10000
+  },
+  proposedRent: {
+    label: '提示後賃料',
+    required: true,
+    min: 10000
+  },
+  marketRent: {
+    label: '近傍同種の相場',
+    required: true,
+    min: 10000
+  },
+  yearsSinceReview: {
+    label: '前回改定からの年数',
+    required: true,
+    min: 0,
+    max: 50
+  }
+};
 
 function formatYen(value) {
   return new Intl.NumberFormat('ja-JP').format(Math.round(value)) + '円';
+}
+
+function setFieldError(name, message = '') {
+  const field = form.querySelector(`[name="${name}"]`)?.closest('.field');
+  const error = document.getElementById(`${name}Error`);
+  if (!field || !error) {
+    return;
+  }
+
+  field.classList.toggle('invalid', Boolean(message));
+  error.textContent = message;
+}
+
+function clearErrors() {
+  Object.keys(fieldRules).forEach((name) => setFieldError(name, ''));
+  formError.textContent = '';
+  formError.classList.remove('visible');
+}
+
+function validateForm(values) {
+  const errors = {};
+
+  Object.entries(fieldRules).forEach(([name, rule]) => {
+    const rawValue = (values[name] ?? '').toString().trim();
+
+    if (!rawValue) {
+      errors[name] = `${rule.label}を入力してください。`;
+      return;
+    }
+
+    const number = Number(rawValue);
+    if (!Number.isFinite(number)) {
+      errors[name] = `${rule.label}は数字で入力してください。`;
+      return;
+    }
+
+    if (rule.min !== undefined && number < rule.min) {
+      errors[name] = `${rule.label}は${rule.min.toLocaleString('ja-JP')}以上で入力してください。`;
+      return;
+    }
+
+    if (rule.max !== undefined && number > rule.max) {
+      errors[name] = `${rule.label}は${rule.max.toLocaleString('ja-JP')}以下で入力してください。`;
+    }
+  });
+
+  if (!errors.currentRent && !errors.proposedRent) {
+    const currentRent = Number(values.currentRent);
+    const proposedRent = Number(values.proposedRent);
+    if (proposedRent < currentRent) {
+      errors.proposedRent = '提示後賃料は現在賃料以上を入力してください。';
+    }
+  }
+
+  return errors;
 }
 
 function evaluateRisk(values) {
@@ -145,6 +226,7 @@ function render(result) {
   increaseRate.textContent = result.requestedIncreaseRate > 0
     ? result.requestedIncreaseRate.toFixed(1) + '%'
     : '0%';
+  increaseRateCard.classList.toggle('warn', result.requestedIncreaseRate > 10);
   marketGap.textContent = (result.marketDifference >= 0 ? '+' : '-') + formatYen(Math.abs(result.marketDifference));
   positiveCount.textContent = result.positives + '件';
   negativeCount.textContent = result.negatives + '件';
@@ -159,9 +241,35 @@ function render(result) {
   });
 }
 
+function submitCalculation() {
+  const values = Object.fromEntries(new FormData(form).entries());
+  const errors = validateForm(values);
+
+  clearErrors();
+
+  const firstError = Object.entries(errors)[0];
+  if (firstError) {
+    Object.entries(errors).forEach(([name, message]) => setFieldError(name, message));
+    formError.textContent = '未入力または入力内容に誤りがあります。赤字の項目を確認してください。';
+    formError.classList.add('visible');
+    form.querySelector(`[name="${firstError[0]}"]`)?.focus();
+    return;
+  }
+
+  render(evaluateRisk(values));
+}
+
 form.addEventListener('submit', (event) => {
   event.preventDefault();
-  render(evaluateRisk(Object.fromEntries(new FormData(form).entries())));
+  submitCalculation();
 });
 
-render(evaluateRisk(Object.fromEntries(new FormData(form).entries())));
+Object.keys(fieldRules).forEach((name) => {
+  form.querySelector(`[name="${name}"]`)?.addEventListener('input', () => {
+    if (form.querySelector(`.field.invalid`)) {
+      submitCalculation();
+    }
+  });
+});
+
+submitCalculation();

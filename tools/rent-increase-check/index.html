@@ -17,6 +17,11 @@ font-weight:600;
       --muted: #5d6b78;
       --line: #dfd6c8;
       --accent: #0f766e;
+      --danger: #b42318;
+      --danger-soft: #fff1f0;
+      --warn-bg: #fff4d6;
+      --warn-border: #f2b84b;
+      --warn-text: #8a4b00;
       --shadow: 0 20px 40px rgba(48, 44, 36, 0.08);
       --radius: 22px;
     }
@@ -105,6 +110,7 @@ font-weight:600;
       flex-direction: column;
       gap: 8px;
       margin-bottom: 14px;
+      min-width: 0;
     }
 
     .field.full {
@@ -138,6 +144,34 @@ font-weight:600;
     select:focus {
       outline: 3px solid rgba(15, 118, 110, 0.15);
       border-color: var(--accent);
+    }
+
+    .field-error {
+      color: var(--danger);
+      font-size: 0.82rem;
+      line-height: 1.5;
+      min-height: 1.2em;
+    }
+
+    .field.invalid input,
+    .field.invalid select {
+      border-color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .form-error {
+      display: none;
+      margin: 0 0 16px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid #f3b3ad;
+      background: var(--danger-soft);
+      color: var(--danger);
+      line-height: 1.6;
+    }
+
+    .form-error.visible {
+      display: block;
     }
 
     button {
@@ -239,6 +273,17 @@ font-weight:600;
       margin-bottom: 6px;
     }
 
+    .mini.warn {
+      background: var(--warn-bg);
+      border-color: var(--warn-border);
+      color: var(--warn-text);
+    }
+
+    .mini.warn span,
+    .mini.warn strong {
+      color: var(--warn-text);
+    }
+
     .notice {
       margin-top: 18px;
       padding: 16px;
@@ -283,9 +328,53 @@ font-weight:600;
         border-radius: 20px;
       }
 
+      .result-top {
+        flex-direction: column;
+      }
+
+      .badge {
+        min-width: 0;
+      }
+
       button {
         position: sticky;
         bottom: 10px;
+        z-index: 2;
+      }
+    }
+
+    @media (max-width: 560px) {
+      body {
+        font-size: 15px;
+      }
+
+      .shell {
+        width: min(100% - 12px, 1100px);
+        padding: 12px 0 32px;
+      }
+
+      .hero,
+      .card {
+        padding: 16px;
+        border-radius: 18px;
+      }
+
+      h1 {
+        font-size: clamp(1.7rem, 9vw, 2.4rem);
+      }
+
+      input,
+      select,
+      button {
+        font-size: 16px;
+      }
+
+      .score {
+        padding: 16px;
+      }
+
+      .score strong {
+        font-size: 2rem;
       }
     }
   </style>
@@ -309,23 +398,28 @@ font-weight:600;
     <section class="layout">
       <form class="card" id="risk-form">
         <h2 class="section-title">物件と請求条件</h2>
+        <div id="formError" class="form-error" role="alert" aria-live="assertive"></div>
         <div class="grid">
           <div class="field">
             <label for="currentRent">現在賃料（月額・円）</label>
-            <input id="currentRent" name="currentRent" type="number" min="10000" step="1000" value="85000" required>
+            <input id="currentRent" name="currentRent" type="number" min="10000" step="1000" value="85000" required inputmode="numeric">
+            <p class="field-error" id="currentRentError" aria-live="polite"></p>
           </div>
           <div class="field">
             <label for="proposedRent">提示後賃料（月額・円）</label>
-            <input id="proposedRent" name="proposedRent" type="number" min="10000" step="1000" value="92000" required>
+            <input id="proposedRent" name="proposedRent" type="number" min="10000" step="1000" value="92000" required inputmode="numeric">
+            <p class="field-error" id="proposedRentError" aria-live="polite"></p>
           </div>
           <div class="field">
             <label for="marketRent">近傍同種の相場（月額・円）</label>
-            <input id="marketRent" name="marketRent" type="number" min="10000" step="1000" value="90000" required>
+            <input id="marketRent" name="marketRent" type="number" min="10000" step="1000" value="90000" required inputmode="numeric">
             <p class="hint">近隣で条件が近い物件の目安</p>
+            <p class="field-error" id="marketRentError" aria-live="polite"></p>
           </div>
           <div class="field">
             <label for="yearsSinceReview">前回改定からの年数</label>
-            <input id="yearsSinceReview" name="yearsSinceReview" type="number" min="0" max="50" step="0.5" value="4">
+            <input id="yearsSinceReview" name="yearsSinceReview" type="number" min="0" max="50" step="0.5" value="4" inputmode="decimal">
+            <p class="field-error" id="yearsSinceReviewError" aria-live="polite"></p>
           </div>
           <div class="field">
             <label for="taxBurden">固定資産税・維持費の上昇</label>
