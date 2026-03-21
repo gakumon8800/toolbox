@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>不動産売買 諸費用計算ツール | toolbox</title>
+  <meta name="description" content="物件価格、借入額、仲介手数料、登記費用などから不動産売買の諸費用と初期費用を概算できるツールです。">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="../../">← ツール一覧に戻る</a>
+
+    <section class="hero">
+      <p class="hero-badge">Real Estate Buy Cost</p>
+      <h1>不動産売買 諸費用計算ツール</h1>
+      <p class="hero-text">
+        不動産購入時の諸費用・必要自己資金・月額返済額を概算するための業務用ツールです。
+        入力と同時に再計算され、借入額や仲介手数料は自動計算と手入力を切り替えられます。
+      </p>
+    </section>
+
+    <section class="layout">
+      <form class="panel input-panel" id="calculator-form" novalidate>
+        <div class="panel-heading">
+          <h2>入力</h2>
+          <p>金額は円で入力してください。プラスの差額は自己資金に余力あり、マイナスは不足です。</p>
+        </div>
+
+        <div id="form-error" class="form-error" role="alert" aria-live="polite"></div>
+
+        <div class="field-grid">
+          <div class="field">
+            <label for="propertyPrice">物件価格</label>
+            <div class="input-wrap">
+              <input id="propertyPrice" name="propertyPrice" type="text" inputmode="numeric" autocomplete="off" value="35,000,000">
+              <span>円</span>
+            </div>
+            <p class="field-error" id="propertyPrice-error"></p>
+          </div>
+
+          <div class="field">
+            <label for="ownFunds">自己資金</label>
+            <div class="input-wrap">
+              <input id="ownFunds" name="ownFunds" type="text" inputmode="numeric" autocomplete="off" value="5,000,000">
+              <span>円</span>
+            </div>
+            <p class="field-error" id="ownFunds-error"></p>
+          </div>
+        </div>
+
+        <section class="subsection">
+          <div class="subsection-head">
+            <h3>借入条件</h3>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">借入額</span>
+            <div class="toggle-group" role="radiogroup" aria-label="借入額の入力方法">
+              <label><input type="radio" name="loanAmountMode" value="auto" checked> 自動</label>
+              <label><input type="radio" name="loanAmountMode" value="manual"> 手入力</label>
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="loanAmount">借入額</label>
+              <div class="input-wrap">
+                <input id="loanAmount" name="loanAmount" type="text" inputmode="numeric" autocomplete="off" value="30,000,000">
+                <span>円</span>
+              </div>
+              <p class="field-hint">自動時は `物件価格 - 自己資金` で算出します。</p>
+              <p class="field-error" id="loanAmount-error"></p>
+            </div>
+
+            <div class="field">
+              <label for="annualInterestRate">金利</label>
+              <div class="input-wrap rate-wrap">
+                <input id="annualInterestRate" name="annualInterestRate" type="number" inputmode="decimal" min="0" max="20" step="0.001" value="0.875">
+                <span>%</span>
+              </div>
+              <p class="field-error" id="annualInterestRate-error"></p>
+            </div>
+
+            <div class="field">
+              <label for="loanYears">返済期間</label>
+              <div class="input-wrap rate-wrap">
+                <input id="loanYears" name="loanYears" type="number" inputmode="numeric" min="1" max="50" step="1" value="35">
+                <span>年</span>
+              </div>
+              <p class="field-error" id="loanYears-error"></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="subsection">
+          <div class="subsection-head">
+            <h3>諸費用</h3>
+            <p>仲介手数料は「物件価格 × 3% + 6万円 + 消費税」の簡易式です。</p>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">仲介手数料</span>
+            <div class="toggle-group" role="radiogroup" aria-label="仲介手数料の入力方法">
+              <label><input type="radio" name="brokerageFeeMode" value="auto" checked> 自動</label>
+              <label><input type="radio" name="brokerageFeeMode" value="manual"> 手入力</label>
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="brokerageFee">仲介手数料</label>
+              <div class="input-wrap">
+                <input id="brokerageFee" name="brokerageFee" type="text" inputmode="numeric" autocomplete="off" value="1,221,000">
+                <span>円</span>
+              </div>
+              <p class="field-error" id="brokerageFee-error"></p>
+            </div>
+
+            <div class="field">
+              <label for="registrationCost">登記費用</label>
+              <div class="input-wrap">
+                <input id="registrationCost" name="registrationCost" type="text" inputmode="numeric" autocomplete="off" value="300,000">
+                <span>円</span>
+              </div>
+              <p class="field-error" id="registrationCost-error"></p>
+            </div>
+
+            <div class="field">
+              <label for="loanFees">ローン費用</label>
+              <div class="input-wrap">
+                <input id="loanFees" name="loanFees" type="text" inputmode="numeric" autocomplete="off" value="660,000">
+                <span>円</span>
+              </div>
+              <p class="field-error" id="loanFees-error"></p>
+            </div>
+
+            <div class="field">
+              <label for="taxAdjustment">税金清算金</label>
+              <div class="input-wrap">
+                <input id="taxAdjustment" name="taxAdjustment" type="text" inputmode="numeric" autocomplete="off" value="120,000">
+                <span>円</span>
+              </div>
+              <p class="field-error" id="taxAdjustment-error"></p>
+            </div>
+
+            <div class="field">
+              <label for="reformCost">リフォーム費用</label>
+              <div class="input-wrap">
+                <input id="reformCost" name="reformCost" type="text" inputmode="numeric" autocomplete="off" value="0">
+                <span>円</span>
+              </div>
+              <p class="field-error" id="reformCost-error"></p>
+            </div>
+          </div>
+
+          <div class="extras">
+            <div class="subsection-head extras-head">
+              <h3>その他費用</h3>
+              <button class="add-button" type="button" id="add-extra-cost">＋ 項目追加</button>
+            </div>
+
+            <div id="extra-costs" class="extra-list" aria-live="polite"></div>
+          </div>
+        </section>
+      </form>
+
+      <section class="panel result-panel" aria-live="polite">
+        <div class="panel-heading">
+          <h2>計算結果</h2>
+          <p>概算結果です。実際の契約条件・金融機関条件とは異なる場合があります。</p>
+        </div>
+
+        <div class="summary-cards">
+          <article class="summary-card accent">
+            <span>総諸費用</span>
+            <strong id="totalCosts">0円</strong>
+          </article>
+
+          <article class="summary-card">
+            <span>総初期費用</span>
+            <strong id="totalInitialCost">0円</strong>
+          </article>
+
+          <article class="summary-card">
+            <span>必要自己資金</span>
+            <strong id="requiredCash">0円</strong>
+          </article>
+
+          <article class="summary-card" id="difference-card">
+            <span>自己資金との差額</span>
+            <strong id="fundDifference">0円</strong>
+            <small id="difference-note">自己資金と必要自己資金の差額です。</small>
+          </article>
+        </div>
+
+        <div class="payment-panel">
+          <div>
+            <p class="payment-label">月額返済額（元利均等）</p>
+            <strong id="monthlyPayment">0円</strong>
+          </div>
+          <p class="payment-note" id="payment-note">借入額・金利・返済期間をもとに計算しています。</p>
+        </div>
+
+        <div class="breakdown">
+          <h3>内訳</h3>
+          <dl class="breakdown-list">
+            <div><dt>物件価格</dt><dd id="displayPropertyPrice">0円</dd></div>
+            <div><dt>借入額</dt><dd id="displayLoanAmount">0円</dd></div>
+            <div><dt>仲介手数料</dt><dd id="displayBrokerageFee">0円</dd></div>
+            <div><dt>登記費用</dt><dd id="displayRegistrationCost">0円</dd></div>
+            <div><dt>ローン費用</dt><dd id="displayLoanFees">0円</dd></div>
+            <div><dt>税金清算金</dt><dd id="displayTaxAdjustment">0円</dd></div>
+            <div><dt>リフォーム費用</dt><dd id="displayReformCost">0円</dd></div>
+            <div><dt>その他費用</dt><dd id="displayOtherCosts">0円</dd></div>
+          </dl>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <template id="extra-cost-template">
+    <div class="extra-item">
+      <div class="field extra-name">
+        <label>項目名</label>
+        <input type="text" class="extra-cost-name" maxlength="40" placeholder="例：火災保険">
+      </div>
+      <div class="field extra-amount">
+        <label>金額</label>
+        <div class="input-wrap">
+          <input type="text" class="extra-cost-amount" inputmode="numeric" autocomplete="off" value="0">
+          <span>円</span>
+        </div>
+      </div>
+      <button type="button" class="remove-button" aria-label="その他費用を削除">削除</button>
+    </div>
+  </template>
+
+  <script src="./script.js"></script>
+</body>
+</html>

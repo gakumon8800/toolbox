@@ -330,7 +330,8 @@
       const customNames = {
         "rent-increase-check": "家賃値上げリスク診断",
         "home-rent-vs-buy": "賃貸 vs 購入シミュレーター",
-        "initial-cost-calculator": "初期費用計算ツール"
+        "initial-cost-calculator": "初期費用計算ツール",
+        "buy-cost-calculator": "不動産売買 諸費用計算ツール"
       };
 
       if (customNames[folderName]) {
@@ -347,7 +348,8 @@
       const descriptions = {
         "rent-increase-check": "現在賃料と提案条件から値上げリスクを整理するツール",
         "home-rent-vs-buy": "賃貸と持ち家のコスト比較を行うツール",
-        "initial-cost-calculator": "敷金・礼金・仲介手数料などから概算初期費用を算出"
+        "initial-cost-calculator": "敷金・礼金・仲介手数料などから概算初期費用を算出",
+        "buy-cost-calculator": "物件価格、借入額、諸費用、月額返済額をまとめて概算"
       };
 
       return descriptions[folderName] || "ツールを開く";
@@ -357,7 +359,8 @@
       const categories = {
         "rent-increase-check": "カテゴリ：賃貸管理",
         "home-rent-vs-buy": "カテゴリ：比較シミュレーション",
-        "initial-cost-calculator": "カテゴリ：賃貸契約"
+        "initial-cost-calculator": "カテゴリ：賃貸契約",
+        "buy-cost-calculator": "カテゴリ：売買 / 資金計画"
       };
 
       return categories[folderName] || `フォルダ名：${folderName}`;
