@@ -6,6 +6,8 @@
   <title>不動産売買 諸費用計算ツール | toolbox</title>
   <meta name="description" content="物件価格、借入額、仲介手数料、登記費用などから不動産売買の諸費用と初期費用を概算できるツールです。">
   <link rel="stylesheet" href="./style.css">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js" defer></script>
 </head>
 <body>
   <main class="page">
@@ -163,6 +165,29 @@
             <div id="extra-costs" class="extra-list" aria-live="polite"></div>
           </div>
         </section>
+
+        <section class="subsection">
+          <div class="subsection-head">
+            <h3>提出情報</h3>
+            <p>銀行提出用の概算書に反映されます。未入力でも出力できます。</p>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="companyName">会社名</label>
+              <div class="input-wrap">
+                <input id="companyName" name="companyName" type="text" autocomplete="organization" placeholder="例：株式会社○○不動産">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="staffName">担当者名</label>
+              <div class="input-wrap">
+                <input id="staffName" name="staffName" type="text" autocomplete="name" placeholder="例：山田 太郎">
+              </div>
+            </div>
+          </div>
+        </section>
       </form>
 
       <section class="panel result-panel" aria-live="polite">
@@ -215,6 +240,119 @@
             <div><dt>その他費用</dt><dd id="displayOtherCosts">0円</dd></div>
           </dl>
         </div>
+
+        <div class="export-panel">
+          <div class="subsection-head export-head">
+            <h3>提出用出力</h3>
+            <p>同じ概算書レイアウトから印刷PDF・生成PDF・JPGを書き出せます。</p>
+          </div>
+
+          <div class="export-actions">
+            <button type="button" class="export-button primary" id="print-pdf-button">PDF出力（印刷）</button>
+            <button type="button" class="export-button" id="pdf-canvas-button">PDF出力（生成）</button>
+            <button type="button" class="export-button" id="jpg-export-button">画像（JPG）出力</button>
+          </div>
+
+          <p class="export-note" id="export-status" aria-live="polite">
+            印刷PDFはブラウザの印刷機能、生成PDFとJPGは画面を画像化して保存します。
+          </p>
+        </div>
+      </section>
+    </section>
+
+    <section class="document-preview-wrap">
+      <div class="preview-header">
+        <div>
+          <h2>提出用プレビュー</h2>
+          <p>以下のA4レイアウトが、そのままPDF・画像出力に使用されます。</p>
+        </div>
+      </div>
+
+      <section class="submission-sheet" id="submission-sheet" aria-label="不動産売買 諸費用概算書">
+        <header class="submission-header">
+          <div>
+            <p class="submission-kicker">不動産売買 諸費用概算書</p>
+            <h2>銀行提出用 概算資料</h2>
+          </div>
+
+          <dl class="submission-meta">
+            <div>
+              <dt>作成日</dt>
+              <dd id="docCreatedDate">-</dd>
+            </div>
+            <div id="docCompanyRow">
+              <dt>会社名</dt>
+              <dd id="docCompanyName">-</dd>
+            </div>
+            <div id="docStaffRow">
+              <dt>担当者名</dt>
+              <dd id="docStaffName">-</dd>
+            </div>
+          </dl>
+        </header>
+
+        <section class="submission-summary">
+          <div class="submission-box">
+            <span>物件価格</span>
+            <strong id="docPropertyPrice">0円</strong>
+          </div>
+          <div class="submission-box">
+            <span>自己資金</span>
+            <strong id="docOwnFunds">0円</strong>
+          </div>
+          <div class="submission-box">
+            <span>借入額</span>
+            <strong id="docLoanAmount">0円</strong>
+          </div>
+          <div class="submission-box">
+            <span>月額返済額</span>
+            <strong id="docMonthlyPayment">0円</strong>
+          </div>
+        </section>
+
+        <section class="submission-table-wrap">
+          <h3>諸費用内訳</h3>
+          <table class="submission-table">
+            <thead>
+              <tr>
+                <th>項目</th>
+                <th>金額</th>
+              </tr>
+            </thead>
+            <tbody id="docBreakdownBody">
+              <tr><td>仲介手数料</td><td>0円</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="submission-totals">
+          <dl>
+            <div>
+              <dt>総諸費用</dt>
+              <dd id="docTotalCosts">0円</dd>
+            </div>
+            <div>
+              <dt>総初期費用</dt>
+              <dd id="docTotalInitialCost">0円</dd>
+            </div>
+            <div>
+              <dt>必要自己資金</dt>
+              <dd id="docRequiredCash">0円</dd>
+            </div>
+            <div>
+              <dt>自己資金との差額</dt>
+              <dd id="docFundDifference">0円</dd>
+            </div>
+          </dl>
+        </section>
+
+        <footer class="submission-footer">
+          <p id="docLoanSummary">借入条件: -</p>
+          <p>
+            注意事項: 本書は入力内容にもとづく概算資料です。登記費用、ローン諸費用、税金精算金、各種契約条件は
+            実際の見積・審査・契約条件により変動する場合があります。
+          </p>
+        </footer>
       </section>
     </section>
   </main>
