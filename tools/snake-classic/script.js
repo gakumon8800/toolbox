@@ -3,7 +3,7 @@ import {
   advanceState,
   createInitialState,
   queueDirection
-} from "/tools/snake-classic/snake-core.js";
+} from "./snake-core.js";
 
 const TICK_MS = 140;
 const STORAGE_KEY = "snake-classic-best-score";
@@ -24,16 +24,25 @@ let tickHandle = null;
 let bestScore = loadBestScore();
 
 function loadBestScore() {
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  const parsed = Number(stored);
-  return Number.isFinite(parsed) ? parsed : 0;
+  try {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    const parsed = Number(stored);
+    return Number.isFinite(parsed) ? parsed : 0;
+  } catch {
+    return 0;
+  }
 }
 
 function saveBestScore(score) {
-  window.localStorage.setItem(STORAGE_KEY, String(score));
+  try {
+    window.localStorage.setItem(STORAGE_KEY, String(score));
+  } catch {
+    // Ignore storage failures so gameplay still works.
+  }
 }
 
 function ensureBoardCells() {
+  boardElement.replaceChildren();
   const totalCells = GRID_SIZE * GRID_SIZE;
   const fragment = document.createDocumentFragment();
 
@@ -288,6 +297,14 @@ function bindEvents() {
   });
 }
 
-ensureBoardCells();
-bindEvents();
-render();
+function init() {
+  if (!boardElement) {
+    return;
+  }
+
+  ensureBoardCells();
+  bindEvents();
+  render();
+}
+
+init();

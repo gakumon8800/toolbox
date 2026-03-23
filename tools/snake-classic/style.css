@@ -144,6 +144,8 @@ body {
   display: grid;
   grid-template-columns: repeat(16, minmax(0, 1fr));
   gap: 3px;
+  width: min(100%, 560px);
+  aspect-ratio: 1 / 1;
   padding: 12px;
   border-radius: 20px;
   background: #dde6ea;
@@ -151,6 +153,8 @@ body {
   user-select: none;
   touch-action: manipulation;
   outline: none;
+  margin: 0 auto;
+  align-content: stretch;
 }
 
 .cell {
@@ -176,6 +180,11 @@ body {
   gap: 10px;
   flex-wrap: wrap;
   margin-top: 16px;
+}
+
+.game-panel {
+  display: flex;
+  flex-direction: column;
 }
 
 .action-button,
