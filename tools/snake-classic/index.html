@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Snake Classic | toolbox</title>
-  <meta name="description" content="キーボードとタップで遊べるシンプルなクラシック Snake ゲーム">
+  <meta name="description" content="A simple classic Snake game playable with keyboard or touch controls.">
   <link rel="stylesheet" href="/tools/snake-classic/style.css">
 </head>
 <body>
   <main class="page">
-    <a class="back-link" href="/">← ツール一覧に戻る</a>
+    <a class="back-link" href="/">Back to tools</a>
 
     <section class="hero">
       <p class="hero-badge">Mini Game</p>
       <h1>Snake Classic</h1>
       <p class="hero-text">
-        昔ながらの Snake をシンプルに遊べるミニゲームです。
-        矢印キーまたは WASD で方向転換し、食べ物を取るとスコアが伸びます。
+        A simple version of the classic Snake game.
+        Use arrow keys or WASD to move, eat food, and grow your score.
       </p>
     </section>
 
@@ -25,7 +25,7 @@
         <div class="panel-heading">
           <div>
             <h2>Game</h2>
-            <p id="status-text">Enter または「スタート」で開始</p>
+            <p id="status-text">Press Enter or Start to begin</p>
           </div>
           <div class="status-chip" id="status-chip">READY</div>
         </div>
@@ -39,9 +39,9 @@
         ></div>
 
         <div class="controls-row">
-          <button type="button" class="action-button primary" id="start-button">スタート</button>
-          <button type="button" class="action-button" id="pause-button">一時停止</button>
-          <button type="button" class="action-button" id="restart-button">リスタート</button>
+          <button type="button" class="action-button primary" id="start-button">Start</button>
+          <button type="button" class="action-button" id="pause-button">Pause</button>
+          <button type="button" class="action-button" id="restart-button">Restart</button>
         </div>
       </section>
 
@@ -65,21 +65,21 @@
         <section class="help-box">
           <h2>Controls</h2>
           <ul>
-            <li>移動: 矢印キー / WASD</li>
-            <li>開始: Enter</li>
-            <li>一時停止: Space</li>
-            <li>ゲームオーバー後: Enter またはリスタート</li>
+            <li>Move: Arrow keys / WASD</li>
+            <li>Start: Enter</li>
+            <li>Pause: Space</li>
+            <li>After game over: Enter or Restart</li>
           </ul>
         </section>
 
         <section class="help-box mobile-controls">
           <h2>Touch Controls</h2>
           <div class="dpad">
-            <button type="button" class="dpad-button" data-direction="up" aria-label="上">▲</button>
+            <button type="button" class="dpad-button" data-direction="up" aria-label="Up">U</button>
             <div class="dpad-middle">
-              <button type="button" class="dpad-button" data-direction="left" aria-label="左">◀</button>
-              <button type="button" class="dpad-button" data-direction="down" aria-label="下">▼</button>
-              <button type="button" class="dpad-button" data-direction="right" aria-label="右">▶</button>
+              <button type="button" class="dpad-button" data-direction="left" aria-label="Left">L</button>
+              <button type="button" class="dpad-button" data-direction="down" aria-label="Down">D</button>
+              <button type="button" class="dpad-button" data-direction="right" aria-label="Right">R</button>
             </div>
           </div>
         </section>

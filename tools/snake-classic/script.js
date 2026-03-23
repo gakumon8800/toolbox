@@ -49,6 +49,7 @@ function ensureBoardCells() {
 
 function renderBoard() {
   const cells = boardElement.children;
+
   for (const cell of cells) {
     cell.className = "cell";
   }
@@ -56,6 +57,7 @@ function renderBoard() {
   state.snake.forEach((segment, index) => {
     const cellIndex = segment.y * GRID_SIZE + segment.x;
     const cell = cells[cellIndex];
+
     if (!cell) {
       return;
     }
@@ -69,7 +71,9 @@ function renderBoard() {
   if (state.food) {
     const foodIndex = state.food.y * GRID_SIZE + state.food.x;
     const foodCell = cells[foodIndex];
-    foodCell?.classList.add("food");
+    if (foodCell) {
+      foodCell.classList.add("food");
+    }
   }
 }
 
@@ -83,33 +87,33 @@ function renderMeta() {
   if (state.status === "playing") {
     statusChip.classList.add("playing");
     statusChip.textContent = "PLAYING";
-    statusText.textContent = "食べ物を取ってスコアを伸ばしましょう";
+    statusText.textContent = "Eat food and keep moving.";
     return;
   }
 
   if (state.status === "paused") {
     statusChip.classList.add("paused");
     statusChip.textContent = "PAUSED";
-    statusText.textContent = "Space または「スタート」で再開";
+    statusText.textContent = "Press Space or Start to resume.";
     return;
   }
 
   if (state.status === "over") {
     statusChip.classList.add("over");
     statusChip.textContent = "GAME OVER";
-    statusText.textContent = "壁か自分にぶつかりました。Enter またはリスタートで再挑戦";
+    statusText.textContent = "You hit a wall or yourself. Press Enter or Restart.";
     return;
   }
 
   if (state.status === "won") {
     statusChip.classList.add("playing");
     statusChip.textContent = "CLEARED";
-    statusText.textContent = "盤面を埋めました。リスタートで最初から遊べます";
+    statusText.textContent = "Board cleared. Press Restart to play again.";
     return;
   }
 
   statusChip.textContent = "READY";
-  statusText.textContent = "Enter または「スタート」で開始";
+  statusText.textContent = "Press Enter or Start to begin.";
 }
 
 function render() {
