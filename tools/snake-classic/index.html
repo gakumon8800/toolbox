@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snake Classic | toolbox</title>
+  <meta name="description" content="キーボードとタップで遊べるシンプルなクラシック Snake ゲーム">
+  <link rel="stylesheet" href="/tools/snake-classic/style.css">
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="/">← ツール一覧に戻る</a>
+
+    <section class="hero">
+      <p class="hero-badge">Mini Game</p>
+      <h1>Snake Classic</h1>
+      <p class="hero-text">
+        昔ながらの Snake をシンプルに遊べるミニゲームです。
+        矢印キーまたは WASD で方向転換し、食べ物を取るとスコアが伸びます。
+      </p>
+    </section>
+
+    <section class="layout">
+      <section class="panel game-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Game</h2>
+            <p id="status-text">Enter または「スタート」で開始</p>
+          </div>
+          <div class="status-chip" id="status-chip">READY</div>
+        </div>
+
+        <div
+          id="game-board"
+          class="board"
+          role="grid"
+          aria-label="Snake game board"
+          tabindex="0"
+        ></div>
+
+        <div class="controls-row">
+          <button type="button" class="action-button primary" id="start-button">スタート</button>
+          <button type="button" class="action-button" id="pause-button">一時停止</button>
+          <button type="button" class="action-button" id="restart-button">リスタート</button>
+        </div>
+      </section>
+
+      <aside class="panel side-panel">
+        <div class="score-card">
+          <span>Score</span>
+          <strong id="score-value">0</strong>
+        </div>
+
+        <div class="meta-grid">
+          <article class="meta-card">
+            <span>Length</span>
+            <strong id="length-value">3</strong>
+          </article>
+          <article class="meta-card">
+            <span>Best</span>
+            <strong id="best-value">0</strong>
+          </article>
+        </div>
+
+        <section class="help-box">
+          <h2>Controls</h2>
+          <ul>
+            <li>移動: 矢印キー / WASD</li>
+            <li>開始: Enter</li>
+            <li>一時停止: Space</li>
+            <li>ゲームオーバー後: Enter またはリスタート</li>
+          </ul>
+        </section>
+
+        <section class="help-box mobile-controls">
+          <h2>Touch Controls</h2>
+          <div class="dpad">
+            <button type="button" class="dpad-button" data-direction="up" aria-label="上">▲</button>
+            <div class="dpad-middle">
+              <button type="button" class="dpad-button" data-direction="left" aria-label="左">◀</button>
+              <button type="button" class="dpad-button" data-direction="down" aria-label="下">▼</button>
+              <button type="button" class="dpad-button" data-direction="right" aria-label="右">▶</button>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <script type="module" src="/tools/snake-classic/script.js"></script>
+</body>
+</html>
