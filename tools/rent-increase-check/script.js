@@ -1,4 +1,4 @@
-﻿const form = document.getElementById('risk-form');
+const form = document.getElementById('risk-form');
 const badge = document.getElementById('badge');
 const scoreValue = document.getElementById('scoreValue');
 const scoreText = document.getElementById('scoreText');
@@ -11,6 +11,24 @@ const meter = document.getElementById('meter');
 const lead = document.getElementById('lead');
 const formError = document.getElementById('formError');
 const increaseRateCard = increaseRate.closest('.mini');
+
+const shareLabel = document.getElementById('shareLabel');
+const shareScore = document.getElementById('shareScore');
+const shareHeadline = document.getElementById('shareHeadline');
+const shareSubline = document.getElementById('shareSubline');
+const shareGapAmount = document.getElementById('shareGapAmount');
+const shareGapCaption = document.getElementById('shareGapCaption');
+const shareProposedRent = document.getElementById('shareProposedRent');
+const shareCurrentRent = document.getElementById('shareCurrentRent');
+const shareIncreaseRate = document.getElementById('shareIncreaseRate');
+const shareVerdict = document.getElementById('shareVerdict');
+const shareOnX = document.getElementById('shareOnX');
+const downloadCard = document.getElementById('downloadCard');
+const copyShareText = document.getElementById('copyShareText');
+const shareCopyFeedback = document.getElementById('shareCopyFeedback');
+const shareCanvas = document.getElementById('shareCanvas');
+
+let latestShareState = null;
 
 const fieldRules = {
   currentRent: {
@@ -38,6 +56,10 @@ const fieldRules = {
 
 function formatYen(value) {
   return new Intl.NumberFormat('ja-JP').format(Math.round(value)) + '円';
+}
+
+function formatCompactYen(value) {
+  return '¥' + new Intl.NumberFormat('ja-JP').format(Math.round(value));
 }
 
 function setFieldError(name, message = '') {
@@ -210,12 +232,204 @@ function evaluateRisk(values) {
     level,
     tone,
     message,
+    currentRent,
+    proposedRent,
+    marketRent,
     requestedIncreaseRate,
     marketDifference,
     reasons,
     positives,
     negatives
   };
+}
+
+function buildShareData(result) {
+  const marketGapAbs = Math.abs(result.marketDifference);
+  const unfairnessScoreBase = (result.marketDifference / result.marketRent) * 100;
+  const increaseShock = Math.max(0, result.requestedIncreaseRate - 5) * 2.2;
+  const legalPushback = Math.max(0, 70 - result.score) * 0.55;
+  const unfairnessScore = Math.max(0, Math.min(100, Math.round(unfairnessScoreBase * 3.6 + increaseShock + legalPushback)));
+
+  let label = '相場どおり';
+  let headline = 'この値上げ、まだ普通';
+  let subline = '数字上は大きな違和感が少なく、感情的な引っかかりは強くありません。';
+  let verdict = '相場から大きく外れていないため、Xでの反応は「妥当寄り」になりそうです。';
+
+  if (result.marketDifference >= result.marketRent * 0.12 || result.requestedIncreaseRate >= 18) {
+    label = 'かなり高すぎる';
+    headline = 'この値上げ、正直かなり強気';
+    subline = '相場より大きく高く、見た人が「それは高い」と反応しやすいラインです。';
+    verdict = '「これ本当に普通？」と聞きたくなる水準。共感が集まりやすいカードです。';
+  } else if (result.marketDifference >= result.marketRent * 0.05 || result.requestedIncreaseRate >= 10) {
+    label = 'ちょい高い';
+    headline = 'この値上げ、ちょっと高くない？';
+    subline = '相場より上に出ており、納得感よりモヤモヤが先に来やすい結果です。';
+    verdict = '高すぎるとまでは言い切れなくても、「モヤる」投稿として広がりやすい帯です。';
+  } else if (result.marketDifference <= -result.marketRent * 0.1) {
+    label = '意外と安い';
+    headline = 'この値上げ、むしろ相場より安い';
+    subline = '驚くほど強気ではなく、見た人が「それなら意外」と感じやすい結果です。';
+    verdict = '炎上よりも「想像より安い」の驚きでシェアされやすいカードです。';
+  } else if (result.marketDifference <= 0) {
+    label = '相場内';
+    headline = 'この値上げ、相場の中';
+    subline = '相場と大きくズレておらず、感情よりも条件整理に向いた結果です。';
+    verdict = '過度に煽らず、冷静な比較材料として見せやすいカードです。';
+  }
+
+  const shareText = [
+    `家賃値上げモヤモヤ診断`,
+    `${headline}`,
+    `提示家賃 ${formatYen(result.proposedRent)} / 現在家賃 ${formatYen(result.currentRent)}`,
+    `相場との差 ${result.marketDifference >= 0 ? '+' : '-'}${formatYen(marketGapAbs)} ・ 値上げ率 ${Math.max(0, result.requestedIncreaseRate).toFixed(1)}%`,
+    `理不尽度 ${unfairnessScore}/100`,
+    '#家賃 #賃貸 #不動産`
+  ].join('\n');
+
+  return {
+    unfairnessScore,
+    label,
+    headline,
+    subline,
+    verdict,
+    shareText
+  };
+}
+
+function drawRoundedRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
+
+function fillRoundedRect(ctx, x, y, width, height, radius, color) {
+  drawRoundedRect(ctx, x, y, width, height, radius);
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+function wrapText(ctx, text, maxWidth) {
+  const chars = Array.from(text);
+  const lines = [];
+  let line = '';
+
+  chars.forEach((char) => {
+    const testLine = line + char;
+    if (ctx.measureText(testLine).width > maxWidth && line) {
+      lines.push(line);
+      line = char;
+    } else {
+      line = testLine;
+    }
+  });
+
+  if (line) {
+    lines.push(line);
+  }
+
+  return lines;
+}
+
+function renderShareCanvas(result, shareData) {
+  const ctx = shareCanvas.getContext('2d');
+  const width = shareCanvas.width;
+  const height = shareCanvas.height;
+
+  ctx.clearRect(0, 0, width, height);
+
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
+  gradient.addColorStop(0, '#111827');
+  gradient.addColorStop(0.55, '#7c2d12');
+  gradient.addColorStop(1, '#f97316');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.08)';
+  ctx.beginPath();
+  ctx.arc(width - 110, 110, 160, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(120, height - 70, 120, 0, Math.PI * 2);
+  ctx.fill();
+
+  fillRoundedRect(ctx, 56, 54, 250, 50, 25, 'rgba(255,255,255,0.12)');
+  ctx.fillStyle = '#fff7ed';
+  ctx.font = '700 24px "Yu Gothic", sans-serif';
+  ctx.fillText(shareData.label, 82, 87);
+
+  ctx.font = '800 26px "Yu Gothic", sans-serif';
+  ctx.fillStyle = '#ffe7cf';
+  ctx.fillText(`理不尽度 ${shareData.unfairnessScore} / 100`, width - 360, 86);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '800 60px "Yu Gothic", sans-serif';
+  wrapText(ctx, shareData.headline, 820).slice(0, 2).forEach((line, index) => {
+    ctx.fillText(line, 72, 185 + index * 70);
+  });
+
+  ctx.font = '700 96px "Yu Gothic", sans-serif';
+  ctx.fillStyle = '#fff7ed';
+  ctx.fillText(
+    `${result.marketDifference >= 0 ? '+' : '-'}${formatCompactYen(Math.abs(result.marketDifference)).replace('¥', '')}`,
+    72,
+    366
+  );
+
+  ctx.font = '700 28px "Yu Gothic", sans-serif';
+  ctx.fillStyle = 'rgba(255,247,237,0.84)';
+  ctx.fillText('相場との差額', 76, 405);
+
+  fillRoundedRect(ctx, 70, 448, 300, 110, 22, 'rgba(17,24,39,0.22)');
+  fillRoundedRect(ctx, 392, 448, 300, 110, 22, 'rgba(17,24,39,0.22)');
+  fillRoundedRect(ctx, 714, 448, 300, 110, 22, 'rgba(17,24,39,0.22)');
+
+  ctx.fillStyle = 'rgba(255,247,237,0.72)';
+  ctx.font = '700 20px "Yu Gothic", sans-serif';
+  ctx.fillText('提示家賃', 96, 484);
+  ctx.fillText('現在家賃', 418, 484);
+  ctx.fillText('値上げ率', 740, 484);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '800 38px "Yu Gothic", sans-serif';
+  ctx.fillText(formatCompactYen(result.proposedRent), 96, 533);
+  ctx.fillText(formatCompactYen(result.currentRent), 418, 533);
+  ctx.fillText(`${Math.max(0, result.requestedIncreaseRate).toFixed(1)}%`, 740, 533);
+
+  ctx.fillStyle = 'rgba(255,247,237,0.82)';
+  ctx.font = '700 22px "Yu Gothic", sans-serif';
+  wrapText(ctx, shareData.verdict, 1030).slice(0, 2).forEach((line, index) => {
+    ctx.fillText(line, 72, 604 + index * 28);
+  });
+}
+
+function updateShareUi(result) {
+  const shareData = buildShareData(result);
+  latestShareState = {
+    result,
+    shareData
+  };
+
+  shareLabel.textContent = shareData.label;
+  shareScore.textContent = `理不尽度 ${shareData.unfairnessScore} / 100`;
+  shareHeadline.textContent = shareData.headline;
+  shareSubline.textContent = shareData.subline;
+  shareGapAmount.textContent = `${result.marketDifference >= 0 ? '+' : '-'}${formatYen(Math.abs(result.marketDifference))}`;
+  shareGapCaption.textContent = result.marketDifference >= 0 ? '相場より高い金額' : '相場より安い金額';
+  shareProposedRent.textContent = formatYen(result.proposedRent);
+  shareCurrentRent.textContent = formatYen(result.currentRent);
+  shareIncreaseRate.textContent = `${Math.max(0, result.requestedIncreaseRate).toFixed(1)}%`;
+  shareVerdict.textContent = shareData.verdict;
+  shareOnX.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareData.shareText)}`;
+
+  renderShareCanvas(result, shareData);
 }
 
 function render(result) {
@@ -239,6 +453,8 @@ function render(result) {
     item.textContent = reason;
     reasonList.appendChild(item);
   });
+
+  updateShareUi(result);
 }
 
 function submitCalculation() {
@@ -259,6 +475,30 @@ function submitCalculation() {
   render(evaluateRisk(values));
 }
 
+async function copyShareTextToClipboard() {
+  if (!latestShareState) {
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(latestShareState.shareData.shareText);
+    shareCopyFeedback.textContent = '投稿文をコピーしました。';
+  } catch (error) {
+    shareCopyFeedback.textContent = 'コピーに失敗しました。手動でXボタンから投稿してください。';
+  }
+}
+
+function downloadShareCard() {
+  if (!latestShareState) {
+    return;
+  }
+
+  const link = document.createElement('a');
+  link.href = shareCanvas.toDataURL('image/png');
+  link.download = 'rent-increase-share-card.png';
+  link.click();
+}
+
 form.addEventListener('submit', (event) => {
   event.preventDefault();
   submitCalculation();
@@ -266,10 +506,13 @@ form.addEventListener('submit', (event) => {
 
 Object.keys(fieldRules).forEach((name) => {
   form.querySelector(`[name="${name}"]`)?.addEventListener('input', () => {
-    if (form.querySelector(`.field.invalid`)) {
+    if (form.querySelector('.field.invalid')) {
       submitCalculation();
     }
   });
 });
+
+downloadCard.addEventListener('click', downloadShareCard);
+copyShareText.addEventListener('click', copyShareTextToClipboard);
 
 submitCalculation();
