@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>原状回復費用の概算ツール | toolbox</title>
+  <meta name="description" content="退去前に原状回復費用の目安と確認ポイントを整理する借主向けツールです。">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="../../">← ツール一覧に戻る</a>
+
+    <section class="hero card">
+      <p class="eyebrow">退去前の費用感チェック</p>
+      <h1>原状回復費用の概算ツール</h1>
+      <p class="hero-text">
+        退去前に、借主負担となりやすい項目か、どの程度の費用感になりそうかを整理するための概算ツールです。
+        実際の請求額を確定するものではなく、契約書・特約・入居年数・現地確認で結果は変わります。
+      </p>
+      <div class="hero-points">
+        <div class="mini-note">通常損耗・経年劣化は借主負担とならない場合があります</div>
+        <div class="mini-note">故意・過失、善管注意義務違反による破損・汚損は借主負担になりやすい傾向があります</div>
+        <div class="mini-note strong">ガラス割れ・水漏れ・設備破損・うっかり破損は、火災保険や家財保険の確認も重要です</div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <form id="estimator-form" class="card form-card" novalidate>
+        <div class="section-head">
+          <h2>入力項目</h2>
+          <p>分かる範囲で選んでください。迷う場合は、近い内容を選べば大丈夫です。</p>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="tenancyPeriod">入居期間</label>
+            <select id="tenancyPeriod" name="tenancyPeriod">
+              <option value="under1">1年未満</option>
+              <option value="1to3">1年以上3年未満</option>
+              <option value="3to6">3年以上6年未満</option>
+              <option value="6plus">6年以上</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="area">該当箇所</label>
+            <select id="area" name="area"></select>
+          </div>
+
+          <div class="field full">
+            <label for="condition">状況</label>
+            <select id="condition" name="condition"></select>
+            <p class="hint" id="conditionHint">該当箇所に応じた状況を表示します。</p>
+          </div>
+
+          <div class="field">
+            <label for="cause">原因の認識</label>
+            <select id="cause" name="cause">
+              <option value="normal">通常使用の範囲だと思う</option>
+              <option value="accident">うっかり破損した</option>
+              <option value="self">自分または同居人がつけた</option>
+              <option value="family">子ども・来客・ペットが原因</option>
+              <option value="unknown">よく分からない</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="smoking">喫煙</label>
+            <select id="smoking" name="smoking">
+              <option value="no">なし</option>
+              <option value="yes">あり</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="pet">ペット</label>
+            <select id="pet" name="pet">
+              <option value="no">なし</option>
+              <option value="yes">あり</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="specialClause">特約の確認状況</label>
+            <select id="specialClause" name="specialClause">
+              <option value="unchecked">契約書の特約を確認していない</option>
+              <option value="checked">クリーニング費用等の特約を確認した</option>
+              <option value="unclear">内容がよく分からない</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="inline-alert">
+          クリーニング費用や鍵交換費用は、契約上の特約で扱いが変わることがあります。契約書の記載もあわせて確認してください。
+        </div>
+
+        <button type="submit" class="primary-button">概算を確認する</button>
+      </form>
+
+      <section class="card result-card" aria-live="polite">
+        <div class="section-head">
+          <h2>概算結果</h2>
+          <p>請求額の確定ではなく、退去前の整理用の目安です。</p>
+        </div>
+
+        <div class="result-stack">
+          <div class="result-box accent">
+            <span class="result-label">概算レンジ</span>
+            <strong id="estimateRange">0円〜10,000円程度</strong>
+          </div>
+
+          <div class="result-box">
+            <span class="result-label">借主負担の可能性</span>
+            <strong id="liabilityLevel">内容によっては借主負担となる可能性があります</strong>
+          </div>
+
+          <div class="result-box">
+            <span class="result-label">判断理由</span>
+            <p id="reasonText" class="result-text"></p>
+          </div>
+
+          <div class="result-box insurance-box">
+            <span class="result-label">火災保険・家財保険の確認</span>
+            <p id="insuranceText" class="result-text"></p>
+          </div>
+
+          <div class="result-box">
+            <span class="result-label">退去前チェックリスト</span>
+            <ul id="checklist" class="checklist"></ul>
+          </div>
+
+          <div class="result-box caution-box">
+            <span class="result-label">注意事項</span>
+            <ul class="notice-list">
+              <li>この結果は概算の目安であり、請求額を確定するものではありません</li>
+              <li>実際の負担は契約内容・特約・使用状況・経過年数・現地確認結果等により異なります</li>
+              <li>通常損耗や経年劣化は借主負担とならない場合があります</li>
+              <li>クリーニング費用や鍵交換費用などは契約上の特約により扱いが異なる場合があります</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
