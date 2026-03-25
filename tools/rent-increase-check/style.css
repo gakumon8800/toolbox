@@ -10,10 +10,10 @@
 .site-footer {
   margin-top: auto;
   padding: 20px 16px 28px;
-  border-top: 1px solid rgba(31, 41, 51, 0.12);
+  border-top: 1px solid #d8e1e5;
   text-align: center;
-  color: #6b7280;
-  background: rgba(255, 250, 242, 0.45);
+  color: #718096;
+  background: transparent;
 }
 
 .site-footer__disclaimer {
@@ -33,18 +33,18 @@
 }
 
 .site-footer__links span {
-  color: #52606d;
+  color: #5b6b76;
   font-weight: 700;
 }
 
 .site-footer__links a {
-  color: #52606d;
+  color: #008080;
   text-decoration: none;
 }
 
 .site-footer__links a:hover,
 .site-footer__links a:focus-visible {
-  color: #0f766e;
+  color: #008080;
   text-decoration: underline;
 }
 
