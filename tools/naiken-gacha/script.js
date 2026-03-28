@@ -16,12 +16,12 @@
     vibe: ['clean and refined look', 'natural and approachable look', 'calm and composed atmosphere', 'slightly cute and soft impression', 'urban and polished mood'],
     bodyType: ['slim build', 'average build', 'slightly delicate frame'],
     outfit: [
-      'clean casual outfit',
-      'simple everyday outfit',
-      'knit top and skirt',
-      'shirt and tailored pants',
-      'modest one-piece dress',
-      'light jacket with neat outing wear'
+      { label: 'きれいめカジュアル', value: 'clean casual outfit' },
+      { label: 'シンプルな私服', value: 'simple everyday outfit' },
+      { label: 'ニット＋スカート', value: 'knit top and skirt' },
+      { label: 'シャツ＋きれいめパンツ', value: 'shirt and tailored pants' },
+      { label: '上品なワンピース', value: 'modest one-piece dress' },
+      { label: '軽いジャケットの外出着', value: 'light jacket with neat outing wear' }
     ]
   };
 
@@ -315,7 +315,7 @@
 
     var tone = getToneByValue(filters.tone);
     var hairStyle = filters.hairStyle || randomItem(appearanceOptions.hairStyle);
-    var outfit = filters.outfit || randomItem(appearanceOptions.outfit);
+    var outfit = filters.outfit || randomItem(appearanceOptions.outfit).value;
     var appearanceLine = [
       hairStyle,
       randomItem(appearanceOptions.hairColor),
