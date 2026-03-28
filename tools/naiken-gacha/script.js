@@ -101,9 +101,10 @@
   ];
 
   var negativePrompt = [
-    'text', 'subtitles', 'captions', 'watermark', 'logo', 'brand name', 'UI elements', 'interface',
-    'buttons', 'icons', 'social media overlay', 'Japanese text', 'English text', 'signage', 'poster text',
-    'overlay text', 'chinese text', 'symbols', 'arrows',
+    'text', 'letters', 'numbers', 'symbols', 'signage', 'signs', 'labels', 'captions', 'subtitles',
+    'watermark', 'logo', 'UI', 'interface', 'buttons', 'icons', 'poster', 'notice', 'instructions',
+    'elevator panel text', 'door signs', 'brand name', 'social media overlay', 'Japanese text', 'English text',
+    'poster text', 'overlay text', 'chinese text', 'arrows',
     'portrait close-up', 'face close-up', 'beauty shot', 'glamour shot',
     'idol style', 'fashion photoshoot', 'seductive pose', 'exaggerated femininity', 'cleavage',
     'deep neckline', 'exposed shoulders', 'mini skirt', 'tight revealing clothes', 'lingerie-like styling',
@@ -265,7 +266,7 @@
   function buildPrompt(data) {
     return [
       '### Prompt (' + data.theme + ')',
-      data.scene.opening + ', ' + data.action.phrase + ', ' + data.scene.english + ', ' + data.scene.environment + ', ' + data.scene.details + ', ' + data.shot.phrase + ', environment clearly visible, room layout visible, fixtures and surroundings visible, one scene only, one action only, not a portrait composition, no text, no watermark, no UI, no subtitles, no logo, clean image without any overlay',
+      data.scene.opening + ', ' + data.action.phrase + ', ' + data.scene.english + ', ' + data.scene.environment + ', ' + data.scene.details + ', ' + data.shot.phrase + ', environment clearly visible, room layout visible, fixtures and surroundings visible, one scene only, one action only, not a portrait composition, no text, no watermark, no UI, no subtitles, no logo, plain walls, no signage, no labels, no text anywhere, clean surfaces, clean image without any overlay',
       '',
       '### Appearance:',
       data.appearanceLine + ', no emphasis on beauty or body, no celebrity resemblance',
@@ -277,10 +278,10 @@
       data.action.phrase + ', natural posture, understated emotion, documentary-like movement',
       '',
       '### Scene:',
-      data.scene.english + ', ' + data.scene.environment + ', ' + data.scene.details,
+      data.scene.english + ', ' + data.scene.environment + ', ' + data.scene.details + ', plain walls, no signage, no labels, no text anywhere, clean surfaces',
       '',
       '### Style:',
-      data.tone.style + ', realistic rental property photography, environment-focused composition, room clearly visible, subject not dominating the frame, room and fixtures visible, mid shot to full body framing, no text, no watermark, no UI, no subtitles, no logo, clean image without any overlay',
+      data.tone.style + ', realistic rental property photography, environment-focused composition, room clearly visible, subject not dominating the frame, room and fixtures visible, mid shot to full body framing, no text, no watermark, no UI, no subtitles, no logo, plain walls, no signage, no labels, no text anywhere, clean surfaces, clean image without any overlay',
       '',
       '### Consistency:',
       data.tone.consistency + ', same person within the scene, coherent body proportions, single scene only, one action only, environment remains visible',
