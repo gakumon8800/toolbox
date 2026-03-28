@@ -90,14 +90,14 @@
   ];
 
   var shots = [
-    { value: 'front', label: '正面', phrase: 'front view, mid shot, environment clearly visible, not a portrait composition' },
-    { value: 'diagonal-front', label: '斜め前', phrase: 'three-quarter front view, mid shot to full body framing, room layout visible, scene-focused composition' },
-    { value: 'from-side', label: '横から', phrase: 'side view, mid shot to full body framing, fixtures and surroundings visible, not a portrait composition' },
-    { value: 'from-back', label: '後ろから', phrase: 'back view, mid shot to full body framing, room layout visible, scene-focused composition' },
-    { value: 'wide', label: 'やや引き', phrase: 'slightly wide composition, full body or near full body framing, environment clearly visible, room layout visible' },
-    { value: 'medium', label: '中距離', phrase: 'medium-distance framing, mid shot, fixtures and surroundings visible, not a portrait composition' },
-    { value: 'full-body', label: '全身', phrase: 'full-body framing, environment clearly visible, room layout visible, scene-focused composition' },
-    { value: 'half-body', label: '半身', phrase: 'mid shot framing, surroundings clearly visible, fixtures visible, not a face-focused composition' }
+    { value: 'front', label: '正面', phrase: 'front view, mid shot, environment clearly visible, not a portrait composition', naturalPhrase: 'a candid front-facing mid shot, not looking at the camera' },
+    { value: 'diagonal-front', label: '斜め前', phrase: 'three-quarter front view, mid shot to full body framing, room layout visible, scene-focused composition', naturalPhrase: 'a candid three-quarter view with mid shot to full body framing, not looking at the camera' },
+    { value: 'from-side', label: '横から', phrase: 'side view, mid shot to full body framing, fixtures and surroundings visible, not a portrait composition', naturalPhrase: 'a side-angle candid shot with the space clearly visible' },
+    { value: 'from-back', label: '後ろから', phrase: 'back view, mid shot to full body framing, room layout visible, scene-focused composition', naturalPhrase: 'a back-view candid shot that emphasizes the room over the person' },
+    { value: 'wide', label: 'やや引き', phrase: 'slightly wide composition, full body or near full body framing, environment clearly visible, room layout visible', naturalPhrase: 'a wide-angle candid shot showing more of the space than the person' },
+    { value: 'medium', label: '中距離', phrase: 'medium-distance framing, mid shot, fixtures and surroundings visible, not a portrait composition', naturalPhrase: 'a medium-distance candid shot with the fixtures and surroundings clearly visible' },
+    { value: 'full-body', label: '全身', phrase: 'full-body framing, environment clearly visible, room layout visible, scene-focused composition', naturalPhrase: 'a full-body candid framing that still keeps the room dominant' },
+    { value: 'half-body', label: '半身', phrase: 'mid shot framing, surroundings clearly visible, fixtures visible, not a face-focused composition', naturalPhrase: 'a mid shot that keeps the surroundings visible and avoids portrait framing' }
   ];
 
   var negativePrompt = [
@@ -263,32 +263,55 @@
     };
   }
 
+  function pickVariant(items) {
+    return randomItem(items);
+  }
+
   function buildPrompt(data) {
+    var openingSentence = pickVariant([
+      data.scene.opening + ' in the ' + data.scene.english + ', where a young woman is ' + data.action.phrase + '.',
+      'A quiet everyday scene in the ' + data.scene.english + ', with a young woman ' + data.action.phrase + '.',
+      'A natural everyday moment in the ' + data.scene.english + ', showing a young woman ' + data.action.phrase + '.'
+    ]);
+
+    var framingSentence = pickVariant([
+      'The camera uses ' + data.shot.naturalPhrase + ', showing more of the space than the person and keeping the composition environment-focused.',
+      'It is framed as ' + data.shot.naturalPhrase + ', with the room clearly visible and the subject not dominating the frame.',
+      'The image is captured as ' + data.shot.naturalPhrase + ', so the layout, fixtures, and surroundings remain more important than the person.'
+    ]);
+
+    var environmentSentence = pickVariant([
+      'The atmosphere feels quiet, natural, and lived-in, with ' + data.scene.environment + ' and ' + data.scene.details + '.',
+      'The space feels calm and everyday, with ' + data.scene.environment + ' and ' + data.scene.details + '.',
+      'It should feel like an ordinary lived-in interior, with ' + data.scene.environment + ' and ' + data.scene.details + '.'
+    ]);
+
+    var appearanceSentence = pickVariant([
+      'The woman has a natural look, realistic features, neat hair, and wears ' + data.outfit + ' in a loose, modest, practical everyday way.',
+      'She appears natural and understated, with neat hair and ' + data.outfit + ' that feels comfortable, modest, and practical.',
+      'Her appearance is simple and realistic, with neat hair and ' + data.outfit + ', without any emphasis on beauty or body.'
+    ]);
+
+    var textSentence = pickVariant([
+      'There is absolutely no text anywhere in the image, with no signage, no labels, no UI, no watermark, and no logos.',
+      'No text appears anywhere in the image, and there are no signs, labels, interface elements, watermarks, or logos.',
+      'The image contains no text anywhere at all, including no signage, no labels, no UI elements, no watermark, and no logos.'
+    ]);
+
+    var replacementSentence = pickVariant([
+      'If any text would normally appear, replace it with plain walls, blank surfaces, and clean unmarked materials.',
+      'If text would usually exist in the scene, it should be replaced with plain surfaces and clean unmarked walls.',
+      'Any place where text might normally appear should instead be blank, plain, and free of markings.'
+    ]);
+
     return [
-      '### Prompt (' + data.theme + ')',
-      data.scene.opening + ', ' + data.action.phrase + ', ' + data.scene.english + ', ' + data.scene.environment + ', ' + data.scene.details + ', ' + data.shot.phrase + ', environment clearly visible, room layout visible, fixtures and surroundings visible, one scene only, one action only, not a portrait composition, no text, no watermark, no UI, no subtitles, no logo, plain walls, no signage, no labels, no text anywhere, clean surfaces, clean image without any overlay',
-      '',
-      '### Appearance:',
-      data.appearanceLine + ', no emphasis on beauty or body, no celebrity resemblance',
-      '',
-      '### Outfit:',
-      data.outfit + ', loose casual clothing, long sleeves, modest everyday wear, comfortable and practical outfit, no revealing clothing',
-      '',
-      '### Pose:',
-      data.action.phrase + ', natural posture, understated emotion, documentary-like movement',
-      '',
-      '### Scene:',
-      data.scene.english + ', ' + data.scene.environment + ', ' + data.scene.details + ', plain walls, no signage, no labels, no text anywhere, clean surfaces',
-      '',
-      '### Style:',
-      data.tone.style + ', realistic rental property photography, environment-focused composition, room clearly visible, subject not dominating the frame, room and fixtures visible, mid shot to full body framing, no text, no watermark, no UI, no subtitles, no logo, plain walls, no signage, no labels, no text anywhere, clean surfaces, clean image without any overlay',
-      '',
-      '### Consistency:',
-      data.tone.consistency + ', same person within the scene, coherent body proportions, single scene only, one action only, environment remains visible',
-      '',
-      '### Negative Prompt:',
-      negativePrompt
-    ].join('\n');
+      openingSentence,
+      framingSentence,
+      environmentSentence,
+      appearanceSentence,
+      textSentence,
+      replacementSentence
+    ].join(' ');
   }
 
   function generateOne(filters) {
