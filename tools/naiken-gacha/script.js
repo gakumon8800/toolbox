@@ -101,7 +101,9 @@
   ];
 
   var negativePrompt = [
-    'text', 'watermark', 'logo', 'portrait close-up', 'face close-up', 'beauty shot', 'glamour shot',
+    'text', 'subtitles', 'captions', 'overlay text', 'UI elements', 'interface', 'watermark', 'logo',
+    'chinese text', 'japanese text', 'english text', 'symbols', 'arrows', 'icons',
+    'portrait close-up', 'face close-up', 'beauty shot', 'glamour shot',
     'idol style', 'fashion photoshoot', 'seductive pose', 'exaggerated femininity', 'cleavage',
     'deep neckline', 'exposed shoulders', 'mini skirt', 'tight revealing clothes', 'lingerie-like styling',
     'body emphasis', 'unrealistic anatomy', 'distorted face', 'messy environment', 'low quality',
@@ -262,7 +264,7 @@
   function buildPrompt(data) {
     return [
       '### Prompt (' + data.theme + ')',
-      data.scene.opening + ', ' + data.action.phrase + ', ' + data.scene.english + ', ' + data.scene.environment + ', ' + data.scene.details + ', ' + data.shot.phrase + ', environment clearly visible, room layout visible, fixtures and surroundings visible, one scene only, one action only, natural moment for short-form apartment viewing content, not a portrait composition',
+      data.scene.opening + ', ' + data.action.phrase + ', ' + data.scene.english + ', ' + data.scene.environment + ', ' + data.scene.details + ', ' + data.shot.phrase + ', environment clearly visible, room layout visible, fixtures and surroundings visible, one scene only, one action only, not a portrait composition, no text, no subtitles, no captions, clean image without any overlay',
       '',
       '### Appearance:',
       data.appearanceLine + ', no celebrity resemblance',
@@ -277,7 +279,7 @@
       data.scene.english + ', ' + data.scene.environment + ', ' + data.scene.details,
       '',
       '### Style:',
-      data.tone.style + ', realistic rental property photography, scene-focused composition, room and fixtures visible, mid shot to full body framing',
+      data.tone.style + ', realistic rental property photography, scene-focused composition, room and fixtures visible, mid shot to full body framing, no text, no subtitles, no captions, clean image without any overlay',
       '',
       '### Consistency:',
       data.tone.consistency + ', same person within the scene, coherent body proportions, single scene only, one action only, environment remains visible',
