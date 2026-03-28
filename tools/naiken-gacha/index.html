@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>内見女子プロンプトガチャ | toolbox</title>
+  <meta
+    name="description"
+    content="20代前半の日本人女性が賃貸物件を内見している画像生成用プロンプトを、条件固定つきで複数生成できる実務向けガチャツール。"
+  >
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="../../">← ツール一覧に戻る</a>
+
+    <section class="hero card">
+      <p class="eyebrow">SNS素材量産向け</p>
+      <h1>内見女子プロンプトガチャ</h1>
+      <p class="hero-text">
+        20代前半の日本人女性が賃貸物件を内見している、自然で使いやすい1シーンの画像生成用プロンプトを作成します。
+        シーンと動作の相性を制御し、実務で使いやすい品質を保ったまま量産できる構成です。
+      </p>
+
+      <div class="hero-notes">
+        <div class="mini-note">1シーン × 1動作に限定し、過度な演技や不自然な組み合わせを避けます。</div>
+        <div class="mini-note">髪型・服装・シーン・動作・構図は固定も可能です。</div>
+        <div class="mini-note strong">お気に入りと履歴はこの端末に保存され、再読み込み後も残ります。</div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <section class="card control-card">
+        <div class="section-head">
+          <h2>条件設定</h2>
+          <p>固定したい項目だけ選び、それ以外は自然な範囲でランダム生成します。</p>
+        </div>
+
+        <div class="warning-box">
+          出力は画像生成AI向けの英語プロンプトです。露出の高い服装、性的表現、特定人物風の指示は含めません。
+        </div>
+
+        <form id="generator-form" class="form-grid">
+          <div class="field">
+            <label for="tone">テイスト</label>
+            <select id="tone" name="tone"></select>
+          </div>
+
+          <div class="field">
+            <label for="hairStyle">髪型を固定</label>
+            <select id="hairStyle" name="hairStyle"></select>
+          </div>
+
+          <div class="field">
+            <label for="outfit">服装を固定</label>
+            <select id="outfit" name="outfit"></select>
+          </div>
+
+          <div class="field">
+            <label for="scene">シーンを固定</label>
+            <select id="scene" name="scene"></select>
+          </div>
+
+          <div class="field">
+            <label for="action">動作を固定</label>
+            <select id="action" name="action"></select>
+          </div>
+
+          <div class="field">
+            <label for="shot">構図を固定</label>
+            <select id="shot" name="shot"></select>
+          </div>
+        </form>
+
+        <div class="button-row">
+          <button type="button" class="primary-button" data-count="1">1本生成</button>
+          <button type="button" class="secondary-button" data-count="5">5本生成</button>
+          <button type="button" class="secondary-button" data-count="10">10本生成</button>
+        </div>
+      </section>
+
+      <section class="card result-panel">
+        <div class="section-head section-head-inline">
+          <div>
+            <h2>生成結果</h2>
+            <p>カードごとにコピーでき、全件コピーにも対応しています。</p>
+          </div>
+          <button type="button" id="copyAllButton" class="ghost-button">全件コピー</button>
+        </div>
+
+        <div id="resultsMeta" class="meta-text">まだ生成されていません。</div>
+        <div id="results" class="results-grid"></div>
+      </section>
+    </section>
+
+    <section class="card section-card">
+      <div class="section-head section-head-inline">
+        <div>
+          <h2>お気に入り</h2>
+          <p>残しておきたいプロンプトを保存できます。</p>
+        </div>
+        <button type="button" id="clearFavoritesButton" class="ghost-button danger">お気に入りを全削除</button>
+      </div>
+      <div id="favoritesEmpty" class="empty-box">お気に入りはまだありません。</div>
+      <div id="favorites" class="results-grid compact"></div>
+    </section>
+
+    <section class="card section-card">
+      <div class="section-head section-head-inline">
+        <div>
+          <h2>履歴</h2>
+          <p>直近の生成結果を確認して、不要なものだけ削除できます。</p>
+        </div>
+        <button type="button" id="clearHistoryButton" class="ghost-button danger">履歴を全削除</button>
+      </div>
+      <div id="historyEmpty" class="empty-box">履歴はまだありません。</div>
+      <div id="history" class="results-grid compact"></div>
+    </section>
+  </main>
+
+  <template id="promptCardTemplate">
+    <article class="prompt-card">
+      <div class="prompt-card-head">
+        <div>
+          <p class="card-eyebrow"></p>
+          <h3></h3>
+        </div>
+        <div class="card-actions">
+          <button type="button" class="small-button copy-button">コピー</button>
+          <button type="button" class="small-button favorite-button">お気に入り</button>
+          <button type="button" class="small-button remove-button">削除</button>
+        </div>
+      </div>
+      <pre class="prompt-text"></pre>
+    </article>
+  </template>
+
+  <script src="./script.js"></script>
+</body>
+</html>

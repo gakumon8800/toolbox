@@ -1,0 +1,362 @@
+:root {
+  --main: #008080;
+  --main-dark: #0d5f5f;
+  --main-soft: #e8f5f5;
+  --bg: #f5f8f8;
+  --card: rgba(255, 255, 255, 0.96);
+  --text: #23313a;
+  --muted: #5a6a74;
+  --border: #d8e2e4;
+  --danger: #b54747;
+  --danger-soft: #fff3f1;
+  --shadow: 0 14px 28px rgba(17, 41, 46, 0.08);
+  --radius: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+  color: var(--text);
+  line-height: 1.7;
+  background:
+    radial-gradient(circle at top left, rgba(0, 128, 128, 0.08), transparent 28%),
+    linear-gradient(180deg, #fbfcfc 0%, #eef4f4 100%);
+}
+
+button,
+select {
+  font: inherit;
+}
+
+.page {
+  width: min(1100px, calc(100% - 24px));
+  margin: 0 auto;
+  padding: 20px 0 48px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--main);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.back-link:hover,
+.back-link:focus-visible {
+  text-decoration: underline;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.hero,
+.control-card,
+.result-panel,
+.section-card {
+  padding: 24px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--main-soft);
+  color: var(--main-dark);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 14px 0 10px;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  line-height: 1.3;
+}
+
+.hero-text,
+.section-head p,
+.meta-text {
+  margin: 0;
+  color: var(--muted);
+}
+
+.hero-notes {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.mini-note {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #f8fbfb;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.93rem;
+}
+
+.mini-note.strong {
+  background: #eef8f8;
+  border-color: #bfd8d8;
+  color: var(--main-dark);
+  font-weight: 700;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.section-card {
+  margin-top: 18px;
+}
+
+.section-head h2 {
+  margin: 0;
+  font-size: 1.12rem;
+}
+
+.section-head-inline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.warning-box {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #fff8ea;
+  border: 1px solid #ead08b;
+  color: #765a0f;
+  font-size: 0.92rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+label {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+select {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #c8d5d7;
+  border-radius: 14px;
+  background: #fff;
+  color: var(--text);
+}
+
+select:focus {
+  outline: 3px solid rgba(0, 128, 128, 0.15);
+  border-color: var(--main);
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.primary-button,
+.secondary-button,
+.ghost-button,
+.small-button {
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.primary-button,
+.secondary-button,
+.ghost-button {
+  padding: 14px 16px;
+  font-weight: 700;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, var(--main), #0a6f6f);
+  color: #fff;
+}
+
+.secondary-button {
+  background: #f1f7f7;
+  color: var(--main-dark);
+  border: 1px solid #c6dcdc;
+}
+
+.ghost-button {
+  background: #fff;
+  color: var(--main-dark);
+  border: 1px solid var(--border);
+}
+
+.ghost-button.danger {
+  color: var(--danger);
+  border-color: #ebc8c8;
+  background: var(--danger-soft);
+}
+
+.primary-button:hover,
+.secondary-button:hover,
+.ghost-button:hover,
+.small-button:hover,
+.primary-button:focus-visible,
+.secondary-button:focus-visible,
+.ghost-button:focus-visible,
+.small-button:focus-visible {
+  transform: translateY(-1px);
+}
+
+.results-grid {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.results-grid.compact {
+  gap: 12px;
+}
+
+.empty-box {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  background: #fafcfc;
+  color: var(--muted);
+}
+
+.prompt-card {
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.prompt-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.prompt-card h3 {
+  margin: 4px 0 0;
+  font-size: 1rem;
+}
+
+.card-eyebrow {
+  margin: 0;
+  color: var(--main);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.small-button {
+  padding: 10px 12px;
+  background: #f4f8f8;
+  color: var(--main-dark);
+  border: 1px solid #d2e1e1;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.small-button.is-active {
+  background: var(--main-soft);
+  border-color: #b8d5d5;
+}
+
+.small-button.remove-button {
+  color: #7b4a4a;
+}
+
+.prompt-text {
+  margin: 14px 0 0;
+  padding: 16px;
+  border-radius: 14px;
+  background: #f7fafb;
+  border: 1px solid #e3ecee;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.87rem;
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    font-size: 15px;
+  }
+
+  .page {
+    width: min(100% - 14px, 1100px);
+    padding: 14px 0 30px;
+  }
+
+  .hero,
+  .control-card,
+  .result-panel,
+  .section-card {
+    padding: 18px;
+  }
+
+  .section-head-inline,
+  .prompt-card-head {
+    flex-direction: column;
+  }
+
+  .button-row {
+    grid-template-columns: 1fr;
+  }
+
+  .card-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  select,
+  .primary-button,
+  .secondary-button,
+  .ghost-button {
+    font-size: 16px;
+  }
+}
