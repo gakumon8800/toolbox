@@ -13,15 +13,14 @@
   var appearanceOptions = {
     hairStyle: ['short hair', 'bob cut', 'medium-length hair', 'long hair', 'ponytail', 'half-up hairstyle'],
     hairColor: ['black hair', 'dark brown hair', 'soft brown hair'],
-    vibe: ['clean and refined look', 'natural and approachable look', 'calm and composed atmosphere', 'slightly cute and soft impression', 'urban and polished mood'],
-    bodyType: ['slim build', 'average build', 'slightly delicate frame'],
+    vibe: ['natural look', 'realistic features', 'practical appearance for apartment viewing', 'calm everyday presence', 'neat and understated impression'],
     outfit: [
-      { label: 'きれいめカジュアル', value: 'clean casual outfit' },
-      { label: 'シンプルな私服', value: 'simple everyday outfit' },
-      { label: 'ニット＋スカート', value: 'knit top and skirt' },
-      { label: 'シャツ＋きれいめパンツ', value: 'shirt and tailored pants' },
-      { label: '上品なワンピース', value: 'modest one-piece dress' },
-      { label: '軽いジャケットの外出着', value: 'light jacket with neat outing wear' }
+      { label: 'きれいめブラウス＋スカート', value: 'neat casual blouse and skirt' },
+      { label: '長袖ニット＋ミディ丈スカート', value: 'long-sleeve knit top and midi skirt' },
+      { label: 'シンプルなカーディガン＋ストレートパンツ', value: 'simple cardigan and straight pants' },
+      { label: 'シャツ＋きれいめパンツ', value: 'clean shirt and tailored pants' },
+      { label: '上品なワンピース＋カーディガン', value: 'modest one-piece dress with cardigan' },
+      { label: '軽いジャケットの実用カジュアル', value: 'light jacket with practical casual wear' }
     ]
   };
 
@@ -29,50 +28,50 @@
     {
       value: 'natural',
       label: 'ナチュラル',
-      style: 'soft daylight, neutral tones, practical apartment viewing mood',
-      consistency: 'grounded lifestyle feel, realistic apartment details, gentle everyday atmosphere'
+      style: 'soft daylight, neutral tones, documentary-style apartment viewing scene, mid shot to full body framing, environment clearly visible, not a portrait composition',
+      consistency: 'scene-focused composition, stable identity within the scene, realistic apartment viewing context, no portrait-style framing'
     },
     {
       value: 'luxury',
       label: '高級感',
-      style: 'elegant lighting, premium materials, upscale rental ambiance, refined textures',
-      consistency: 'tasteful composition, restrained sophistication, clean premium interior details'
+      style: 'elegant lighting, premium materials, upscale rental ambiance, refined textures, mid shot to full body framing, fixtures and surroundings visible, scene-focused composition',
+      consistency: 'scene-focused composition, stable identity within the scene, realistic apartment viewing context, no portrait-style framing'
     },
     {
       value: 'single-life',
       label: '一人暮らし感',
-      style: 'compact urban apartment mood, relatable lifestyle realism, lived-in but tidy feeling',
-      consistency: 'practical room scale, first-apartment vibe, believable solo-living atmosphere'
+      style: 'compact urban apartment mood, relatable lifestyle realism, lived-in but tidy feeling, room layout visible, environment clearly visible, not a portrait composition',
+      consistency: 'scene-focused composition, stable identity within the scene, realistic apartment viewing context, no portrait-style framing'
     },
     {
       value: 'cute-room',
       label: 'かわいい部屋感',
-      style: 'bright and airy mood, warm accents, cozy and charming room styling',
-      consistency: 'soft inviting interior tone, clean cute details, natural lifestyle presentation'
+      style: 'bright and airy mood, warm accents, cozy and charming room styling, room layout visible, fixtures and surroundings visible, scene-focused composition',
+      consistency: 'scene-focused composition, stable identity within the scene, realistic apartment viewing context, no portrait-style framing'
     },
     {
       value: 'simple-modern',
       label: 'シンプルモダン',
-      style: 'minimal modern interior, clean lines, balanced daylight, uncluttered composition',
-      consistency: 'simple geometry, calm modern finish, clear and functional apartment styling'
+      style: 'minimal modern interior, clean lines, balanced daylight, uncluttered composition, mid shot to full body framing, environment clearly visible, not a portrait composition',
+      consistency: 'scene-focused composition, stable identity within the scene, realistic apartment viewing context, no portrait-style framing'
     }
   ];
 
   var scenes = [
-    { value: 'entrance', label: '玄関', english: 'apartment entrance area', environment: 'compact entryway, shoe cabinet, clean floor, natural indoor light', actions: ['open-door', 'look-room', 'walk-lightly', 'turn-back', 'look-smartphone'], shots: ['front', 'diagonal-front', 'from-side', 'medium', 'half-body'] },
-    { value: 'living-room', label: 'リビング', english: 'living room of a rental apartment', environment: 'bright living area, simple floor plan, uncluttered interior, daylight from the window', actions: ['look-room', 'walk-lightly', 'turn-back', 'sit-sofa', 'touch-fixture', 'think-lightly', 'look-smartphone'], shots: ['front', 'diagonal-front', 'from-side', 'wide', 'medium', 'full-body', 'half-body'] },
-    { value: 'kitchen', label: 'キッチン', english: 'apartment kitchen', environment: 'compact clean kitchen, practical storage, realistic appliances, bright neutral lighting', actions: ['look-kitchen', 'open-storage', 'touch-fixture', 'look-smartphone', 'think-lightly'], shots: ['diagonal-front', 'from-side', 'medium', 'half-body'] },
-    { value: 'bathroom', label: 'バスルーム', english: 'rental apartment bathroom', environment: 'clean bathroom unit, realistic fixtures, bright reflective surfaces, tidy space', actions: ['look-room', 'touch-fixture', 'think-lightly'], shots: ['diagonal-front', 'from-side', 'medium', 'half-body'] },
-    { value: 'toilet', label: 'トイレ', english: 'apartment toilet room', environment: 'small clean toilet room, simple white walls, practical layout, neutral light', actions: ['look-room', 'touch-fixture', 'think-lightly'], shots: ['diagonal-front', 'from-side', 'medium', 'half-body'] },
-    { value: 'washroom', label: '洗面所', english: 'apartment washroom', environment: 'clean vanity area, mirror and sink, compact utility space, bright light', actions: ['look-room', 'touch-fixture', 'look-smartphone'], shots: ['front', 'diagonal-front', 'from-side', 'medium', 'half-body'] },
-    { value: 'storage', label: '収納', english: 'storage space in the apartment', environment: 'closet or storage area, practical shelving, clean walls, realistic apartment interior', actions: ['open-storage', 'look-room', 'think-lightly'], shots: ['front', 'diagonal-front', 'from-side', 'medium', 'half-body'] },
-    { value: 'window-side', label: '窓際', english: 'window side inside the apartment', environment: 'daylight near a large window, curtain rail, bright room edge, airy interior feeling', actions: ['look-outside', 'look-room', 'turn-back', 'walk-lightly'], shots: ['front', 'diagonal-front', 'from-side', 'from-back', 'wide', 'full-body', 'half-body'] },
-    { value: 'balcony', label: 'ベランダ', english: 'apartment balcony', environment: 'small rental balcony, outdoor railing, city view, natural daylight, realistic exterior atmosphere', actions: ['look-outside', 'step-to-balcony', 'turn-back', 'walk-lightly'], shots: ['diagonal-front', 'from-side', 'from-back', 'wide', 'full-body', 'half-body'] },
-    { value: 'hallway', label: '廊下', english: 'apartment hallway', environment: 'narrow clean hallway, indoor doors, realistic apartment layout, balanced indoor light', actions: ['walk-lightly', 'turn-back', 'look-room', 'look-smartphone'], shots: ['front', 'diagonal-front', 'from-side', 'from-back', 'wide', 'full-body'] },
-    { value: 'outside-front', label: '外観前', english: 'in front of the apartment building', environment: 'apartment building exterior, entrance approach, realistic urban neighborhood, daylight', actions: ['look-room', 'walk-lightly', 'turn-back', 'look-smartphone', 'think-lightly'], shots: ['front', 'diagonal-front', 'from-side', 'wide', 'full-body', 'half-body'] },
-    { value: 'shared-space', label: '共用部', english: 'shared corridor or common area', environment: 'shared apartment space, corridor or elevator hall, clean common facilities, realistic building details', actions: ['walk-lightly', 'turn-back', 'look-smartphone', 'look-room'], shots: ['front', 'diagonal-front', 'from-side', 'from-back', 'wide', 'full-body', 'half-body'] },
-    { value: 'building-entrance', label: 'エントランス', english: 'building entrance lobby', environment: 'apartment entrance lobby, mailboxes or auto-lock area, polished but realistic common entrance', actions: ['walk-lightly', 'look-room', 'look-smartphone', 'think-lightly'], shots: ['front', 'diagonal-front', 'from-side', 'wide', 'full-body', 'half-body'] },
-    { value: 'door-front', label: '室内ドア前', english: 'in front of an interior door inside the apartment', environment: 'indoor doorway, simple wall finish, realistic apartment circulation, natural interior light', actions: ['open-door', 'turn-back', 'look-room', 'walk-lightly'], shots: ['front', 'diagonal-front', 'from-side', 'from-back', 'medium', 'full-body', 'half-body'] }
+    { value: 'entrance', label: '玄関', english: 'apartment entrance area', environment: 'compact entryway, shoe cabinet, clean floor, doorway, wall finish, natural indoor light', details: 'entry door, shoe cabinet, floor area, doorway depth, interior circulation visible', opening: 'ultra photorealistic apartment viewing scene with a young Japanese woman in her early 20s', actions: ['open-door', 'look-room', 'walk-lightly', 'turn-back', 'look-smartphone'], shots: ['diagonal-front', 'from-side', 'medium', 'full-body'] },
+    { value: 'living-room', label: 'リビング', english: 'living room of a rental apartment', environment: 'bright living area, sofa, table, window, flooring, room depth, uncluttered interior, daylight', details: 'sofa, table, window, flooring, room depth, layout visible', opening: 'realistic rental property viewing moment in a Japanese apartment', actions: ['look-room', 'walk-lightly', 'turn-back', 'sit-sofa', 'touch-fixture', 'think-lightly', 'look-smartphone'], shots: ['diagonal-front', 'from-side', 'wide', 'medium', 'full-body'] },
+    { value: 'kitchen', label: 'キッチン', english: 'apartment kitchen', environment: 'compact clean kitchen, counter, sink, stove, cabinet, practical storage, bright neutral lighting', details: 'counter, sink, stove, cabinet, kitchen layout visible', opening: 'documentary-style apartment viewing scene', actions: ['look-kitchen', 'open-storage', 'touch-fixture', 'look-smartphone', 'think-lightly'], shots: ['diagonal-front', 'from-side', 'medium'] },
+    { value: 'bathroom', label: 'バスルーム', english: 'rental apartment bathroom', environment: 'clean bathroom area, sink, mirror, bathroom fixtures, bright reflective surfaces, tidy space', details: 'sink, mirror, bathroom fixtures, wall surfaces visible', opening: 'documentary-style apartment viewing scene', actions: ['look-room', 'touch-fixture', 'think-lightly'], shots: ['diagonal-front', 'from-side', 'medium'] },
+    { value: 'toilet', label: 'トイレ', english: 'apartment toilet room', environment: 'small clean toilet room, toilet fixture, wall finish, compact layout, neutral light', details: 'toilet fixture, wall finish, room scale, doorway context visible', opening: 'realistic rental property viewing moment in a Japanese apartment', actions: ['look-room', 'touch-fixture', 'think-lightly'], shots: ['diagonal-front', 'from-side', 'medium'] },
+    { value: 'washroom', label: '洗面所', english: 'apartment washroom', environment: 'clean vanity area, mirror, sink, storage under the basin, compact utility space, bright light', details: 'sink, mirror, vanity storage, utility layout visible', opening: 'documentary-style apartment viewing scene', actions: ['look-room', 'touch-fixture', 'look-smartphone'], shots: ['diagonal-front', 'from-side', 'medium'] },
+    { value: 'storage', label: '収納', english: 'storage space in the apartment', environment: 'closet or storage area, closet door, storage depth, shelving, clean walls, realistic apartment interior', details: 'closet door, storage depth, shelving, room connection visible', opening: 'documentary-style apartment viewing scene', actions: ['open-storage', 'look-room', 'think-lightly'], shots: ['front', 'diagonal-front', 'from-side', 'medium'] },
+    { value: 'window-side', label: '窓際', english: 'window side inside the apartment', environment: 'daylight near a large window, curtain rail, wall and flooring, bright room edge, airy interior feeling', details: 'window, wall finish, flooring, room depth, exterior light visible', opening: 'realistic rental property viewing moment in a Japanese apartment', actions: ['look-outside', 'look-room', 'turn-back', 'walk-lightly'], shots: ['diagonal-front', 'from-side', 'from-back', 'wide', 'full-body'] },
+    { value: 'balcony', label: 'ベランダ', english: 'apartment balcony', environment: 'small rental balcony, railing, floor surface, sliding door, city view, realistic exterior atmosphere', details: 'balcony railing, floor surface, sliding door, exterior openness visible', opening: 'ultra photorealistic apartment viewing scene with a young Japanese woman in her early 20s', actions: ['look-outside', 'step-to-balcony', 'turn-back', 'walk-lightly'], shots: ['diagonal-front', 'from-side', 'from-back', 'wide', 'full-body'] },
+    { value: 'hallway', label: '廊下', english: 'apartment hallway', environment: 'narrow clean hallway, indoor doors, wall finish, flooring, realistic apartment layout, balanced indoor light', details: 'hallway depth, indoor doors, flooring, circulation visible', opening: 'documentary-style apartment viewing scene', actions: ['walk-lightly', 'turn-back', 'look-room', 'look-smartphone'], shots: ['diagonal-front', 'from-side', 'from-back', 'wide', 'full-body'] },
+    { value: 'outside-front', label: '外観前', english: 'in front of the apartment building', environment: 'apartment entrance, building facade, doorway, surrounding building context, realistic urban neighborhood, daylight', details: 'apartment entrance, facade, doorway, building context clearly visible', opening: 'realistic rental property viewing moment in a Japanese apartment', actions: ['look-room', 'walk-lightly', 'turn-back', 'look-smartphone', 'think-lightly'], shots: ['diagonal-front', 'from-side', 'wide', 'full-body'] },
+    { value: 'shared-space', label: '共用部', english: 'shared corridor or common area', environment: 'shared corridor, entrance lighting, corridor details, wall finish, realistic building details, clean common facilities', details: 'hallway, entrance lighting, shared corridor details, common area depth visible', opening: 'documentary-style apartment viewing scene', actions: ['walk-lightly', 'turn-back', 'look-smartphone', 'look-room'], shots: ['diagonal-front', 'from-side', 'from-back', 'wide', 'full-body'] },
+    { value: 'building-entrance', label: 'エントランス', english: 'building entrance lobby', environment: 'apartment entrance lobby, mailboxes, auto-lock area, polished common entrance, realistic building details', details: 'mailboxes, entrance lighting, doorway, lobby layout visible', opening: 'ultra photorealistic apartment viewing scene with a young Japanese woman in her early 20s', actions: ['walk-lightly', 'look-room', 'look-smartphone', 'think-lightly'], shots: ['diagonal-front', 'from-side', 'wide', 'full-body'] },
+    { value: 'door-front', label: '室内ドア前', english: 'in front of an interior door inside the apartment', environment: 'indoor doorway, wall finish, flooring, realistic apartment circulation, natural interior light', details: 'interior door, flooring, wall finish, circulation visible', opening: 'documentary-style apartment viewing scene', actions: ['open-door', 'turn-back', 'look-room', 'walk-lightly'], shots: ['diagonal-front', 'from-side', 'from-back', 'medium', 'full-body'] }
   ];
 
   var actions = [
@@ -91,22 +90,23 @@
   ];
 
   var shots = [
-    { value: 'front', label: '正面', phrase: 'front view' },
-    { value: 'diagonal-front', label: '斜め前', phrase: 'three-quarter front view' },
-    { value: 'from-side', label: '横から', phrase: 'side view' },
-    { value: 'from-back', label: '後ろから', phrase: 'back view' },
-    { value: 'wide', label: 'やや引き', phrase: 'slightly wide composition showing room context' },
-    { value: 'medium', label: '中距離', phrase: 'medium-distance framing' },
-    { value: 'full-body', label: '全身', phrase: 'full-body framing' },
-    { value: 'half-body', label: '半身', phrase: 'half-body framing' }
+    { value: 'front', label: '正面', phrase: 'front view, mid shot, environment clearly visible, not a portrait composition' },
+    { value: 'diagonal-front', label: '斜め前', phrase: 'three-quarter front view, mid shot to full body framing, room layout visible, scene-focused composition' },
+    { value: 'from-side', label: '横から', phrase: 'side view, mid shot to full body framing, fixtures and surroundings visible, not a portrait composition' },
+    { value: 'from-back', label: '後ろから', phrase: 'back view, mid shot to full body framing, room layout visible, scene-focused composition' },
+    { value: 'wide', label: 'やや引き', phrase: 'slightly wide composition, full body or near full body framing, environment clearly visible, room layout visible' },
+    { value: 'medium', label: '中距離', phrase: 'medium-distance framing, mid shot, fixtures and surroundings visible, not a portrait composition' },
+    { value: 'full-body', label: '全身', phrase: 'full-body framing, environment clearly visible, room layout visible, scene-focused composition' },
+    { value: 'half-body', label: '半身', phrase: 'mid shot framing, surroundings clearly visible, fixtures visible, not a face-focused composition' }
   ];
 
   var negativePrompt = [
-    'nsfw', 'lingerie', 'bikini', 'cleavage', 'fetish', 'seductive pose', 'exaggerated emotion',
-    'fantasy scene', 'celebrity lookalike', 'specific person', 'idol style', 'school uniform',
-    'maid outfit', 'cosplay', 'overacting', 'dramatic cinematic action', 'multiple people', 'crowd',
-    'text', 'watermark', 'logo', 'low resolution', 'blurry', 'deformed hands', 'extra fingers',
-    'bad anatomy', 'distorted face', 'unnatural body', 'duplicate person'
+    'text', 'watermark', 'logo', 'portrait close-up', 'face close-up', 'beauty shot', 'glamour shot',
+    'idol style', 'fashion photoshoot', 'seductive pose', 'exaggerated femininity', 'cleavage',
+    'deep neckline', 'exposed shoulders', 'mini skirt', 'tight revealing clothes', 'lingerie-like styling',
+    'body emphasis', 'unrealistic anatomy', 'distorted face', 'messy environment', 'low quality',
+    'nsfw', 'bikini', 'fetish', 'celebrity lookalike', 'specific person', 'cosplay', 'overacting',
+    'multiple people', 'crowd', 'blurry', 'deformed hands', 'extra fingers', 'bad anatomy', 'duplicate person'
   ].join(', ');
 
   var dom = {
@@ -219,13 +219,13 @@
     if (actionConfig) {
       if (actionConfig.value === 'look-outside' || actionConfig.value === 'step-to-balcony') {
         shotPool = shotPool.filter(function (shot) {
-          return ['diagonal-front', 'from-side', 'from-back', 'wide', 'full-body', 'half-body'].indexOf(shot) >= 0;
+          return ['diagonal-front', 'from-side', 'from-back', 'wide', 'full-body'].indexOf(shot) >= 0;
         });
       }
 
       if (actionConfig.value === 'open-storage' || actionConfig.value === 'touch-fixture' || actionConfig.value === 'look-kitchen') {
         shotPool = shotPool.filter(function (shot) {
-          return ['front', 'diagonal-front', 'from-side', 'medium', 'half-body'].indexOf(shot) >= 0;
+          return ['front', 'diagonal-front', 'from-side', 'medium'].indexOf(shot) >= 0;
         });
       }
     }
@@ -262,25 +262,25 @@
   function buildPrompt(data) {
     return [
       '### Prompt (' + data.theme + ')',
-      'ultra photorealistic scene of a young Japanese woman in her early 20s viewing a rental apartment, ' + data.appearanceLine + ', ' + data.action.phrase + ', ' + data.scene.environment + ', ' + data.shot.phrase + ', realistic one-scene storytelling, natural body language, simple and usable for short-form social media content',
+      data.scene.opening + ', ' + data.action.phrase + ', ' + data.scene.english + ', ' + data.scene.environment + ', ' + data.scene.details + ', ' + data.shot.phrase + ', environment clearly visible, room layout visible, fixtures and surroundings visible, one scene only, one action only, natural moment for short-form apartment viewing content, not a portrait composition',
       '',
       '### Appearance:',
-      data.appearanceLine + ', natural makeup, no celebrity resemblance, realistic facial features',
+      data.appearanceLine + ', no celebrity resemblance',
       '',
       '### Outfit:',
       data.outfit + ', modest styling, practical for apartment viewing, no revealing clothing',
       '',
       '### Pose:',
-      data.action.phrase + ', relaxed shoulders, natural posture, understated emotion',
+      data.action.phrase + ', natural posture, understated emotion, documentary-like movement',
       '',
       '### Scene:',
-      data.scene.english + ', ' + data.scene.environment,
+      data.scene.english + ', ' + data.scene.environment + ', ' + data.scene.details,
       '',
       '### Style:',
-      data.tone.style + ', realistic rental property photography, soft natural light, stable photorealism',
+      data.tone.style + ', realistic rental property photography, scene-focused composition, room and fixtures visible, mid shot to full body framing',
       '',
       '### Consistency:',
-      'same person within the scene, stable identity, coherent body proportions, ' + data.tone.consistency + ', single scene only, one action only, natural apartment viewing context',
+      data.tone.consistency + ', same person within the scene, coherent body proportions, single scene only, one action only, environment remains visible',
       '',
       '### Negative Prompt:',
       negativePrompt
@@ -297,12 +297,12 @@
     var shotPool = scene.shots.slice();
     if (action.value === 'look-outside' || action.value === 'step-to-balcony') {
       shotPool = shotPool.filter(function (shot) {
-        return ['diagonal-front', 'from-side', 'from-back', 'wide', 'full-body', 'half-body'].indexOf(shot) >= 0;
+        return ['diagonal-front', 'from-side', 'from-back', 'wide', 'full-body'].indexOf(shot) >= 0;
       });
     }
     if (action.value === 'open-storage' || action.value === 'touch-fixture' || action.value === 'look-kitchen') {
       shotPool = shotPool.filter(function (shot) {
-        return ['front', 'diagonal-front', 'from-side', 'medium', 'half-body'].indexOf(shot) >= 0;
+        return ['front', 'diagonal-front', 'from-side', 'medium'].indexOf(shot) >= 0;
       });
     }
     if (!shotPool.length) {
@@ -317,10 +317,11 @@
     var hairStyle = filters.hairStyle || randomItem(appearanceOptions.hairStyle);
     var outfit = filters.outfit || randomItem(appearanceOptions.outfit).value;
     var appearanceLine = [
-      hairStyle,
-      randomItem(appearanceOptions.hairColor),
+      'young Japanese woman in her early 20s',
       randomItem(appearanceOptions.vibe),
-      randomItem(appearanceOptions.bodyType)
+      'realistic features',
+      'neat hair (' + hairStyle + ', ' + randomItem(appearanceOptions.hairColor) + ')',
+      'practical appearance for apartment viewing'
     ].join(', ');
     var theme = tone.label + ' / ' + scene.label + ' / ' + action.label;
 
