@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDFを画像化 | toolbox</title>
+  <meta
+    name="description"
+    content="PDFの各ページをPNGまたはJPEG画像として保存できる静的Webツールです。"
+  >
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <a class="back-link" href="../../">← ツール一覧に戻る</a>
+
+    <section class="hero card">
+      <span class="eyebrow">PDF Utility</span>
+      <h1>PDFを画像化</h1>
+      <p class="hero-text">
+        PDFをブラウザ上で読み込み、各ページをPNGまたはJPEG画像として保存できます。
+        不動産資料や配布用PDFのページ切り出しを、サーバーを使わず手元で完結できる実務向けツールです。
+      </p>
+      <div class="hero-notes">
+        <p class="note-item">PDFはブラウザ内で処理され、外部サーバーには送信されません。</p>
+        <p class="note-item">プレビューは軽めに生成し、保存時のみ選択した倍率で再レンダリングします。</p>
+      </div>
+    </section>
+
+    <section class="layout">
+      <aside class="control-panel card">
+        <section class="panel-section">
+          <div class="section-head">
+            <h2>PDFアップロード</h2>
+            <p>ドラッグ＆ドロップ、またはファイル選択でPDFを読み込めます。</p>
+          </div>
+
+          <label
+            class="dropzone"
+            id="dropzone"
+            for="pdfFileInput"
+            tabindex="0"
+            aria-describedby="uploadHelp"
+          >
+            <input id="pdfFileInput" type="file" accept="application/pdf">
+            <span class="dropzone-title">ここにPDFをドロップ</span>
+            <span class="dropzone-text">またはクリックしてPDFファイルを選択</span>
+          </label>
+          <p class="field-hint" id="uploadHelp">対応形式: PDF</p>
+
+          <div class="file-summary" id="fileSummary" hidden>
+            <div>
+              <span class="summary-label">ファイル名</span>
+              <strong id="fileNameText">-</strong>
+            </div>
+            <div>
+              <span class="summary-label">ページ数</span>
+              <strong id="pageCountText">-</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-head">
+            <h2>出力設定</h2>
+            <p>保存時の形式と倍率を指定できます。</p>
+          </div>
+
+          <div class="field-grid">
+            <label class="field">
+              <span>画像形式</span>
+              <select id="formatSelect">
+                <option value="png">PNG</option>
+                <option value="jpeg">JPEG</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>出力倍率</span>
+              <select id="scaleSelect">
+                <option value="1">1x</option>
+                <option value="2" selected>2x</option>
+                <option value="3">3x</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="field" id="jpegQualityField" hidden>
+            <span>JPEG画質</span>
+            <input id="qualityRange" type="range" min="60" max="100" step="5" value="90">
+            <strong class="range-value" id="qualityValue">90%</strong>
+          </label>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-head">
+            <h2>操作</h2>
+            <p>PDF選択後にプレビューを生成し、必要な形式で保存できます。</p>
+          </div>
+
+          <div class="button-stack">
+            <button id="previewButton" class="primary-button" type="button" disabled>プレビュー生成</button>
+            <button id="zipButton" class="secondary-button" type="button" disabled>全ページZIP保存</button>
+            <button id="resetButton" class="ghost-button" type="button">リセット</button>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="status-box" id="statusBox" aria-live="polite">
+            PDFを選択すると、ここに処理状況を表示します。
+          </div>
+          <div class="error-box" id="errorBox" role="alert" hidden></div>
+        </section>
+      </aside>
+
+      <section class="preview-panel">
+        <section class="card preview-header">
+          <div class="section-head">
+            <h2>ページ一覧プレビュー</h2>
+            <p>各ページを確認して、必要なページだけ個別保存できます。</p>
+          </div>
+          <div class="preview-meta">
+            <span class="meta-chip">ページ数: <strong id="pageCountInline">0</strong></span>
+            <span class="meta-chip">保存設定は個別保存・ZIP保存の両方に反映されます</span>
+          </div>
+        </section>
+
+        <section class="card loading-card" id="loadingCard" hidden>
+          <div class="spinner" aria-hidden="true"></div>
+          <div>
+            <strong id="loadingTitle">処理中です</strong>
+            <p id="loadingText">PDFの読み込みを開始しています。</p>
+          </div>
+        </section>
+
+        <section class="preview-grid" id="previewGrid" aria-live="polite">
+          <div class="empty-state" id="emptyState">
+            PDFを読み込むと、ここに各ページのプレビューが表示されます。
+          </div>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="./script.js"></script>
+</body>
+</html>
