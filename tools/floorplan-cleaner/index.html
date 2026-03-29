@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>間取り図クリーナー | toolbox</title>
+  <meta
+    name="description"
+    content="古い間取り画像を下敷きにして、ブラウザ上で現代的な見やすい間取り図を手動で清書できる実務向けツールです。"
+  >
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="../../">← ツール一覧に戻る</a>
+
+    <section class="hero card">
+      <p class="eyebrow">図面清書ツール</p>
+      <h1>間取り図クリーナー</h1>
+      <p class="hero-text">
+        古い募集図面や粗い間取り画像を見ながら、図形・記号・文字を配置して見やすい間取り図に清書できます。
+        元画像を薄く下敷き表示しながら、壁線や設備記号を整えて実務用の図面にまとめるためのシンプルな1ページツールです。
+      </p>
+      <div class="hero-notes">
+        <div class="mini-note">左側に元画像、右側に清書キャンバスを並べた構成です。</div>
+        <div class="mini-note">配置した要素は選択、移動、サイズ変更、削除、前面/背面移動ができます。</div>
+        <div class="mini-note strong">完成図はPNGで保存できます。データはブラウザ内だけで処理され、外部送信はありません。</div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <aside class="tool-panel card">
+        <div class="section-head">
+          <h2>ツールパネル</h2>
+          <p>図面の準備、要素追加、編集設定をここで切り替えます。</p>
+        </div>
+
+        <section class="panel-section">
+          <h3>画像</h3>
+          <label class="file-picker">
+            <span>元画像を選択</span>
+            <input id="imageUpload" type="file" accept="image/*">
+          </label>
+          <label class="toggle-row">
+            <input id="showTraceImage" type="checkbox" checked>
+            <span>キャンバスに下敷き表示</span>
+          </label>
+          <label class="field">
+            <span>下敷き透明度</span>
+            <input id="traceOpacity" type="range" min="0" max="100" value="28">
+          </label>
+          <p class="inline-note warning">注意: 元画像は自動補正しません。右側で手動清書する前提のツールです。</p>
+        </section>
+
+        <section class="panel-section">
+          <h3>要素追加</h3>
+          <div class="tool-grid" id="toolButtons">
+            <button type="button" class="tool-button" data-tool="outerWall">外壁線</button>
+            <button type="button" class="tool-button" data-tool="innerWall">内壁線</button>
+            <button type="button" class="tool-button" data-tool="livingArea">居室エリア</button>
+            <button type="button" class="tool-button" data-tool="wetArea">水回りエリア</button>
+            <button type="button" class="tool-button" data-tool="door">ドア記号</button>
+            <button type="button" class="tool-button" data-tool="window">窓記号</button>
+            <button type="button" class="tool-button" data-tool="kitchen">キッチン記号</button>
+            <button type="button" class="tool-button" data-tool="unitBath">ユニットバス記号</button>
+            <button type="button" class="tool-button" data-tool="text">テキスト</button>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-head-inline">
+            <div>
+              <h3>選択中の要素</h3>
+              <p>数値を変えると位置やサイズを微調整できます。</p>
+            </div>
+            <span class="selected-chip" id="selectedTypeLabel">未選択</span>
+          </div>
+
+          <div class="property-grid">
+            <label class="field">
+              <span>X</span>
+              <input id="propX" type="number" step="1">
+            </label>
+            <label class="field">
+              <span>Y</span>
+              <input id="propY" type="number" step="1">
+            </label>
+            <label class="field">
+              <span>幅</span>
+              <input id="propWidth" type="number" step="1">
+            </label>
+            <label class="field">
+              <span>高さ</span>
+              <input id="propHeight" type="number" step="1">
+            </label>
+            <label class="field">
+              <span>回転</span>
+              <input id="propRotation" type="number" step="1">
+            </label>
+            <label class="field field-full">
+              <span>ラベル</span>
+              <input id="propLabel" type="text" placeholder="例: 洋室 6.0帖">
+            </label>
+          </div>
+
+          <div class="button-row">
+            <button type="button" id="bringForwardButton" class="secondary-button">前面へ</button>
+            <button type="button" id="sendBackwardButton" class="secondary-button">背面へ</button>
+            <button type="button" id="deleteButton" class="danger-button">削除</button>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <h3>保存</h3>
+          <button type="button" id="exportButton" class="primary-button">PNGで保存</button>
+          <p class="inline-note">推奨: 清書が終わったらPNGを書き出して募集図面作成や共有用に活用してください。</p>
+        </section>
+      </aside>
+
+      <section class="canvas-layout">
+        <section class="card canvas-card">
+          <div class="section-head-inline">
+            <div>
+              <h2>元画像</h2>
+              <p>アップロードした画像を見ながら清書します。</p>
+            </div>
+            <span class="canvas-size-label" id="sourceInfo">画像未選択</span>
+          </div>
+          <div class="source-stage" id="sourceStage">
+            <div class="source-placeholder" id="sourcePlaceholder">
+              元の間取り画像をアップロードすると、ここに表示されます。
+            </div>
+            <img id="sourcePreview" class="source-preview" alt="元の間取り画像">
+          </div>
+        </section>
+
+        <section class="card canvas-card">
+          <div class="section-head-inline">
+            <div>
+              <h2>清書キャンバス</h2>
+              <p>ボタンを押して要素を追加し、ドラッグで配置してください。</p>
+            </div>
+            <span class="canvas-size-label" id="canvasInfo">1000 × 700 px</span>
+          </div>
+          <div class="canvas-scroll">
+            <div class="editor-stage" id="editorStage">
+              <svg
+                id="floorplanCanvas"
+                class="editor-canvas"
+                viewBox="0 0 1000 700"
+                width="1000"
+                height="700"
+                aria-label="間取り図キャンバス"
+              >
+                <defs>
+                  <pattern id="gridPattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e7ecec" stroke-width="1"></path>
+                  </pattern>
+                  <pattern id="subGridPattern" width="10" height="10" patternUnits="userSpaceOnUse">
+                    <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#f3f5f5" stroke-width="1"></path>
+                  </pattern>
+                </defs>
+
+                <rect x="0" y="0" width="1000" height="700" fill="url(#subGridPattern)"></rect>
+                <rect x="0" y="0" width="1000" height="700" fill="url(#gridPattern)"></rect>
+                <image id="traceImage" x="0" y="0" width="1000" height="700" preserveAspectRatio="xMidYMid meet"></image>
+                <g id="elementLayer"></g>
+                <g id="selectionLayer"></g>
+              </svg>
+            </div>
+          </div>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
