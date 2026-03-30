@@ -52,6 +52,7 @@ function clearError() {
 
 function setLoading(visible, title = "処理中です", text = "") {
   elements.loadingCard.hidden = !visible;
+  elements.loadingCard.setAttribute("aria-hidden", String(!visible));
   elements.loadingTitle.textContent = title;
   elements.loadingText.textContent = text;
 }
@@ -234,7 +235,7 @@ async function saveSinglePage(pageNumber, button) {
 
     setStatus(`${formatPageLabel(pageNumber)} を保存しました。`);
   } catch (error) {
-    console.error(error);
+    console.error("[pdf-to-image] 個別保存エラー", error);
     showError("ページ画像の保存に失敗しました。PDFが破損していないか確認してください。");
     setStatus("保存中にエラーが発生しました。");
   } finally {
@@ -317,13 +318,14 @@ async function buildPreviews() {
 
     setStatus(`プレビューを生成しました。全 ${state.pageCount} ページです。`);
   } catch (error) {
-    console.error(error);
+    console.error("[pdf-to-image] プレビュー生成エラー", error);
     resetPreviewArea();
     showError("プレビュー生成に失敗しました。別のPDFで再度お試しください。");
     setStatus("プレビュー生成中にエラーが発生しました。");
   } finally {
     setBusy(false);
     setLoading(false);
+    console.debug("[pdf-to-image] プレビュー生成処理を終了しました。");
   }
 }
 
@@ -363,7 +365,7 @@ async function saveAllPagesAsZip() {
     downloadBlob(zipBlob, `${state.baseName}.images.zip`);
     setStatus("全ページのZIP保存が完了しました。");
   } catch (error) {
-    console.error(error);
+    console.error("[pdf-to-image] ZIP保存エラー", error);
     showError("ZIP保存に失敗しました。ページ数が多い場合は、個別保存もお試しください。");
     setStatus("ZIP保存中にエラーが発生しました。");
   } finally {
@@ -407,7 +409,7 @@ async function loadPdfFile(file) {
 
     setStatus(`PDFを読み込みました。全 ${state.pageCount} ページのプレビューを生成します。`);
   } catch (error) {
-    console.error(error);
+    console.error("[pdf-to-image] PDF読み込みエラー", error);
     await resetApp();
     showError("PDFの読み込みに失敗しました。ファイルが破損していないか確認してください。");
     setStatus("PDFを読み込めませんでした。");
