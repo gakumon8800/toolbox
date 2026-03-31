@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF画像重ね書き出し | toolbox</title>
+  <meta
+    name="description"
+    content="PDFをブラウザで開き、各ページに画像を重ねて位置調整し、合成結果をPNGで保存できる静的Webツールです。"
+  >
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <a class="back-link" href="../../">← ツール一覧に戻る</a>
+
+    <section class="hero card">
+      <span class="eyebrow">PDF Utility</span>
+      <h1>PDF画像重ね書き出し</h1>
+      <p class="hero-text">
+        PDFの各ページをブラウザ内で表示し、PNG・JPG・WebP画像をページ上に重ねて位置やサイズを調整できます。
+        サーバー送信は行わず、このブラウザ内だけで合成してPNG保存できます。
+      </p>
+      <div class="hero-notes">
+        <p class="note-item">PDFと画像データは外部サーバーへ送信されません。すべてブラウザ内で処理します。</p>
+        <p class="note-item">ページごとに重ね画像の状態を保持します。ページを切り替えても編集内容は維持されます。</p>
+      </div>
+    </section>
+
+    <section class="layout">
+      <aside class="control-panel card">
+        <section class="panel-section">
+          <div class="section-head">
+            <h2>PDFアップロード</h2>
+            <p>ドラッグ&ドロップまたは選択でPDFを読み込みます。</p>
+          </div>
+
+          <label class="dropzone" id="pdfDropzone" for="pdfFileInput" tabindex="0" aria-describedby="pdfHelp">
+            <input id="pdfFileInput" type="file" accept="application/pdf">
+            <span class="dropzone-title">ここにPDFをドロップ</span>
+            <span class="dropzone-text">またはクリックしてPDFファイルを選択</span>
+          </label>
+          <p class="field-hint" id="pdfHelp">対応形式: PDF</p>
+
+          <div class="file-summary" id="fileSummary" hidden>
+            <div>
+              <span class="summary-label">ファイル名</span>
+              <strong id="fileNameText">-</strong>
+            </div>
+            <div>
+              <span class="summary-label">ページ数</span>
+              <strong id="pageCountText">-</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-head">
+            <h2>重ね画像</h2>
+            <p>選択中ページに画像を追加します。複数画像の重ね合わせに対応しています。</p>
+          </div>
+
+          <label class="dropzone compact" id="overlayDropzone" for="overlayFileInput" tabindex="0" aria-describedby="overlayHelp">
+            <input id="overlayFileInput" type="file" accept="image/png,image/jpeg,image/webp" multiple>
+            <span class="dropzone-title">重ね画像を追加</span>
+            <span class="dropzone-text">PNG / JPG / WebP を選択</span>
+          </label>
+          <p class="field-hint" id="overlayHelp">ページ選択後に追加できます。画像はブラウザ内のみで保持します。</p>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-head">
+            <h2>選択中画像の調整</h2>
+            <p>キャンバス上でドラッグ・リサイズし、数値でも微調整できます。</p>
+          </div>
+
+          <div class="field-grid single">
+            <label class="field">
+              <span>透明度</span>
+              <input id="opacityRange" type="range" min="10" max="100" step="5" value="100" disabled>
+              <strong class="range-value" id="opacityValue">100%</strong>
+            </label>
+
+            <label class="field">
+              <span>回転</span>
+              <input id="rotationRange" type="range" min="-180" max="180" step="1" value="0" disabled>
+              <strong class="range-value" id="rotationValue">0°</strong>
+            </label>
+          </div>
+
+          <div class="button-grid">
+            <button id="bringForwardButton" class="secondary-button" type="button" disabled>前面へ</button>
+            <button id="sendBackwardButton" class="secondary-button" type="button" disabled>背面へ</button>
+            <button id="removeOverlayButton" class="ghost-button" type="button" disabled>選択画像を削除</button>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-head">
+            <h2>書き出し</h2>
+            <p>プレビューは編集用、保存時は高解像度で再描画してPNGを書き出します。</p>
+          </div>
+
+          <label class="field">
+            <span>保存解像度</span>
+            <select id="exportScaleSelect">
+              <option value="1.5">1.5x</option>
+              <option value="2" selected>2x</option>
+              <option value="3">3x</option>
+            </select>
+          </label>
+
+          <div class="button-stack">
+            <button id="saveCurrentButton" class="primary-button" type="button" disabled>選択ページをPNG保存</button>
+            <button id="resetPageButton" class="secondary-button" type="button" disabled>選択ページをリセット</button>
+            <button id="resetAllButton" class="ghost-button" type="button">全体をリセット</button>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="status-box" id="statusBox" aria-live="polite">
+            PDFを読み込むと、ここに作業状況を表示します。
+          </div>
+          <div class="error-box" id="errorBox" role="alert" hidden></div>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <section class="card workspace-header">
+          <div class="section-head">
+            <h2>ページ編集</h2>
+            <p>キャンバス上で画像をつかんで移動できます。四隅と辺のハンドルで自由にサイズ変更できます。</p>
+          </div>
+          <div class="preview-meta">
+            <span class="meta-chip">選択ページ: <strong id="currentPageText">-</strong></span>
+            <span class="meta-chip">重ね画像数: <strong id="overlayCountText">0</strong></span>
+          </div>
+        </section>
+
+        <section class="card loading-card" id="loadingCard" hidden>
+          <div class="spinner" aria-hidden="true"></div>
+          <div>
+            <strong id="loadingTitle">読み込み中です</strong>
+            <p id="loadingText">PDFのページを準備しています。</p>
+          </div>
+        </section>
+
+        <section class="card editor-card">
+          <div class="editor-stage" id="editorStage">
+            <div class="editor-empty" id="editorEmpty">
+              PDFを読み込むと、ここでページごとの編集プレビューを確認できます。
+            </div>
+            <canvas id="editorCanvas" hidden></canvas>
+          </div>
+          <div class="editor-help">
+            <span>操作: ドラッグで移動 / ハンドルでリサイズ / 上部ハンドルで回転</span>
+            <span>注意: 保存時はブラウザ内で高解像度レンダリングします。</span>
+          </div>
+        </section>
+
+        <section class="card page-list-card">
+          <div class="section-head">
+            <h2>ページ一覧</h2>
+            <p>編集したいページを選択してください。</p>
+          </div>
+          <div class="page-list" id="pageList">
+            <div class="empty-state" id="pageListEmpty">
+              まだPDFが読み込まれていません。
+            </div>
+          </div>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="./script.js"></script>
+</body>
+</html>
