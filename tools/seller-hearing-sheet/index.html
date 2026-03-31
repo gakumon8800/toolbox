@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>売主ヒアリングシート | toolbox</title>
+  <meta
+    name="description"
+    content="不動産売却の初回面談や事前整理に使える、売主ヒアリングシートです。画像保存と店頭用CSV出力に対応しています。"
+  >
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <a class="back-link" href="../../">← toolbox 一覧へ戻る</a>
+
+    <section class="hero card">
+      <p class="eyebrow">売却初回ヒアリング整理</p>
+      <h1>売主ヒアリングシート</h1>
+      <p class="hero-text">
+        売却理由や権利関係、物件状態、管理状況をその場で整理し、
+        見やすいサマリー画像として保存できます。店頭モードではCSV出力にも対応しています。
+      </p>
+
+      <div class="hero-notes">
+        <p class="note-card">
+          ご自宅入力、店頭同席入力、店頭端末貸出の3モードに対応しています。
+        </p>
+        <p class="note-card">
+          わからない項目は空欄または「不明」で進められます。あとで確認が必要な項目は自動で整理します。
+        </p>
+        <p class="note-card note-card-warning">
+          このシートは初回ヒアリング整理用です。正式な調査・法的確認は別途必要です。
+        </p>
+      </div>
+    </section>
+
+    <section class="sticky-bar card" id="stickyBar" hidden>
+      <div class="mode-summary">
+        <span class="mode-chip" id="modeChip">モード未選択</span>
+        <span class="mode-caption" id="modeCaption">利用モードを選択してください。</span>
+      </div>
+      <div class="privacy-banner" id="privacyBanner" hidden>
+        入力後は内容を消去してください。一定時間操作がない場合は自動で初期化します。
+      </div>
+    </section>
+
+    <section class="step-nav card" id="stepNav" hidden aria-label="進捗">
+      <ol class="step-list" id="stepList"></ol>
+    </section>
+
+    <section class="view-stack">
+      <section class="view-panel card" id="modeView">
+        <div class="section-head">
+          <h2>1. モード選択</h2>
+          <p>利用シーンに合うモードを選ぶと、文言や出力方法が切り替わります。</p>
+        </div>
+
+        <div class="mode-grid" id="modeGrid"></div>
+      </section>
+
+      <section class="view-panel" id="formView" hidden>
+        <div class="form-layout">
+          <section class="card input-panel">
+            <div class="section-head">
+              <h2>2. 入力フォーム</h2>
+              <p id="formLead">必要な内容を入力してください。</p>
+            </div>
+
+            <div class="inline-message" id="modeMessage"></div>
+            <div class="inline-message inline-message-soft" id="unknownMessage"></div>
+
+            <form id="hearingForm" novalidate>
+              <div class="section-jump" id="sectionJump" aria-label="入力カテゴリ移動"></div>
+              <div id="formSections"></div>
+
+              <div class="action-row action-row-sticky">
+                <button type="button" class="secondary-button" id="backToModeButton">モードを変更</button>
+                <button type="button" class="ghost-button" id="fillDemoButton">ダミーデータ入力</button>
+                <button type="button" class="primary-button" id="toPreviewButton">内容確認へ進む</button>
+              </div>
+            </form>
+          </section>
+
+          <aside class="card side-panel">
+            <div class="section-head">
+              <h2>入力補助</h2>
+              <p>要確認事項と要注意項目を自動で整理します。</p>
+            </div>
+
+            <section class="support-block">
+              <h3>要確認事項</h3>
+              <ul class="status-list" id="checkItemsList"></ul>
+            </section>
+
+            <section class="support-block">
+              <h3>要注意項目</h3>
+              <ul class="status-list" id="riskItemsList"></ul>
+            </section>
+
+            <section class="support-block">
+              <h3>ご案内</h3>
+              <p class="support-text" id="supportText"></p>
+            </section>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view-panel" id="previewView" hidden>
+        <section class="card preview-panel">
+          <div class="section-head">
+            <h2>3. 内容確認</h2>
+            <p>出力前に、入力内容と要確認事項を見やすく整理して確認できます。</p>
+          </div>
+
+          <div class="preview-summary" id="previewSummary"></div>
+
+          <section class="card confirm-box">
+            <h3>要確認事項まとめ</h3>
+            <ul class="status-list" id="previewCheckItems"></ul>
+          </section>
+
+          <div class="action-row">
+            <button type="button" class="secondary-button" id="editButton">内容修正</button>
+            <button type="button" class="ghost-button" id="clearButton">すべて消去</button>
+            <button type="button" class="primary-button" id="imageExportButton">画像出力</button>
+            <button type="button" class="primary-button" id="csvExportButton">CSV出力</button>
+          </div>
+        </section>
+      </section>
+
+      <section class="view-panel" id="outputView" hidden>
+        <section class="card output-panel">
+          <div class="section-head">
+            <h2>4. 出力</h2>
+            <p id="outputLead">出力が完了したら、この端末に内容を残さないよう消去できます。</p>
+          </div>
+
+          <div class="output-status" id="outputStatus"></div>
+          <div class="download-list" id="downloadList"></div>
+
+          <div class="action-row">
+            <button type="button" class="secondary-button" id="backToPreviewButton">確認画面へ戻る</button>
+            <button type="button" class="primary-button" id="exportAgainButton">画像を再出力</button>
+            <button type="button" class="primary-button" id="exportCsvAgainButton">CSVを出力</button>
+            <button type="button" class="ghost-button" id="resetAfterExportButton">入力内容を消去する</button>
+          </div>
+        </section>
+      </section>
+    </section>
+
+    <footer class="page-footer">
+      <a class="back-link footer-link" href="../../">toolbox 一覧へ戻る</a>
+    </footer>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
