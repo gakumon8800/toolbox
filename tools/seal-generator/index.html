@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>丸印ジェネレーター | toolbox</title>
+  <meta
+    name="description"
+    content="名前から丸い印鑑らしい印影を生成し、PNG保存できる静的Webツールです。"
+  >
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <a class="back-link" href="../../">← ツール一覧に戻る</a>
+
+    <section class="hero card">
+      <span class="eyebrow">Seal Generator</span>
+      <h1>丸印ジェネレーター</h1>
+      <p class="hero-text">
+        名前をもとに、認印や銀行印のような丸い印影をブラウザ上で作成するシンプルなツールです。
+        文字数ごとの固定レイアウトで、まずは破綻しにくく安定した丸印を作れることを優先しています。
+      </p>
+    </section>
+
+    <section class="layout">
+      <aside class="control-panel card">
+        <section class="panel-section">
+          <div class="section-head">
+            <h2>設定</h2>
+            <p>必要最低限の項目だけで丸印を調整できます。</p>
+          </div>
+
+          <label class="field field-full" for="nameInput">
+            <span>名前</span>
+            <input id="nameInput" name="nameInput" type="text" maxlength="4" value="印鑑" placeholder="例: 印鑑 / 田辺 / 佐藤">
+          </label>
+
+          <div class="field-grid">
+            <label class="field" for="frameMode">
+              <span>枠表示</span>
+              <select id="frameMode" name="frameMode">
+                <option value="frame" selected>枠あり</option>
+                <option value="no-frame">枠なし</option>
+              </select>
+            </label>
+
+            <label class="field" for="colorMode">
+              <span>表示モード</span>
+              <select id="colorMode" name="colorMode">
+                <option value="normal" selected>通常</option>
+                <option value="inverse">白抜き</option>
+              </select>
+            </label>
+
+            <label class="field" for="fontScale">
+              <span>文字サイズ</span>
+              <input id="fontScale" name="fontScale" type="range" min="72" max="122" step="1" value="94">
+              <strong class="range-value" id="fontScaleValue">94%</strong>
+            </label>
+
+            <label class="field" for="strokeWidth">
+              <span>線の太さ</span>
+              <input id="strokeWidth" name="strokeWidth" type="range" min="4" max="22" step="1" value="10">
+              <strong class="range-value" id="strokeWidthValue">10 px</strong>
+            </label>
+
+            <label class="field" for="padding">
+              <span>内側余白</span>
+              <input id="padding" name="padding" type="range" min="10" max="30" step="1" value="18">
+              <strong class="range-value" id="paddingValue">18%</strong>
+            </label>
+
+            <label class="field" for="inkColor">
+              <span>色</span>
+              <input id="inkColor" name="inkColor" type="color" value="#c6382f">
+            </label>
+          </div>
+
+          <div class="button-row">
+            <button class="primary-button" id="downloadButton" type="button">PNG保存</button>
+            <button class="secondary-button" id="download2xButton" type="button">PNG保存 2x</button>
+            <button class="ghost-button" id="resetButton" type="button">リセット</button>
+          </div>
+
+          <p class="status-text" id="statusText" aria-live="polite">
+            入力や設定を変えると、右側の丸印プレビューが自動更新されます。
+          </p>
+        </section>
+      </aside>
+
+      <section class="preview-panel">
+        <section class="card preview-header">
+          <div class="section-head">
+            <h2>丸印プレビュー</h2>
+            <p>2〜4文字の日本語名を中心に、文字数ごとの固定配置で安定表示します。</p>
+          </div>
+        </section>
+
+        <section class="card preview-card">
+          <div class="canvas-frame">
+            <canvas id="previewCanvas" width="640" height="640" aria-label="丸印のプレビュー"></canvas>
+          </div>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
