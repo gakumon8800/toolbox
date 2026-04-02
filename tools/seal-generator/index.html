@@ -59,16 +59,46 @@
               <strong class="range-value" id="fontScaleValue">94%</strong>
             </label>
 
+            <label class="field" for="fontWeight">
+              <span>文字の太さ</span>
+              <input id="fontWeight" name="fontWeight" type="range" min="300" max="1000" step="100" value="700">
+              <strong class="range-value" id="fontWeightValue">700</strong>
+            </label>
+
+            <label class="field" for="letterGap">
+              <span>文字間調整</span>
+              <input id="letterGap" name="letterGap" type="range" min="-50" max="50" step="1" value="0">
+              <strong class="range-value" id="letterGapValue">0%</strong>
+            </label>
+
             <label class="field" for="strokeWidth">
               <span>線の太さ</span>
-              <input id="strokeWidth" name="strokeWidth" type="range" min="4" max="22" step="1" value="10">
+              <input id="strokeWidth" name="strokeWidth" type="range" min="4" max="40" step="1" value="10">
               <strong class="range-value" id="strokeWidthValue">10 px</strong>
+            </label>
+
+            <label class="field" for="distress">
+              <span>かすれ量</span>
+              <input id="distress" name="distress" type="range" min="0" max="12" step="1" value="4">
+              <strong class="range-value" id="distressValue">4</strong>
             </label>
 
             <label class="field" for="padding">
               <span>内側余白</span>
               <input id="padding" name="padding" type="range" min="10" max="30" step="1" value="18">
               <strong class="range-value" id="paddingValue">18%</strong>
+            </label>
+
+            <label class="field" for="offsetX">
+              <span>横位置調整</span>
+              <input id="offsetX" name="offsetX" type="range" min="-20" max="20" step="1" value="0">
+              <strong class="range-value" id="offsetXValue">0%</strong>
+            </label>
+
+            <label class="field" for="offsetY">
+              <span>縦位置調整</span>
+              <input id="offsetY" name="offsetY" type="range" min="-20" max="20" step="1" value="0">
+              <strong class="range-value" id="offsetYValue">0%</strong>
             </label>
 
             <label class="field" for="inkColor">
@@ -93,7 +123,7 @@
         <section class="card preview-header">
           <div class="section-head">
             <h2>丸印プレビュー</h2>
-            <p>2〜4文字の日本語名を中心に、文字数ごとの固定配置で安定表示します。</p>
+            <p>2〜4文字の日本語名を中心に、文字数ごとの固定レイアウトで安定表示します。</p>
           </div>
         </section>
 
