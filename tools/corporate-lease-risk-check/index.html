@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>法人賃貸借契約リスク判定ツール | toolbox</title>
+  <meta
+    name="description"
+    content="保証会社なしで法人契約を受け付ける際のリスクを、社内判断用にスコア化できるツール"
+  >
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <a class="back-link" href="../../">← toolbox 一覧へ戻る</a>
+
+    <section class="hero card">
+      <p class="eyebrow">社内判断補助ツール</p>
+      <h1>法人賃貸借契約リスク判定ツール</h1>
+      <p class="hero-text">
+        保証会社なしで法人賃貸借契約を受け付けるかどうかを、
+        企業属性・財務情報・契約条件・担保補完の観点から簡易判定できます。
+        入力内容に応じて、合計スコア・判定結果・推奨アクションがリアルタイムで更新されます。
+      </p>
+      <div class="hero-note">
+        未入力項目がある間は暫定結果として表示します。最終判断の前に、全項目の確認と社内承認フローを行ってください。
+      </div>
+    </section>
+
+    <div class="layout">
+      <section class="form-column">
+        <form id="riskForm" class="question-stack" novalidate></form>
+      </section>
+
+      <aside class="summary-column">
+        <section class="card summary-card" aria-live="polite">
+          <div class="summary-head">
+            <div>
+              <p class="summary-label">集計結果</p>
+              <h2>判定サマリー</h2>
+            </div>
+            <div class="score-chip">
+              <span>合計スコア</span>
+              <strong id="scoreValue">0</strong>
+            </div>
+          </div>
+
+          <div class="status-panel" id="statusPanel">
+            <p class="status-label">判定結果</p>
+            <p class="status-title" id="judgmentText">入力待ち</p>
+            <p class="status-caption" id="judgmentCaption">全13項目の入力後に、より精度の高い判断がしやすくなります。</p>
+          </div>
+
+          <section class="meter-card" aria-labelledby="scoreMeterTitle">
+            <div class="meter-header">
+              <h3 id="scoreMeterTitle">スコアメーター</h3>
+              <span id="meterPositionLabel">0 / 31</span>
+            </div>
+            <div class="meter-scale">
+              <span>-25</span>
+              <span>31</span>
+            </div>
+            <div class="meter-track" aria-hidden="true">
+              <div class="meter-fill" id="meterFill"></div>
+              <div class="meter-marker" id="meterMarker"></div>
+            </div>
+            <div class="meter-thresholds">
+              <span>不推奨</span>
+              <span>慎重判断</span>
+              <span>条件付き可</span>
+              <span>契約可</span>
+            </div>
+          </section>
+
+          <div class="summary-grid">
+            <div class="mini-card">
+              <span>未入力項目数</span>
+              <strong id="pendingCount">13件</strong>
+            </div>
+            <div class="mini-card">
+              <span>入力状況</span>
+              <strong id="completionText">0 / 13件入力済み</strong>
+            </div>
+          </div>
+
+          <section class="action-panel">
+            <h3>推奨アクション</h3>
+            <p id="actionText">
+              各項目を選択すると、判定帯に応じた推奨アクションを表示します。
+            </p>
+          </section>
+
+          <section class="input-summary">
+            <div class="input-summary-head">
+              <h3>入力内容</h3>
+              <span id="copyFeedback" aria-live="polite"></span>
+            </div>
+            <div class="input-summary-list" id="inputSummaryList"></div>
+          </section>
+
+          <div class="button-row">
+            <button type="button" class="primary-button" id="copyButton">結果をコピー</button>
+            <button type="button" class="secondary-button" id="printButton">印刷 / PDF保存</button>
+            <button type="button" class="ghost-button" id="resetButton">リセット</button>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <section class="card caution-card">
+      <h2>ご利用時の注意</h2>
+      <p>
+        本ツールは社内判断補助を目的とした簡易判定ツールです。最終判断は上長・オーナー・社内基準に基づいて行ってください。
+      </p>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
