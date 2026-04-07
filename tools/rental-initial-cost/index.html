@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>賃貸初期費用計算ツール | toolbox</title>
+  <meta
+    name="description"
+    content="賃料、敷金、礼金、仲介手数料、保証会社費用などから、賃貸契約時の初期費用を概算できる静的ツールです。"
+  >
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="../">← ツール一覧に戻る</a>
+
+    <section class="hero">
+      <span class="hero-badge">Rental Initial Cost</span>
+      <h1>賃貸初期費用計算ツール</h1>
+      <p class="hero-text">
+        賃貸物件の契約時に必要になりやすい費用を、入力条件から概算できるツールです。
+        敷金・礼金・前家賃・保証会社費用・各種固定費をまとめて確認できます。
+      </p>
+    </section>
+
+    <section class="layout">
+      <form class="panel input-panel" id="calculator-form" novalidate>
+        <div class="panel-heading">
+          <h2>入力条件</h2>
+          <p>入力内容を変えると、右側の結果が自動で更新されます。空欄は 0 円として扱います。</p>
+        </div>
+
+        <section class="group">
+          <h3>月額条件</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label for="rent">賃料（月額）</label>
+              <div class="input-wrap">
+                <input id="rent" name="rent" type="text" inputmode="numeric" autocomplete="off" value="85,000">
+                <span>円</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="managementFee">管理費・共益費（月額）</label>
+              <div class="input-wrap">
+                <input id="managementFee" name="managementFee" type="text" inputmode="numeric" autocomplete="off" value="5,000">
+                <span>円</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="group">
+          <h3>ヶ月数で計算する項目</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label for="depositMonths">敷金（ヶ月）</label>
+              <div class="input-wrap small-wrap">
+                <input id="depositMonths" name="depositMonths" type="number" inputmode="decimal" min="0" step="0.5" value="1">
+                <span>ヶ月</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="keyMoneyMonths">礼金（ヶ月）</label>
+              <div class="input-wrap small-wrap">
+                <input id="keyMoneyMonths" name="keyMoneyMonths" type="number" inputmode="decimal" min="0" step="0.5" value="1">
+                <span>ヶ月</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="brokerageMonths">仲介手数料（ヶ月）</label>
+              <div class="input-wrap small-wrap">
+                <input id="brokerageMonths" name="brokerageMonths" type="number" inputmode="decimal" min="0" step="0.5" value="1">
+                <span>ヶ月</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="advanceRentMonths">前家賃（月数）</label>
+              <div class="input-wrap small-wrap">
+                <input id="advanceRentMonths" name="advanceRentMonths" type="number" inputmode="decimal" min="0" step="0.5" value="1">
+                <span>ヶ月</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="group">
+          <h3>保証会社初回費用</h3>
+          <div class="radio-card-group" role="radiogroup" aria-label="保証会社初回費用の入力方式">
+            <label class="choice-card">
+              <input type="radio" name="guaranteeMode" value="percent" checked>
+              <span>％指定</span>
+            </label>
+            <label class="choice-card">
+              <input type="radio" name="guaranteeMode" value="fixed">
+              <span>固定額</span>
+            </label>
+          </div>
+
+          <div class="field guarantee-field" id="guaranteeValueField">
+            <label for="guaranteeValue">保証会社初回費用</label>
+            <div class="input-wrap" id="guaranteeValueWrap">
+              <input id="guaranteeValue" name="guaranteeValue" type="number" inputmode="decimal" min="0" step="0.1" value="50">
+              <span id="guaranteeUnit">%</span>
+            </div>
+            <p class="field-hint" id="guaranteeHint">％指定の場合は「賃料＋管理費・共益費」に対して計算します。</p>
+          </div>
+        </section>
+
+        <section class="group">
+          <h3>固定費</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label for="fireInsurance">火災保険料</label>
+              <div class="input-wrap">
+                <input id="fireInsurance" name="fireInsurance" type="text" inputmode="numeric" autocomplete="off" value="18,000">
+                <span>円</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="keyExchange">鍵交換費用</label>
+              <div class="input-wrap">
+                <input id="keyExchange" name="keyExchange" type="text" inputmode="numeric" autocomplete="off" value="22,000">
+                <span>円</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="supportFee">24時間サポート等</label>
+              <div class="input-wrap">
+                <input id="supportFee" name="supportFee" type="text" inputmode="numeric" autocomplete="off" value="15,000">
+                <span>円</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="adminFee">契約事務手数料</label>
+              <div class="input-wrap">
+                <input id="adminFee" name="adminFee" type="text" inputmode="numeric" autocomplete="off" value="10,000">
+                <span>円</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="group">
+          <h3>日割り家賃</h3>
+          <label class="check-row">
+            <input id="includeProratedRent" name="includeProratedRent" type="checkbox" checked>
+            <span>日割り家賃を総額に含める</span>
+          </label>
+
+          <div class="field" id="proratedRentField">
+            <label for="proratedRent">日割り家賃額</label>
+            <div class="input-wrap">
+              <input id="proratedRent" name="proratedRent" type="text" inputmode="numeric" autocomplete="off" value="27,000">
+              <span>円</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="group">
+          <h3>課税設定</h3>
+          <p class="group-text">チェックした項目は、入力額に消費税 10% を加算して計算します。</p>
+          <div class="check-list">
+            <label class="check-row">
+              <input id="taxBrokerage" name="taxBrokerage" type="checkbox" checked>
+              <span>仲介手数料に消費税 10% を加算する</span>
+            </label>
+            <label class="check-row">
+              <input id="taxSupport" name="taxSupport" type="checkbox" checked>
+              <span>24時間サポートに消費税 10% を加算する</span>
+            </label>
+            <label class="check-row">
+              <input id="taxAdmin" name="taxAdmin" type="checkbox" checked>
+              <span>契約事務手数料に消費税 10% を加算する</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="group">
+          <div class="group-head">
+            <h3>その他費用</h3>
+            <button class="sub-button" id="add-other-cost" type="button">項目を追加</button>
+          </div>
+          <p class="group-text">任意の費用を追加できます。項目名が空欄でも金額は合計に反映されます。</p>
+          <div class="other-list" id="other-cost-list" aria-live="polite"></div>
+        </section>
+
+        <div class="action-row">
+          <button class="primary-button" type="button" id="reset-button">初期値に戻す</button>
+        </div>
+      </form>
+
+      <section class="panel result-panel" aria-live="polite">
+        <div class="panel-heading">
+          <h2>計算結果</h2>
+          <p>月額費用、契約時の内訳、初回支払総額をまとめて確認できます。</p>
+        </div>
+
+        <div class="result-block">
+          <div class="result-head">
+            <h3>月額費用</h3>
+            <strong id="monthlyTotalCard">0円</strong>
+          </div>
+          <dl class="result-list">
+            <div><dt>賃料</dt><dd id="resultRent">0円</dd></div>
+            <div><dt>管理費・共益費</dt><dd id="resultManagementFee">0円</dd></div>
+            <div class="strong-row"><dt>月額合計</dt><dd id="resultMonthlyTotal">0円</dd></div>
+          </dl>
+        </div>
+
+        <div class="result-block">
+          <div class="result-head">
+            <h3>初期費用内訳</h3>
+            <strong id="initialSubtotalCard">0円</strong>
+          </div>
+          <dl class="result-list">
+            <div><dt>敷金</dt><dd id="resultDeposit">0円</dd></div>
+            <div><dt>礼金</dt><dd id="resultKeyMoney">0円</dd></div>
+            <div><dt>仲介手数料</dt><dd id="resultBrokerage">0円</dd></div>
+            <div><dt>前家賃</dt><dd id="resultAdvanceRent">0円</dd></div>
+            <div><dt>日割り家賃</dt><dd id="resultProratedRent">0円</dd></div>
+            <div><dt>保証会社初回費用</dt><dd id="resultGuarantee">0円</dd></div>
+            <div><dt>火災保険料</dt><dd id="resultFireInsurance">0円</dd></div>
+            <div><dt>鍵交換費用</dt><dd id="resultKeyExchange">0円</dd></div>
+            <div><dt>24時間サポート</dt><dd id="resultSupportFee">0円</dd></div>
+            <div><dt>契約事務手数料</dt><dd id="resultAdminFee">0円</dd></div>
+            <div><dt>その他費用合計</dt><dd id="resultOtherTotal">0円</dd></div>
+            <div class="strong-row"><dt>初期費用小計</dt><dd id="resultInitialSubtotal">0円</dd></div>
+          </dl>
+          <div class="other-breakdown" id="other-breakdown"></div>
+        </div>
+
+        <div class="result-block total-block">
+          <div class="result-head">
+            <h3>総額</h3>
+            <strong id="grandTotalCard">0円</strong>
+          </div>
+          <dl class="result-list">
+            <div><dt>月額合計</dt><dd id="resultMonthlyTotalAgain">0円</dd></div>
+            <div><dt>初期費用小計</dt><dd id="resultInitialSubtotalAgain">0円</dd></div>
+            <div class="strong-row"><dt>初回支払総額</dt><dd id="resultGrandTotal">0円</dd></div>
+          </dl>
+        </div>
+
+        <div class="notice-box">
+          この計算結果は概算です。実際の契約条件により異なります。
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <template id="other-cost-template">
+    <div class="other-item">
+      <div class="field">
+        <label>項目名</label>
+        <input class="other-name" type="text" maxlength="40" placeholder="例：消毒費用">
+      </div>
+      <div class="field">
+        <label>金額</label>
+        <div class="input-wrap">
+          <input class="other-amount" type="text" inputmode="numeric" autocomplete="off" value="0">
+          <span>円</span>
+        </div>
+      </div>
+      <button class="remove-button" type="button">削除</button>
+    </div>
+  </template>
+
+  <script src="./script.js"></script>
+</body>
+</html>
