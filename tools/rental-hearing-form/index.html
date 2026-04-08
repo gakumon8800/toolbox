@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>賃貸ヒアリングフォーム | toolbox</title>
+  <meta
+    name="description"
+    content="賃貸物件探しの希望条件を段階的に整理し、担当者向け要約・社内共有メモ・お客様確認文・JSON・CSVで出力できる実務向けフォームです。"
+  >
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="page-shell">
+    <a class="back-link" href="../../">← toolbox 一覧へ戻る</a>
+
+    <section class="hero card">
+      <p class="eyebrow">賃貸仲介 / ヒアリング整理</p>
+      <h1>賃貸ヒアリングフォーム</h1>
+      <p class="hero-text">
+        お客様のご希望を「必須」「希望」「こだわらない」で整理しながら、
+        段階的に入力できる賃貸部屋探し向けの実務フォームです。
+        最後に担当者向け要約、社内共有メモ、お客様確認文を自然な日本語でまとめて出力できます。
+      </p>
+
+      <div class="hero-notes">
+        <p class="note-card">入力途中の内容は自動保存され、リロード後も復元できます。</p>
+        <p class="note-card">スマホでは縦並び、店舗PCでは見やすい2カラムで利用できます。</p>
+        <p class="note-card note-card-warning">未入力があっても使える設計ですが、希望エリア・賃料上限・入居希望時期は早めの入力をおすすめします。</p>
+      </div>
+    </section>
+
+    <section class="preset-bar card">
+      <div class="preset-text">
+        <h2>初期プリセット</h2>
+        <p>よくある条件をベースにして、そこから細かく調整できます。</p>
+      </div>
+      <div class="preset-actions" id="presetActions"></div>
+    </section>
+
+    <section class="progress card">
+      <div class="progress-top">
+        <div>
+          <p class="progress-caption">進捗</p>
+          <strong id="progressLabel">Step 1 / 5</strong>
+        </div>
+        <p class="progress-step-name" id="progressStepName">基本条件</p>
+      </div>
+      <div class="progress-bar" aria-hidden="true">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <ol class="step-list" id="stepList" aria-label="入力ステップ"></ol>
+    </section>
+
+    <section class="workspace">
+      <section class="card main-panel">
+        <form id="hearingForm" novalidate>
+          <section class="step-panel" data-step="1">
+            <div class="section-head">
+              <h2>Step 1：基本条件</h2>
+              <p>まずは提案の軸になる基本条件を整理します。空欄があっても進められます。</p>
+            </div>
+            <div class="form-grid" id="basicFields"></div>
+          </section>
+
+          <section class="step-panel" data-step="2" hidden>
+            <div class="section-head">
+              <h2>Step 2：こだわり条件</h2>
+              <p>各条件を「必須」「希望」「こだわらない」で整理します。提案時の優先度がわかりやすくなります。</p>
+            </div>
+            <div class="preference-grid" id="preferenceGrid"></div>
+          </section>
+
+          <section class="step-panel" data-step="3" hidden>
+            <div class="section-head">
+              <h2>Step 3：入居者属性・生活条件</h2>
+              <p>審査や提案時に見落としやすい生活条件をまとめます。</p>
+            </div>
+            <div class="form-grid" id="lifestyleFields"></div>
+          </section>
+
+          <section class="step-panel" data-step="4" hidden>
+            <div class="section-head">
+              <h2>Step 4：優先順位</h2>
+              <p>重視項目を高い順に整理し、譲れない条件と妥協可能条件を言語化します。</p>
+            </div>
+
+            <section class="priority-builder">
+              <div class="priority-pool">
+                <h3>候補から追加</h3>
+                <div class="chip-list" id="priorityPool"></div>
+              </div>
+              <div class="priority-order card-sub">
+                <div class="priority-order-head">
+                  <h3>重視順位</h3>
+                  <p>上ほど優先度が高い条件です。</p>
+                </div>
+                <div id="prioritySelected" class="priority-selected"></div>
+              </div>
+            </section>
+
+            <div class="form-grid priority-texts" id="priorityTextFields"></div>
+          </section>
+
+          <section class="step-panel" data-step="5" hidden>
+            <div class="section-head">
+              <h2>Step 5：確認・出力</h2>
+              <p>入力内容の確認と、実務で使いやすい文章・データ出力をまとめて行えます。</p>
+            </div>
+
+            <div class="summary-block" id="summaryBlock"></div>
+
+            <div class="tag-summary card-sub">
+              <h3>条件タグ</h3>
+              <div class="tag-groups" id="tagGroups"></div>
+            </div>
+
+            <div class="output-grid">
+              <section class="output-card card-sub">
+                <div class="output-head">
+                  <h3>担当者向け要約</h3>
+                  <button type="button" class="text-button" data-copy-target="staffSummary">コピー</button>
+                </div>
+                <p id="staffSummary" class="output-text"></p>
+              </section>
+
+              <section class="output-card card-sub">
+                <div class="output-head">
+                  <h3>社内共有メモ</h3>
+                  <button type="button" class="text-button" data-copy-target="internalMemo">コピー</button>
+                </div>
+                <p id="internalMemo" class="output-text"></p>
+              </section>
+
+              <section class="output-card card-sub">
+                <div class="output-head">
+                  <h3>お客様確認用文章</h3>
+                  <button type="button" class="text-button" data-copy-target="customerMessage">コピー</button>
+                </div>
+                <p id="customerMessage" class="output-text"></p>
+              </section>
+
+              <section class="output-card card-sub output-card-wide">
+                <div class="output-head">
+                  <h3>JSONエクスポート</h3>
+                  <button type="button" class="text-button" data-copy-target="jsonOutput">コピー</button>
+                </div>
+                <pre id="jsonOutput" class="json-output"></pre>
+              </section>
+            </div>
+
+            <div class="action-row action-row-output">
+              <button type="button" class="secondary-button" id="downloadCsvButton">CSVダウンロード</button>
+              <button type="button" class="ghost-button" id="printButton">印刷</button>
+              <button type="button" class="ghost-button" id="resetButton">入力をリセット</button>
+            </div>
+          </section>
+
+          <div class="inline-message" id="formMessage" hidden></div>
+
+          <div class="action-row action-row-main">
+            <button type="button" class="ghost-button" id="prevButton">前へ</button>
+            <button type="button" class="primary-button" id="nextButton">次へ</button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="card side-panel">
+        <div class="section-head">
+          <h2>入力サマリー</h2>
+          <p>今の入力状況と、提案時に意識したいポイントを整理します。</p>
+        </div>
+
+        <section class="support-block">
+          <h3>入力状況</h3>
+          <ul class="status-list" id="completionList"></ul>
+        </section>
+
+        <section class="support-block">
+          <h3>必須条件</h3>
+          <div class="tag-list" id="mustTagList"></div>
+        </section>
+
+        <section class="support-block">
+          <h3>希望条件</h3>
+          <div class="tag-list" id="wishTagList"></div>
+        </section>
+
+        <section class="support-block">
+          <h3>提案メモ</h3>
+          <p class="support-text" id="supportText"></p>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
