@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>住宅ローン返済シミュレーター | toolbox</title>
+  <meta
+    name="description"
+    content="住宅ローン返済額と月額住居コストをまとめて確認できる、実務向けの住宅ローン返済シミュレーターです。"
+  >
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="../../">← toolbox 一覧に戻る</a>
+
+    <section class="hero">
+      <span class="hero-badge">Housing Loan Tool</span>
+      <h1>住宅ローン返済シミュレーター</h1>
+      <p class="hero-text">
+        住宅ローンの概算返済額に加えて、管理費や税金を含めた月々の住居コスト全体を確認できるシミュレーターです。
+        接客時の初期試算や資金計画の整理に使いやすいよう、入力しやすさと見やすさを重視しています。
+      </p>
+
+      <div class="notice-box" role="note" aria-label="注意事項">
+        <strong>ご利用前の注意</strong>
+        <ul>
+          <li>本ツールは概算シミュレーションです。</li>
+          <li>実際の返済額・融資条件・手数料等は金融機関ごとに異なります。</li>
+          <li>正式な条件は金融機関または提携ローン窓口に確認してください。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="layout">
+      <form id="mortgage-form" class="panel input-panel" novalidate>
+        <div class="panel-heading">
+          <h2>入力条件</h2>
+          <p>金額は半角数字で入力できます。借入額は自動計算と手動入力の切り替えに対応しています。</p>
+        </div>
+
+        <div class="action-row action-row-top">
+          <button type="button" class="action-button primary" id="sample-button">サンプル値を入力</button>
+          <button type="button" class="action-button secondary" id="reset-button">入力をリセット</button>
+          <button type="submit" class="action-button dark" id="calculate-button">計算する</button>
+        </div>
+
+        <div id="form-message" class="form-message" aria-live="polite"></div>
+
+        <section class="subsection">
+          <div class="subsection-head">
+            <h3>ローン基本情報</h3>
+          </div>
+
+          <div class="field-grid">
+            <label class="field">
+              <span>物件価格</span>
+              <div class="input-wrap">
+                <input id="propertyPrice" name="propertyPrice" type="text" inputmode="numeric" autocomplete="off" value="0">
+                <span>円</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>自己資金</span>
+              <div class="input-wrap">
+                <input id="downPayment" name="downPayment" type="text" inputmode="numeric" autocomplete="off" value="0">
+                <span>円</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="mode-box">
+            <span class="mode-label">借入額の入力方法</span>
+            <div class="radio-group" role="radiogroup" aria-label="借入額の入力方法">
+              <label><input type="radio" name="loanMode" value="auto" checked> 自動計算</label>
+              <label><input type="radio" name="loanMode" value="manual"> 手動入力</label>
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <label class="field" id="loanAmountField">
+              <span>借入額</span>
+              <div class="input-wrap">
+                <input id="loanAmount" name="loanAmount" type="text" inputmode="numeric" autocomplete="off" value="0">
+                <span>円</span>
+              </div>
+              <small class="field-hint">自動計算時は「物件価格 - 自己資金」で反映されます。</small>
+            </label>
+
+            <label class="field">
+              <span>年利</span>
+              <div class="input-wrap">
+                <input id="annualRate" name="annualRate" type="text" inputmode="decimal" autocomplete="off" value="0">
+                <span>%</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>返済年数</span>
+              <div class="input-wrap">
+                <input id="loanYears" name="loanYears" type="text" inputmode="numeric" autocomplete="off" value="35">
+                <span>年</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>ボーナス返済額（1回あたり）</span>
+              <div class="input-wrap">
+                <input id="bonusPayment" name="bonusPayment" type="text" inputmode="numeric" autocomplete="off" value="0">
+                <span>円</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>ボーナス返済回数</span>
+              <div class="input-wrap select-wrap">
+                <select id="bonusFrequency" name="bonusFrequency">
+                  <option value="0">年0回</option>
+                  <option value="2">年2回</option>
+                </select>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>返済方式</span>
+              <div class="input-wrap select-wrap">
+                <select id="repaymentType" name="repaymentType" disabled>
+                  <option value="equal-payment" selected>元利均等返済</option>
+                </select>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>団信上乗せ金利</span>
+              <div class="input-wrap">
+                <input id="insuranceRate" name="insuranceRate" type="text" inputmode="decimal" autocomplete="off" value="0">
+                <span>%</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>事務手数料</span>
+              <div class="input-wrap">
+                <input id="adminFee" name="adminFee" type="text" inputmode="numeric" autocomplete="off" value="0">
+                <span>円</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>保証料</span>
+              <div class="input-wrap">
+                <input id="guaranteeFee" name="guaranteeFee" type="text" inputmode="numeric" autocomplete="off" value="0">
+                <span>円</span>
+              </div>
+            </label>
+          </div>
+        </section>
+
+        <section class="subsection">
+          <div class="subsection-head">
+            <h3>毎月の維持費</h3>
+          </div>
+
+          <div class="field-grid">
+            <label class="field">
+              <span>管理費（月額）</span>
+              <div class="input-wrap">
+                <input id="managementFee" name="managementFee" type="text" inputmode="numeric" autocomplete="off" value="0">
+                <span>円</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>修繕積立金（月額）</span>
+              <div class="input-wrap">
+                <input id="repairReserve" name="repairReserve" type="text" inputmode="numeric" autocomplete="off" value="0">
+                <span>円</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>駐車場代（月額）</span>
+              <div class="input-wrap">
+                <input id="parkingFee" name="parkingFee" type="text" inputmode="numeric" autocomplete="off" value="0">
+                <span>円</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>固定資産税・都市計画税（年額）</span>
+              <div class="input-wrap">
+                <input id="propertyTaxAnnual" name="propertyTaxAnnual" type="text" inputmode="numeric" autocomplete="off" value="0">
+                <span>円</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>火災保険料（年額）</span>
+              <div class="input-wrap">
+                <input id="fireInsuranceAnnual" name="fireInsuranceAnnual" type="text" inputmode="numeric" autocomplete="off" value="0">
+                <span>円</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>その他費用（月額）</span>
+              <div class="input-wrap">
+                <input id="otherMonthlyCost" name="otherMonthlyCost" type="text" inputmode="numeric" autocomplete="off" value="0">
+                <span>円</span>
+              </div>
+            </label>
+          </div>
+        </section>
+
+        <div class="sub-note">
+          ボーナス返済は簡易計算です。年2回の別枠返済として概算試算しています。
+        </div>
+      </form>
+
+      <div class="panel result-panel">
+        <div class="panel-heading">
+          <h2>試算結果</h2>
+          <p>月々の返済額だけでなく、維持費を含めた住居コスト全体を確認できます。</p>
+        </div>
+
+        <section class="result-section">
+          <h3>メイン結果</h3>
+          <div class="summary-grid">
+            <article class="summary-card"><span>借入額</span><strong id="resultLoanAmount">0円</strong></article>
+            <article class="summary-card"><span>適用金利</span><strong id="resultAppliedRate">0.000%</strong></article>
+            <article class="summary-card"><span>毎月返済額（ボーナス除く）</span><strong id="resultMonthlyPayment">0円</strong></article>
+            <article class="summary-card"><span>ボーナス月加算額</span><strong id="resultBonusPayment">0円</strong></article>
+            <article class="summary-card"><span>年間返済額</span><strong id="resultAnnualPayment">0円</strong></article>
+            <article class="summary-card"><span>総返済額</span><strong id="resultTotalPayment">0円</strong></article>
+            <article class="summary-card"><span>諸費用</span><strong id="resultFees">0円</strong></article>
+            <article class="summary-card accent"><span>初期自己負担額の目安</span><strong id="resultInitialCash">0円</strong></article>
+          </div>
+        </section>
+
+        <section class="result-section">
+          <div class="section-head-inline">
+            <h3>月額住居コスト</h3>
+            <div class="cost-total-box">
+              <span>月額住居コスト合計</span>
+              <strong id="resultMonthlyHousingTotal">0円</strong>
+            </div>
+          </div>
+
+          <dl class="cost-list">
+            <div><dt>毎月返済額</dt><dd id="housingMonthlyPayment">0円</dd></div>
+            <div><dt>管理費</dt><dd id="housingManagementFee">0円</dd></div>
+            <div><dt>修繕積立金</dt><dd id="housingRepairReserve">0円</dd></div>
+            <div><dt>駐車場代</dt><dd id="housingParkingFee">0円</dd></div>
+            <div><dt>固都税の月割</dt><dd id="housingTaxMonthly">0円</dd></div>
+            <div><dt>火災保険料の月割</dt><dd id="housingFireMonthly">0円</dd></div>
+            <div><dt>その他費用</dt><dd id="housingOtherCost">0円</dd></div>
+          </dl>
+        </section>
+
+        <section class="result-section">
+          <h3>金利比較</h3>
+          <div class="compare-grid">
+            <article class="compare-card"><span id="compareLowRateLabel">金利 0.000%</span><strong id="compareLowPayment">0円</strong></article>
+            <article class="compare-card current"><span id="compareCurrentRateLabel">現在金利 0.000%</span><strong id="compareCurrentPayment">0円</strong></article>
+            <article class="compare-card"><span id="compareHighRateLabel">金利 0.000%</span><strong id="compareHighPayment">0円</strong></article>
+          </div>
+        </section>
+
+        <section class="result-section">
+          <h3>返済内訳</h3>
+          <dl class="cost-list">
+            <div><dt>初回月の元金部分</dt><dd id="breakdownFirstPrincipal">0円</dd></div>
+            <div><dt>初回月の利息部分</dt><dd id="breakdownFirstInterest">0円</dd></div>
+            <div><dt>1年目終了時点の概算残債</dt><dd id="balanceAfter1Year">0円</dd></div>
+            <div><dt>5年後の概算残債</dt><dd id="balanceAfter5Years">0円</dd></div>
+            <div><dt>10年後の概算残債</dt><dd id="balanceAfter10Years">0円</dd></div>
+          </dl>
+        </section>
+      </div>
+    </section>
+
+    <section class="panel schedule-panel">
+      <div class="panel-heading">
+        <h2>返済予定表</h2>
+        <p>年ごとの概算返済表です。表示金額は円単位で四捨五入しています。</p>
+      </div>
+
+      <div class="table-wrap">
+        <table class="schedule-table">
+          <thead>
+            <tr>
+              <th>年</th>
+              <th>年間返済額</th>
+              <th>年間元金返済額</th>
+              <th>年間利息返済額</th>
+              <th>年末残高</th>
+            </tr>
+          </thead>
+          <tbody id="scheduleBody">
+            <tr><td colspan="5" class="empty-row">条件を入力すると返済予定表を表示します。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
