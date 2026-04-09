@@ -299,6 +299,13 @@ body {
   margin-top: 24px;
 }
 
+.export-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
 .primary-button {
   width: 100%;
   border: 0;
@@ -310,6 +317,14 @@ body {
 .primary-button:hover,
 .primary-button:focus-visible {
   opacity: 0.94;
+}
+
+.export-button {
+  width: 100%;
+}
+
+.export-button-primary {
+  padding-inline: 14px;
 }
 
 .result-panel {
@@ -407,6 +422,197 @@ body {
   font-size: 0.92rem;
 }
 
+.a4-export-shell {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  width: 210mm;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.a4-export-sheet {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 14mm 14mm 12mm;
+  background: #fff;
+  color: #111;
+  font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.a4-report {
+  display: grid;
+  gap: 10px;
+  height: 100%;
+}
+
+.a4-report-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--accent);
+}
+
+.a4-report-title {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+}
+
+.a4-report-meta {
+  min-width: 180px;
+  text-align: right;
+  font-size: 11px;
+  color: #46545d;
+}
+
+.a4-report-meta p {
+  margin: 0;
+}
+
+.a4-report-meta p + p {
+  margin-top: 4px;
+}
+
+.a4-section {
+  border: 1px solid #d7e3e3;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.a4-section-title {
+  margin: 0;
+  padding: 7px 10px;
+  background: #f1f8f8;
+  color: var(--accent-dark);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.a4-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.a4-summary-card {
+  padding: 10px;
+  border: 1px solid #d7e3e3;
+  border-radius: 10px;
+  background: #fcfefe;
+}
+
+.a4-summary-card p {
+  margin: 0;
+  color: #5b6b76;
+  font-size: 11px;
+}
+
+.a4-summary-card strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 16px;
+  text-align: right;
+  color: #111;
+}
+
+.a4-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.a4-table th,
+.a4-table td {
+  padding: 6px 10px;
+  border-top: 1px solid #e1ebeb;
+  font-size: 11px;
+  vertical-align: top;
+}
+
+.a4-table tr:first-child th,
+.a4-table tr:first-child td {
+  border-top: 0;
+}
+
+.a4-table th {
+  width: 52%;
+  text-align: left;
+  font-weight: 600;
+  color: #314049;
+}
+
+.a4-table td {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.a4-table-note {
+  display: block;
+  margin-top: 2px;
+  color: #667882;
+  font-size: 10px;
+  white-space: normal;
+}
+
+.a4-two-column {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 10px;
+}
+
+.a4-other-costs {
+  padding: 8px 10px 10px;
+  border-top: 1px solid #e1ebeb;
+  background: #fbfdfd;
+}
+
+.a4-other-costs p {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 10.5px;
+}
+
+.a4-other-costs p + p {
+  margin-top: 4px;
+}
+
+.a4-other-costs span:last-child {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.a4-total-row th,
+.a4-total-row td {
+  font-weight: 700;
+  color: #111;
+  background: #f8fbfb;
+}
+
+.a4-grand-row th,
+.a4-grand-row td {
+  font-weight: 800;
+  color: #111;
+  background: #eef7f7;
+}
+
+.a4-notice {
+  margin: 0;
+  padding: 9px 10px;
+  border-left: 4px solid var(--accent);
+  background: #f5fbfb;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
 @media (max-width: 920px) {
   .layout,
   .field-grid,
@@ -419,6 +625,10 @@ body {
   }
 
   .other-item {
+    grid-template-columns: 1fr;
+  }
+
+  .export-actions {
     grid-template-columns: 1fr;
   }
 
@@ -451,5 +661,59 @@ body {
   .remove-button,
   .primary-button {
     font-size: 16px;
+  }
+}
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .a4-export-shell,
+  .a4-export-shell * {
+    visibility: visible;
+  }
+
+  .a4-export-shell {
+    position: static;
+    left: auto;
+    top: auto;
+    width: auto;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .a4-export-sheet {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0;
+    padding: 14mm 14mm 12mm;
+    box-shadow: none;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .page,
+  .layout,
+  .panel,
+  .hero {
+    width: auto;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    border: 0;
+    background: transparent;
   }
 }

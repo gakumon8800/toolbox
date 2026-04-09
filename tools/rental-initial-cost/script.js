@@ -10,10 +10,17 @@
   var otherCostTemplate = document.getElementById('other-cost-template');
   var addOtherCostButton = document.getElementById('add-other-cost');
   var resetButton = document.getElementById('reset-button');
+  var saveA4ImageButton = document.getElementById('saveA4ImageButton');
+  var saveA4PdfButton = document.getElementById('saveA4PdfButton');
   var guaranteeUnit = document.getElementById('guaranteeUnit');
   var guaranteeHint = document.getElementById('guaranteeHint');
   var proratedRentField = document.getElementById('proratedRentField');
   var includeProratedRentInput = document.getElementById('includeProratedRent');
+  var a4ExportSheet = document.getElementById('a4ExportSheet');
+  var exportState = {
+    values: null,
+    result: null
+  };
 
   var amountFieldIds = [
     'rent',
@@ -107,6 +114,15 @@
 
   function formatYen(value) {
     return formatNumber(value) + '円';
+  }
+
+  function formatDateTime(date) {
+    var year = date.getFullYear();
+    var month = String(date.getMonth() + 1).padStart(2, '0');
+    var day = String(date.getDate()).padStart(2, '0');
+    var hour = String(date.getHours()).padStart(2, '0');
+    var minute = String(date.getMinutes()).padStart(2, '0');
+    return year + '-' + month + '-' + day + ' ' + hour + ':' + minute;
   }
 
   function applyTax(amount, shouldTax) {
@@ -263,6 +279,130 @@
     };
   }
 
+  function getGuaranteeLabel(values, result) {
+    if (values.guaranteeMode === 'percent') {
+      return '月額費用の' + values.guaranteeValue + '%（' + formatYen(result.initial.guarantee) + '）';
+    }
+
+    return '固定額（' + formatYen(result.initial.guarantee) + '）';
+  }
+
+  function buildInputSummary(values, result) {
+    return [
+      { label: '賃料', value: formatYen(values.rent) },
+      { label: '管理費・共益費', value: formatYen(values.managementFee) },
+      { label: '敷金', value: values.depositMonths + 'ヶ月 / ' + formatYen(result.initial.deposit) },
+      { label: '礼金', value: values.keyMoneyMonths + 'ヶ月 / ' + formatYen(result.initial.keyMoney) },
+      { label: '仲介手数料', value: values.brokerageMonths + 'ヶ月 / ' + formatYen(result.initial.brokerage), note: values.taxBrokerage ? '消費税込みで計算' : '税加算なしで計算' },
+      { label: '前家賃', value: values.advanceRentMonths + 'ヶ月 / ' + formatYen(result.initial.advanceRent) },
+      { label: '保証会社初回費用', value: getGuaranteeLabel(values, result) },
+      { label: '火災保険料', value: formatYen(result.initial.fireInsurance) },
+      { label: '鍵交換費用', value: formatYen(result.initial.keyExchange) },
+      { label: '24時間サポート', value: formatYen(result.initial.supportFee), note: values.taxSupport ? '消費税込みで計算' : '税加算なしで計算' },
+      { label: '契約事務手数料', value: formatYen(result.initial.adminFee), note: values.taxAdmin ? '消費税込みで計算' : '税加算なしで計算' },
+      { label: '日割り家賃', value: values.includeProratedRent ? formatYen(result.initial.proratedRent) : '0円', note: values.includeProratedRent ? '総額に含めています' : 'チェックOFFのため含めていません' }
+    ];
+  }
+
+  function buildExportData(values, result) {
+    return {
+      printedAt: formatDateTime(new Date()),
+      inputSummary: buildInputSummary(values, result),
+      otherCosts: result.initial.otherBreakdown.slice(),
+      monthly: [
+        { label: '賃料', value: formatYen(result.monthly.rent) },
+        { label: '管理費・共益費', value: formatYen(result.monthly.managementFee) },
+        { label: '月額費用', value: formatYen(result.monthly.total), strong: true }
+      ],
+      initial: [
+        { label: '敷金', value: formatYen(result.initial.deposit) },
+        { label: '礼金', value: formatYen(result.initial.keyMoney) },
+        { label: '仲介手数料', value: formatYen(result.initial.brokerage) },
+        { label: '前家賃', value: formatYen(result.initial.advanceRent) },
+        { label: '日割り家賃', value: formatYen(result.initial.proratedRent) },
+        { label: '保証会社初回費用', value: formatYen(result.initial.guarantee) },
+        { label: '火災保険料', value: formatYen(result.initial.fireInsurance) },
+        { label: '鍵交換費用', value: formatYen(result.initial.keyExchange) },
+        { label: '24時間サポート', value: formatYen(result.initial.supportFee) },
+        { label: '契約事務手数料', value: formatYen(result.initial.adminFee) },
+        { label: 'その他費用合計', value: formatYen(result.initial.otherTotal) },
+        { label: '初期費用小計', value: formatYen(result.initial.subtotal), strong: true }
+      ],
+      totals: [
+        { label: '月額費用', value: formatYen(result.total.monthly) },
+        { label: '初期費用内訳', value: formatYen(result.total.initialSubtotal) },
+        { label: '初回支払総額', value: formatYen(result.total.grandTotal), grand: true }
+      ]
+    };
+  }
+
+  function renderA4Rows(rows, rowClassName) {
+    return rows.map(function (row) {
+      var className = rowClassName;
+      if (row.strong) {
+        className += ' a4-total-row';
+      }
+      if (row.grand) {
+        className += ' a4-grand-row';
+      }
+
+      return '<tr class="' + className + '"><th scope="row">' +
+        escapeHtml(row.label) +
+        (row.note ? '<span class="a4-table-note">' + escapeHtml(row.note) + '</span>' : '') +
+        '</th><td>' + escapeHtml(row.value) + '</td></tr>';
+    }).join('');
+  }
+
+  function renderOtherCostsForA4(items) {
+    if (!items.length) {
+      return '<div class="a4-other-costs"><p><span>その他費用の明細</span><span>なし</span></p></div>';
+    }
+
+    return '<div class="a4-other-costs">' + items.map(function (item) {
+      return '<p><span>' + escapeHtml(item.name) + '</span><span>' + escapeHtml(formatYen(item.amount)) + '</span></p>';
+    }).join('') + '</div>';
+  }
+
+  function renderA4Export(values, result) {
+    if (!a4ExportSheet) {
+      return;
+    }
+
+    var data = buildExportData(values, result);
+    a4ExportSheet.innerHTML = '' +
+      '<article class="a4-report">' +
+      '<header class="a4-report-header">' +
+      '<div><h1 class="a4-report-title">賃貸初期費用計算書</h1></div>' +
+      '<div class="a4-report-meta"><p>出力日時</p><p>' + escapeHtml(data.printedAt) + '</p></div>' +
+      '</header>' +
+      '<section class="a4-summary-grid">' +
+      '<div class="a4-summary-card"><p>月額費用</p><strong>' + escapeHtml(formatYen(result.monthly.total)) + '</strong></div>' +
+      '<div class="a4-summary-card"><p>初期費用内訳</p><strong>' + escapeHtml(formatYen(result.initial.subtotal)) + '</strong></div>' +
+      '<div class="a4-summary-card"><p>初回支払総額</p><strong>' + escapeHtml(formatYen(result.total.grandTotal)) + '</strong></div>' +
+      '</section>' +
+      '<section class="a4-section">' +
+      '<h2 class="a4-section-title">入力条件の概要</h2>' +
+      '<table class="a4-table"><tbody>' + renderA4Rows(data.inputSummary, 'a4-input-row') + '</tbody></table>' +
+      renderOtherCostsForA4(data.otherCosts) +
+      '</section>' +
+      '<section class="a4-two-column">' +
+      '<section class="a4-section">' +
+      '<h2 class="a4-section-title">月額費用</h2>' +
+      '<table class="a4-table"><tbody>' + renderA4Rows(data.monthly, 'a4-monthly-row') + '</tbody></table>' +
+      '</section>' +
+      '<section class="a4-section">' +
+      '<h2 class="a4-section-title">計算結果</h2>' +
+      '<table class="a4-table"><tbody>' + renderA4Rows(data.totals, 'a4-total-summary-row') + '</tbody></table>' +
+      '</section>' +
+      '</section>' +
+      '<section class="a4-section">' +
+      '<h2 class="a4-section-title">初期費用内訳</h2>' +
+      '<table class="a4-table"><tbody>' + renderA4Rows(data.initial, 'a4-initial-row') + '</tbody></table>' +
+      '</section>' +
+      '<p class="a4-notice">この計算結果は概算です。実際の契約条件により異なります。</p>' +
+      '</article>';
+  }
+
   function renderOtherBreakdown(items) {
     if (!items.length) {
       resultElements.otherBreakdown.innerHTML = '<p>その他費用の明細はありません。</p>';
@@ -323,10 +463,63 @@
   }
 
   function updateCalculation() {
+    var values = collectValues();
+    var result = calculateBreakdown(values);
+
     syncChoiceCards();
     updateGuaranteeUi();
     updateProratedUi();
-    renderResults(calculateBreakdown(collectValues()));
+    renderResults(result);
+    renderA4Export(values, result);
+
+    exportState.values = values;
+    exportState.result = result;
+  }
+
+  function toggleExportButtons(disabled) {
+    if (saveA4ImageButton) {
+      saveA4ImageButton.disabled = disabled;
+    }
+    if (saveA4PdfButton) {
+      saveA4PdfButton.disabled = disabled;
+    }
+  }
+
+  function saveA4AsImage() {
+    if (!a4ExportSheet || !window.html2canvas) {
+      window.alert('画像出力の準備に失敗しました。時間をおいて再度お試しください。');
+      return;
+    }
+
+    if (!exportState.values || !exportState.result) {
+      updateCalculation();
+    }
+
+    toggleExportButtons(true);
+    window.html2canvas(a4ExportSheet, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true
+    }).then(function (canvas) {
+      var link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = 'rental-initial-cost-a4.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toggleExportButtons(false);
+    }).catch(function () {
+      toggleExportButtons(false);
+      window.alert('A4画像の保存に失敗しました。');
+    });
+  }
+
+  function printA4Pdf() {
+    if (!exportState.values || !exportState.result) {
+      updateCalculation();
+    }
+
+    window.print();
   }
 
   function addOtherCostRow(item) {
@@ -389,6 +582,14 @@
   addOtherCostButton.addEventListener('click', function () {
     addOtherCostRow({ name: '', amount: 0 });
   });
+
+  if (saveA4ImageButton) {
+    saveA4ImageButton.addEventListener('click', saveA4AsImage);
+  }
+
+  if (saveA4PdfButton) {
+    saveA4PdfButton.addEventListener('click', printA4Pdf);
+  }
 
   resetButton.addEventListener('click', resetForm);
   form.addEventListener('submit', function (event) {

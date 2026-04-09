@@ -203,6 +203,11 @@
           <p>月額費用、契約時の内訳、初回支払総額をまとめて確認できます。</p>
         </div>
 
+        <div class="export-actions">
+          <button class="sub-button export-button" type="button" id="saveA4ImageButton">A4画像で保存</button>
+          <button class="primary-button export-button export-button-primary" type="button" id="saveA4PdfButton">A4 PDFで保存</button>
+        </div>
+
         <div class="result-block">
           <div class="result-head">
             <h3>月額費用</h3>
@@ -254,6 +259,10 @@
         </div>
       </section>
     </section>
+
+    <section class="a4-export-shell" aria-hidden="true">
+      <div class="a4-export-sheet" id="a4ExportSheet"></div>
+    </section>
   </main>
 
   <template id="other-cost-template">
@@ -273,6 +282,7 @@
     </div>
   </template>
 
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="./script.js"></script>
 </body>
 </html>
