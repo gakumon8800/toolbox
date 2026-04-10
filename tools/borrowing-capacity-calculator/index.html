@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>借入可能額シミュレーター | toolbox</title>
+  <meta
+    name="description"
+    content="年収、返済比率、金利、返済年数、他の借入状況から住宅ローンの借入可能額の目安を概算できる実務向けツールです。"
+  >
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="../../">← toolbox 一覧に戻る</a>
+
+    <section class="hero">
+      <span class="hero-badge">Housing Loan Tool</span>
+      <h1>借入可能額シミュレーター</h1>
+      <p class="hero-text">
+        年収、返済比率、金利、返済年数、既存借入の状況から、住宅ローンの借入可能額の目安を概算するツールです。
+        接客中にそのまま見せやすいよう、主要な結果と返済比率別の比較をすぐ確認できる構成にしています。
+      </p>
+
+      <div class="notice-box" role="note" aria-label="重要な注意事項">
+        <strong>重要な注意事項</strong>
+        <ul>
+          <li>本ツールは概算シミュレーションです。</li>
+          <li>実際の借入可能額・審査結果・適用金利・融資条件は金融機関ごとに異なります。</li>
+          <li>年収、勤務形態、既存借入、信用情報、物件内容、担保評価等により結果は変動します。</li>
+          <li>正式な審査結果は金融機関または提携ローン窓口に確認してください。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="layout">
+      <form id="calculator-form" class="panel input-panel" novalidate>
+        <div class="panel-heading">
+          <h2>入力条件</h2>
+          <p>年収は万円で入力します。ボーナス返済は簡易計算で反映します。</p>
+        </div>
+
+        <div class="action-row action-row-top">
+          <button type="button" class="action-button primary" id="sample-button">サンプル値を入力</button>
+          <button type="button" class="action-button secondary" id="reset-button">入力をリセット</button>
+          <button type="submit" class="action-button dark" id="calculate-button">計算する</button>
+        </div>
+
+        <div id="form-message" class="form-message" aria-live="polite"></div>
+
+        <section class="subsection">
+          <div class="subsection-head">
+            <h3>基本情報</h3>
+          </div>
+
+          <div class="field-grid">
+            <label class="field">
+              <span>年収</span>
+              <div class="input-wrap">
+                <input id="annualIncome" name="annualIncome" type="text" inputmode="decimal" autocomplete="off" value="0">
+                <span>万円</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>返済年数</span>
+              <div class="input-wrap">
+                <input id="loanYears" name="loanYears" type="text" inputmode="numeric" autocomplete="off" value="35">
+                <span>年</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>想定金利</span>
+              <div class="input-wrap">
+                <input id="annualRate" name="annualRate" type="text" inputmode="decimal" autocomplete="off" value="0">
+                <span>%</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>団信上乗せ金利</span>
+              <div class="input-wrap">
+                <input id="insuranceRate" name="insuranceRate" type="text" inputmode="decimal" autocomplete="off" value="0">
+                <span>%</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>自己資金</span>
+              <div class="input-wrap">
+                <input id="ownFunds" name="ownFunds" type="text" inputmode="numeric" autocomplete="off" value="0">
+                <span>円</span>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>他の借入の年間返済額</span>
+              <div class="input-wrap">
+                <input id="otherDebtAnnual" name="otherDebtAnnual" type="text" inputmode="numeric" autocomplete="off" value="0">
+                <span>円</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="toggle-box">
+            <span class="toggle-label">ボーナス返済を考慮するか</span>
+            <div class="radio-group" role="radiogroup" aria-label="ボーナス返済を考慮するか">
+              <label><input type="radio" name="bonusEnabled" value="no" checked> しない</label>
+              <label><input type="radio" name="bonusEnabled" value="yes"> する</label>
+            </div>
+          </div>
+
+          <label class="field bonus-field" id="bonus-field">
+            <span>ボーナス返済額（年額）</span>
+            <div class="input-wrap">
+              <input id="bonusAnnual" name="bonusAnnual" type="text" inputmode="numeric" autocomplete="off" value="0">
+              <span>円</span>
+            </div>
+            <small class="field-hint">年2回のボーナス返済として簡易反映します。</small>
+          </label>
+        </section>
+
+        <section class="subsection">
+          <div class="subsection-head">
+            <h3>返済比率設定</h3>
+          </div>
+
+          <label class="field ratio-field">
+            <span>返済比率</span>
+            <div class="input-wrap">
+              <input id="repaymentRatio" name="repaymentRatio" type="text" inputmode="decimal" autocomplete="off" value="25">
+              <span>%</span>
+            </div>
+            <small class="field-hint">年収に対する年間返済額の割合として計算します。</small>
+          </label>
+
+          <div class="chip-row" aria-label="返済比率候補">
+            <button type="button" class="ratio-chip is-active" data-ratio="20">20%</button>
+            <button type="button" class="ratio-chip" data-ratio="25">25%</button>
+            <button type="button" class="ratio-chip" data-ratio="30">30%</button>
+            <button type="button" class="ratio-chip" data-ratio="35">35%</button>
+          </div>
+        </section>
+      </form>
+
+      <div class="panel result-panel">
+        <div class="panel-heading">
+          <h2>試算結果</h2>
+          <p>借入可能額と購入可能額の目安を大きく表示します。</p>
+        </div>
+
+        <section class="result-section">
+          <h3>メイン結果</h3>
+          <div class="summary-grid">
+            <article class="summary-card">
+              <span>年収</span>
+              <strong id="resultAnnualIncome">0円</strong>
+            </article>
+            <article class="summary-card">
+              <span>設定返済比率</span>
+              <strong id="resultRatio">0%</strong>
+            </article>
+            <article class="summary-card">
+              <span>年間返済可能額</span>
+              <strong id="resultAnnualCapacity">0円</strong>
+            </article>
+            <article class="summary-card">
+              <span>住宅ローン返済可能額（年額）</span>
+              <strong id="resultHousingCapacity">0円</strong>
+            </article>
+            <article class="summary-card highlight">
+              <span>想定借入可能額</span>
+              <strong id="resultBorrowingAmount">0円</strong>
+            </article>
+            <article class="summary-card accent">
+              <span>自己資金込み購入可能額の目安</span>
+              <strong id="resultPurchaseCapacity">0円</strong>
+            </article>
+            <article class="summary-card">
+              <span>想定毎月返済額</span>
+              <strong id="resultMonthlyPayment">0円</strong>
+            </article>
+            <article class="summary-card bonus-card" id="bonus-result-card">
+              <span>想定ボーナス返済額</span>
+              <strong id="resultBonusPayment">0円</strong>
+            </article>
+            <article class="summary-card">
+              <span>適用金利</span>
+              <strong id="resultAppliedRate">0.000%</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="result-section">
+          <h3>返済比率別比較</h3>
+          <div class="table-wrap">
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th>返済比率</th>
+                  <th>年間返済可能額</th>
+                  <th>借入可能額</th>
+                  <th>自己資金込み購入可能額</th>
+                </tr>
+              </thead>
+              <tbody id="comparison-body">
+                <tr>
+                  <td colspan="4" class="empty-row">条件を入力すると比較結果を表示します。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="result-section">
+          <h3>補足</h3>
+          <div class="insight-list">
+            <article class="insight-card">
+              <strong>他の借入の影響</strong>
+              <p id="insightOtherDebt">他の借入がある場合は、その分だけ住宅ローンに回せる年間返済額が小さくなります。</p>
+            </article>
+            <article class="insight-card">
+              <strong>金利の影響</strong>
+              <p id="insightInterest">金利が高いほど、同じ返済額でも借入可能額は下がりやすくなります。</p>
+            </article>
+            <article class="insight-card">
+              <strong>返済年数の見方</strong>
+              <p id="insightYears">返済年数を延ばすと借入可能額は増えやすい一方、総返済額は増えやすくなります。</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="result-section guide-section">
+          <h3>次の導線</h3>
+          <div class="guide-actions">
+            <a class="guide-button primary" href="../mortgage-calculator/">この借入額で返済シミュレーションする</a>
+            <a class="guide-button secondary" href="../mortgage-calculator/">住宅ローン返済シミュレーターを見る</a>
+          </div>
+          <p class="guide-note">返済額や月額住居コストの確認が必要な場合は、既存の住宅ローン返済シミュレーターへ進めます。</p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
