@@ -1,261 +1,20 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>不動産AIツール | toolbox</title>
-  <meta name="description" content="賃貸管理・仲介の現場で使えるAIツール集" />
-
-  <style>
-    :root{
-      --main:#008080;
-      --accent:#DFE6E9;
-      --text:#2D3748;
-      --bg:#F7FAFC;
-      --card:#FFFFFF;
-      --border:#E2E8F0;
-    }
-
-    *{
-      box-sizing:border-box;
-    }
-
-    body{
-      margin:0;
-      font-family:"Noto Sans JP", system-ui, sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      line-height:1.7;
-    }
-
-    .site-header{
-      background:#fff;
-      border-bottom:1px solid var(--border);
-    }
-
-    .header-inner{
-      max-width:960px;
-      margin:auto;
-      padding:16px 20px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:16px;
-    }
-
-    .site-title{
-      font-weight:700;
-      font-size:1.1rem;
-    }
-
-    .site-nav{
-      display:flex;
-      gap:18px;
-      flex-wrap:wrap;
-    }
-
-    .site-nav a{
-      text-decoration:none;
-      color:var(--main);
-      font-weight:600;
-    }
-
-    .container{
-      max-width:960px;
-      margin:auto;
-      padding:30px 20px 48px;
-    }
-
-    .hero{
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:28px;
-      margin-bottom:24px;
-    }
-
-    .hero-badge{
-      display:inline-block;
-      margin-bottom:12px;
-      padding:6px 10px;
-      border-radius:999px;
-      background:var(--accent);
-      color:var(--main);
-      font-size:.82rem;
-      font-weight:700;
-    }
-
-    .hero h1{
-      margin:0 0 10px 0;
-      font-size:1.8rem;
-      line-height:1.4;
-    }
-
-    .hero p{
-      margin:0;
-      color:#4A5568;
-    }
-
-    .hero-actions{
-      margin-top:18px;
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-
-    .hero-button{
-      display:inline-block;
-      padding:10px 16px;
-      border-radius:10px;
-      text-decoration:none;
-      font-weight:700;
-      transition:.15s;
-    }
-
-    .hero-button.primary{
-      background:var(--main);
-      color:#fff;
-    }
-
-    .hero-button.secondary{
-      background:#fff;
-      color:var(--main);
-      border:1px solid var(--border);
-    }
-
-    .hero-button:hover{
-      transform:translateY(-1px);
-      opacity:.95;
-    }
-
-    .section-title{
-      border-left:6px solid var(--main);
-      padding-left:10px;
-      margin:30px 0 16px;
-      font-size:1.1rem;
-    }
-
-    .tools-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
-      gap:16px;
-    }
-
-    .tool-card{
-      display:block;
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:18px;
-      text-decoration:none;
-      color:inherit;
-      transition:.15s;
-      box-shadow:0 3px 10px rgba(0,0,0,.03);
-    }
-
-    .tool-card:hover{
-      transform:translateY(-4px);
-      box-shadow:0 8px 22px rgba(0,0,0,.08);
-    }
-
-    .tool-card h3{
-      margin:0 0 8px;
-      font-size:1.05rem;
-      line-height:1.5;
-    }
-
-    .tool-card p{
-      margin:0;
-      font-size:.93rem;
-      color:#4A5568;
-    }
-
-    .tool-meta{
-      margin-top:8px;
-      font-size:.8rem;
-      color:#718096;
-    }
-
-    .tool-card.soon{
-      background:#FCFCFC;
-      border-style:dashed;
-    }
-
-    .tool-status{
-      display:inline-block;
-      margin-top:10px;
-      font-size:.78rem;
-      font-weight:700;
-      color:#B7791F;
-      background:#FEF3C7;
-      padding:4px 8px;
-      border-radius:999px;
-    }
-
-    .note-box{
-      margin-top:28px;
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:16px;
-      font-size:.9rem;
-      color:#4A5568;
-    }
-
-    .loading,
-    .error-message,
-    .empty-message{
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:18px;
-      color:#4A5568;
-    }
-
-    footer{
-      margin-top:40px;
-      text-align:center;
-      font-size:.9rem;
-      color:#718096;
-    }
-
-    .x-link{
-      color:var(--main);
-      text-decoration:none;
-      font-weight:600;
-    }
-
-    .x-link:hover{
-      text-decoration:underline;
-    }
-
-    @media(max-width:640px){
-      .header-inner{
-        align-items:flex-start;
-        flex-direction:column;
-      }
-
-      .hero{
-        padding:22px 18px;
-      }
-
-      .hero h1{
-        font-size:1.4rem;
-      }
-
-      .container{
-        padding:22px 14px 40px;
-      }
-    }
-  </style>
+  <meta
+    name="description"
+    content="売買・賃貸・実務で使えるシンプルなWebツールを、カテゴリ別に整理して掲載しています。"
+  />
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-
   <header class="site-header">
     <div class="header-inner">
       <div class="site-title">AI Toolbox</div>
-
-      <nav class="site-nav">
+      <nav class="site-nav" aria-label="外部リンク">
         <a href="https://x.com/ai_gakumon" target="_blank" rel="noopener noreferrer">X</a>
         <a href="https://github.com/gakumon8800/toolbox" target="_blank" rel="noopener noreferrer">GitHub</a>
       </nav>
@@ -263,201 +22,46 @@
   </header>
 
   <main class="container">
-
     <section class="hero">
-      <div class="hero-badge">賃貸管理・仲介の現場向け</div>
-
-      <h1>不動産AIツール</h1>
-
-      <p>
-        賃貸管理・仲介の現場で使える、
-        シンプルなWebツールをまとめています。
-        実務で使いながら順次追加・改善していく想定です。
-      </p>
-
+      <div class="hero-copy">
+        <span class="hero-badge">売買・賃貸の実務向け</span>
+        <h1>不動産AIツール</h1>
+        <p>
+          売買・賃貸・実務で使えるシンプルなWebツール集です。
+          用途ごとに探しやすいよう、カテゴリ別に整理して掲載しています。
+        </p>
+      </div>
       <div class="hero-actions">
-        <a class="hero-button primary" href="#tools-list">ツールを見る</a>
+        <a class="hero-button primary" href="#category-nav">ツールを見る</a>
         <a class="hero-button secondary" href="https://x.com/ai_gakumon" target="_blank" rel="noopener noreferrer">Xを見る</a>
       </div>
     </section>
 
-    <section>
-      <h2 class="section-title" id="tools-list">公開ツール</h2>
-
-      <div id="tools-loading" class="loading">
-        ツール一覧を読み込み中です...
+    <section class="category-nav-section" aria-labelledby="category-nav-title">
+      <div class="section-heading">
+        <p class="eyebrow">カテゴリ別一覧</p>
+        <h2 id="category-nav-title">目的から探す</h2>
       </div>
-
-      <div class="tools-grid" id="tools-container" style="display:none;"></div>
-
-      <div id="tools-error" class="error-message" style="display:none;">
-        ツール一覧の読み込みに失敗しました。
-      </div>
-
-      <div id="tools-empty" class="empty-message" style="display:none;">
-        まだ公開ツールがありません。
-      </div>
+      <nav class="category-nav" id="category-nav" aria-label="カテゴリナビ"></nav>
     </section>
 
-    <section class="note-box">
-      <strong>管理メモ</strong><br>
-      新しいツール追加手順<br>
-      1. <code>tools/ツール名</code> フォルダ作成<br>
-      2. その中に <code>index.html</code> を配置<br>
-      3. Push するとトップに自動反映
+    <section class="category-list" id="categories-root" aria-label="カテゴリ別ツール一覧"></section>
+
+    <section class="note-box" aria-labelledby="maintenance-note-title">
+      <h2 id="maintenance-note-title">運用メモ</h2>
+      <p>
+        トップページ掲載ツールは <code>tools-data.js</code> で管理しています。
+        新しいツールを追加するときは、ツール情報を1件追加するとトップページに反映されます。
+      </p>
     </section>
-
-    <footer>
-      © toolbox / 賃貸管理・不動産の窓口
-      <br>
-      <a class="x-link" href="https://x.com/ai_gakumon" target="_blank" rel="noopener noreferrer">
-        X : @ai_gakumon
-      </a>
-    </footer>
-
   </main>
 
-  <script>
-    const repoOwner = "gakumon8800";
-    const repoName = "toolbox";
+  <footer class="site-footer">
+    <p>© toolbox / 賃貸管理・不動産の窓口</p>
+    <a href="https://x.com/ai_gakumon" target="_blank" rel="noopener noreferrer">X : @ai_gakumon</a>
+  </footer>
 
-    const loadingEl = document.getElementById("tools-loading");
-    const toolsContainer = document.getElementById("tools-container");
-    const errorEl = document.getElementById("tools-error");
-    const emptyEl = document.getElementById("tools-empty");
-
-    function formatToolName(folderName) {
-      const customNames = {
-        "rent-increase-check": "家賃値上げリスク診断",
-        "home-rent-vs-buy": "賃貸 vs 購入シミュレーター",
-        "initial-cost-calculator": "初期費用計算ツール",
-        "buy-cost-calculator": "不動産売買 諸費用計算ツール",
-        "rental-initial-cost": "賃貸初期費用計算ツール",
-        "restoration-cost-estimator": "原状回復費用の概算ツール",
-        "naiken-gacha": "内見女子プロンプトガチャ",
-        "snake-classic": "Snake Classic",
-        "floorplan-cleaner": "間取り図クリーナー",
-        "pdf-to-image": "PDFを画像化",
-        "pdf-overlay-export": "PDF画像重ね書き出し",
-        "seller-hearing-sheet": "売主ヒアリングシート",
-        "rental-hearing-form": "賃貸ヒアリングフォーム",
-        "seal-generator": "丸印ジェネレーター",
-        "corporate-lease-risk-check": "法人賃貸借契約リスク判定ツール",
-        "mortgage-calculator": "住宅ローン返済シミュレーター",
-        "borrowing-capacity-calculator": "借入可能額シミュレーター",
-        "rent-to-budget-calculator": "家賃から購入予算シミュレーター"
-      };
-
-      if (customNames[folderName]) {
-        return customNames[folderName];
-      }
-
-      return folderName
-        .split("-")
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-    }
-
-    function getToolDescription(folderName) {
-      const descriptions = {
-        "rent-increase-check": "現在賃料と提案条件から値上げリスクを整理するツール",
-        "home-rent-vs-buy": "賃貸と持ち家のコスト比較を行うツール",
-        "initial-cost-calculator": "敷金・礼金・仲介手数料などから概算初期費用を算出",
-        "buy-cost-calculator": "物件価格、借入額、諸費用、月額返済額をまとめて概算",
-        "rental-initial-cost": "賃貸契約時の初期費用を、内訳付きで概算できるツール",
-        "restoration-cost-estimator": "退去前に原状回復費用の目安と確認ポイントを整理する借主向けツール",
-        "naiken-gacha": "内見女子の画像・動画素材向けに、自然な内見シーンの英語プロンプトを量産するツール",
-        "snake-classic": "シンプルなクラシック Snake ゲーム",
-        "floorplan-cleaner": "古い間取り画像を見ながら、図形や設備記号を配置して見やすい間取り図に清書するツール",
-        "pdf-to-image": "PDFの各ページをPNGまたはJPEG画像として保存できるツール",
-        "pdf-overlay-export": "PDFページに画像を重ね、位置やサイズを調整してPNG保存できるツール",
-        "seller-hearing-sheet": "売却初回面談の聞き取り内容を整理し、サマリー画像やCSVで保存できるツール",
-        "rental-hearing-form": "賃貸部屋探しの希望条件を段階入力で整理し、実務向け文章とCSV/JSONを出力できるツール",
-        "seal-generator": "名前から丸い印鑑らしい印影を生成し、PNG保存できるツール",
-        "corporate-lease-risk-check": "保証会社なしで法人契約を受け付ける際のリスクを、社内判断用にスコア化できるツール",
-        "mortgage-calculator": "住宅ローン返済額と月額住居コスト全体をまとめて概算できるツール",
-        "borrowing-capacity-calculator": "年収、返済比率、金利、既存借入から住宅ローンの借入可能額の目安を概算できるツール",
-        "rent-to-budget-calculator": "現在の家賃と購入後の固定費から、無理のない購入予算の目安を概算できるツール"
-      };
-
-      return descriptions[folderName] || "ツールを開く";
-    }
-
-    function getToolCategory(folderName) {
-      const categories = {
-        "rent-increase-check": "カテゴリ：賃貸管理",
-        "home-rent-vs-buy": "カテゴリ：比較シミュレーション",
-        "initial-cost-calculator": "カテゴリ：賃貸契約",
-        "buy-cost-calculator": "カテゴリ：売買 / 資金計画",
-        "rental-initial-cost": "カテゴリ：賃貸契約",
-        "restoration-cost-estimator": "カテゴリ：退去 / 原状回復",
-        "naiken-gacha": "カテゴリ：SNS素材 / 画像生成",
-        "snake-classic": "カテゴリ：ミニゲーム",
-        "floorplan-cleaner": "カテゴリ：図面作成 / 間取り清書",
-        "pdf-to-image": "カテゴリ：書類整理 / PDF変換",
-        "pdf-overlay-export": "カテゴリ：書類整理 / 画像重ね書き",
-        "seller-hearing-sheet": "カテゴリ：売却相談 / ヒアリング整理",
-        "rental-hearing-form": "カテゴリ：賃貸仲介 / ヒアリング整理",
-        "seal-generator": "カテゴリ：印影作成 / 丸印",
-        "corporate-lease-risk-check": "カテゴリ：法人契約 / リスク判定",
-        "mortgage-calculator": "カテゴリ：売買 / 住宅ローン試算",
-        "borrowing-capacity-calculator": "カテゴリ：売買 / 借入可能額試算",
-        "rent-to-budget-calculator": "カテゴリ：売買 / 購入予算の入口試算"
-      };
-
-      return categories[folderName] || `フォルダ名：${folderName}`;
-    }
-
-    function createToolCard(folderName) {
-      const card = document.createElement("a");
-      card.className = "tool-card";
-      card.href = `./tools/${folderName}/`;
-
-      card.innerHTML = `
-        <h3>${formatToolName(folderName)}</h3>
-        <p>${getToolDescription(folderName)}</p>
-        <div class="tool-meta">${getToolCategory(folderName)}</div>
-      `;
-
-      return card;
-    }
-
-    async function loadTools() {
-      try {
-        const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/tools`;
-        const response = await fetch(url);
-
-        if (!response.ok) {
-          throw new Error("GitHub API request failed");
-        }
-
-        const data = await response.json();
-
-        const folders = data
-          .filter(item => item.type === "dir")
-          .sort((a, b) => a.name.localeCompare(b.name, "ja"));
-
-        loadingEl.style.display = "none";
-
-        if (folders.length === 0) {
-          emptyEl.style.display = "block";
-          return;
-        }
-
-        folders.forEach(folder => {
-          toolsContainer.appendChild(createToolCard(folder.name));
-        });
-
-        toolsContainer.style.display = "grid";
-      } catch (error) {
-        console.error(error);
-        loadingEl.style.display = "none";
-        errorEl.style.display = "block";
-      }
-    }
-
-    loadTools();
-  </script>
-
+  <script src="./tools-data.js"></script>
+  <script src="./script.js"></script>
 </body>
 </html>
