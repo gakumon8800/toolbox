@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>家賃から購入予算シミュレーター | toolbox</title>
+  <meta
+    name="description"
+    content="現在の家賃や住居コストから、購入後の月額負担全体を踏まえた借入額と購入予算の目安を概算できるツールです。"
+  >
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="../../">← toolbox 一覧に戻る</a>
+
+    <section class="hero">
+      <span class="hero-badge">Housing Budget Tool</span>
+      <h1>家賃から購入予算シミュレーター</h1>
+      <p class="hero-text">
+        現在の家賃や住居費の感覚をもとに、購入後の管理費・修繕積立金・税金・保険料なども含めた
+        月額住居コスト全体から、無理のない購入予算の目安を逆算する入口ツールです。
+      </p>
+
+      <div class="notice-box" role="note" aria-label="重要な注意事項">
+        <strong>ご利用前の注意事項</strong>
+        <ul>
+          <li>本ツールは概算シミュレーションです。</li>
+          <li>家賃と持ち家の負担は完全には一致しません。</li>
+          <li>実際の購入可否・借入可能額・返済額・融資条件は金融機関ごとに異なります。</li>
+          <li>管理費、修繕積立金、税金、保険料、諸費用などを含めて総合的に判断してください。</li>
+          <li>正式な条件は金融機関または提携ローン窓口に確認してください。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="step-panel panel">
+      <div class="panel-heading">
+        <h2>住宅購入の目安づくり</h2>
+        <p>最初の入口として家賃から目安をつかみ、次の詳細ツールへ自然につなげられる構成です。</p>
+      </div>
+
+      <div class="step-grid">
+        <article class="step-card current">
+          <span class="step-number">1</span>
+          <strong>今の家賃から購入予算をみる</strong>
+          <p>現在の住居コストと購入後の固定費から、ローン返済へ回せる月額を逆算します。</p>
+        </article>
+
+        <a class="step-card link-card" href="../borrowing-capacity-calculator/">
+          <span class="step-number">2</span>
+          <strong>年収から借入可能額をみる</strong>
+          <p>年収や返済比率から、借入可能額の目安を確認できます。</p>
+        </a>
+
+        <a class="step-card link-card" href="../mortgage-calculator/">
+          <span class="step-number">3</span>
+          <strong>詳しい返済額を確認する</strong>
+          <p>購入価格や諸費用を入れて、より詳細な返済シミュレーションに進めます。</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="layout">
+      <form id="calculator-form" class="panel input-panel" novalidate>
+        <div class="panel-heading">
+          <h2>入力条件</h2>
+          <p>家賃だけでも利用できます。任意項目を入れるほど、実務に近い住居コスト比較になります。</p>
+        </div>
+
+        <div class="action-row action-row-top">
+          <button type="button" class="action-button primary" id="sample-button">サンプル値を入力</button>
+          <button type="button" class="action-button secondary" id="reset-button">入力をリセット</button>
+          <button type="submit" class="action-button dark" id="calculate-button">計算する</button>
+        </div>
+
+        <div id="form-message" class="form-message" aria-live="polite"></div>
+
+        <section class="subsection">
+          <div class="subsection-head">
+            <h3>現在の支払い</h3>
+            <p>更新料は2年ごとの金額を月割換算して反映します。</p>
+          </div>
+
+          <div class="field-grid">
+            <label class="field"><span>現在の家賃（月額）</span><div class="input-wrap"><input id="currentRent" name="currentRent" type="text" inputmode="numeric" autocomplete="off" value="0"><span>円</span></div></label>
+            <label class="field"><span>現在の駐車場代（月額・任意）</span><div class="input-wrap"><input id="currentParking" name="currentParking" type="text" inputmode="numeric" autocomplete="off" value="0"><span>円</span></div></label>
+            <label class="field"><span>現在の共益費・管理費（月額・任意）</span><div class="input-wrap"><input id="currentCommonFee" name="currentCommonFee" type="text" inputmode="numeric" autocomplete="off" value="0"><span>円</span></div></label>
+            <label class="field"><span>更新料（2年ごと・任意）</span><div class="input-wrap"><input id="renewalFee" name="renewalFee" type="text" inputmode="numeric" autocomplete="off" value="0"><span>円</span></div></label>
+            <label class="field field-full"><span>その他の月額負担（任意）</span><div class="input-wrap"><input id="currentOtherCost" name="currentOtherCost" type="text" inputmode="numeric" autocomplete="off" value="0"><span>円</span></div></label>
+          </div>
+        </section>
+
+        <section class="subsection">
+          <div class="subsection-head">
+            <h3>購入時の想定条件</h3>
+            <p>計算金利は「想定金利 + 団信上乗せ金利」です。</p>
+          </div>
+
+          <div class="field-grid">
+            <label class="field"><span>想定金利</span><div class="input-wrap"><input id="annualRate" name="annualRate" type="text" inputmode="decimal" autocomplete="off" value="0.875"><span>%</span></div></label>
+            <label class="field"><span>団信上乗せ金利（任意）</span><div class="input-wrap"><input id="insuranceRate" name="insuranceRate" type="text" inputmode="decimal" autocomplete="off" value="0"><span>%</span></div></label>
+            <label class="field"><span>返済年数</span><div class="input-wrap"><input id="loanYears" name="loanYears" type="text" inputmode="numeric" autocomplete="off" value="35"><span>年</span></div></label>
+            <label class="field"><span>自己資金</span><div class="input-wrap"><input id="downPayment" name="downPayment" type="text" inputmode="numeric" autocomplete="off" value="0"><span>円</span></div></label>
+          </div>
+
+          <div class="toggle-box">
+            <span class="toggle-label">ボーナス返済を考慮するか</span>
+            <div class="radio-group" role="radiogroup" aria-label="ボーナス返済を考慮するか">
+              <label><input type="radio" name="bonusEnabled" value="no" checked> しない</label>
+              <label><input type="radio" name="bonusEnabled" value="yes"> する</label>
+            </div>
+            <p class="toggle-note">ボーナス返済は年額を使った簡易計算です。</p>
+          </div>
+
+          <label class="field bonus-field" id="bonus-field">
+            <span>ボーナス返済額（年額・任意）</span>
+            <div class="input-wrap"><input id="bonusAnnual" name="bonusAnnual" type="text" inputmode="numeric" autocomplete="off" value="0"><span>円</span></div>
+            <small class="field-hint">簡易反映のため、詳細条件は別途返済シミュレーターでご確認ください。</small>
+          </label>
+        </section>
+
+        <section class="subsection">
+          <div class="subsection-head">
+            <h3>購入後の月額維持費想定</h3>
+            <p>ローン返済額だけでなく、購入後の固定費も差し引いて試算します。</p>
+          </div>
+
+          <div class="field-grid">
+            <label class="field"><span>管理費（月額）</span><div class="input-wrap"><input id="managementFee" name="managementFee" type="text" inputmode="numeric" autocomplete="off" value="0"><span>円</span></div></label>
+            <label class="field"><span>修繕積立金（月額）</span><div class="input-wrap"><input id="repairReserve" name="repairReserve" type="text" inputmode="numeric" autocomplete="off" value="0"><span>円</span></div></label>
+            <label class="field"><span>駐車場代（月額）</span><div class="input-wrap"><input id="afterParking" name="afterParking" type="text" inputmode="numeric" autocomplete="off" value="0"><span>円</span></div></label>
+            <label class="field"><span>固定資産税・都市計画税（年額）</span><div class="input-wrap"><input id="propertyTaxAnnual" name="propertyTaxAnnual" type="text" inputmode="numeric" autocomplete="off" value="0"><span>円</span></div></label>
+            <label class="field"><span>火災保険料（年額）</span><div class="input-wrap"><input id="fireInsuranceAnnual" name="fireInsuranceAnnual" type="text" inputmode="numeric" autocomplete="off" value="0"><span>円</span></div></label>
+            <label class="field"><span>その他費用（月額・任意）</span><div class="input-wrap"><input id="afterOtherCost" name="afterOtherCost" type="text" inputmode="numeric" autocomplete="off" value="0"><span>円</span></div></label>
+          </div>
+        </section>
+      </form>
+
+      <div class="panel result-panel">
+        <div class="panel-heading">
+          <h2>試算結果</h2>
+          <p>現在の住居コストと、購入後に見込まれる住居コスト全体を見比べながら確認できます。</p>
+        </div>
+
+        <section class="result-section">
+          <h3>メイン結果</h3>
+          <div class="highlight-grid">
+            <article class="summary-card major"><span>想定借入額</span><strong id="resultBorrowingAmount">0円</strong></article>
+            <article class="summary-card accent"><span>自己資金込み購入可能額の目安</span><strong id="resultPurchaseCapacity">0円</strong></article>
+          </div>
+
+          <div class="summary-grid">
+            <article class="summary-card"><span>現在の月額住居コスト</span><strong id="resultCurrentMonthlyCost">0円</strong></article>
+            <article class="summary-card"><span>購入後にローン返済へ回せる月額の目安</span><strong id="resultMonthlyLoanBudget">0円</strong></article>
+            <article class="summary-card"><span>想定毎月返済額</span><strong id="resultMonthlyPayment">0円</strong></article>
+            <article class="summary-card bonus-card" id="bonus-result-card"><span>想定ボーナス返済額</span><strong id="resultBonusPayment">0円</strong></article>
+            <article class="summary-card"><span>購入後の月額住居コスト</span><strong id="resultAfterMonthlyCost">0円</strong></article>
+            <article class="summary-card"><span>適用金利（想定金利 + 団信上乗せ）</span><strong id="resultAppliedRate">0.000%</strong></article>
+          </div>
+
+          <div class="comparison-strip">
+            <article class="comparison-metric"><span>現在</span><strong id="resultCurrentComparison">0円</strong></article>
+            <article class="comparison-metric"><span>購入後</span><strong id="resultAfterComparison">0円</strong></article>
+            <article class="comparison-metric"><span>差額</span><strong id="resultDifference">±0円</strong></article>
+          </div>
+        </section>
+
+        <section class="result-section">
+          <h3>住居コスト内訳比較</h3>
+          <div class="breakdown-grid">
+            <article class="breakdown-card">
+              <div class="breakdown-head"><h4>現在の住居コスト内訳</h4><strong id="currentBreakdownTotal">0円</strong></div>
+              <dl class="cost-list">
+                <div><dt>家賃</dt><dd id="currentRentValue">0円</dd></div>
+                <div><dt>駐車場代</dt><dd id="currentParkingValue">0円</dd></div>
+                <div><dt>共益費・管理費</dt><dd id="currentCommonFeeValue">0円</dd></div>
+                <div><dt>更新料の月割</dt><dd id="renewalMonthlyValue">0円</dd></div>
+                <div><dt>その他</dt><dd id="currentOtherValue">0円</dd></div>
+                <div class="total-row"><dt>合計</dt><dd id="currentTotalValue">0円</dd></div>
+              </dl>
+            </article>
+
+            <article class="breakdown-card">
+              <div class="breakdown-head"><h4>購入後の住居コスト想定内訳</h4><strong id="afterBreakdownTotal">0円</strong></div>
+              <dl class="cost-list">
+                <div><dt>毎月返済額</dt><dd id="afterMonthlyPaymentValue">0円</dd></div>
+                <div><dt>管理費</dt><dd id="afterManagementFeeValue">0円</dd></div>
+                <div><dt>修繕積立金</dt><dd id="afterRepairReserveValue">0円</dd></div>
+                <div><dt>駐車場代</dt><dd id="afterParkingValue">0円</dd></div>
+                <div><dt>固都税の月割</dt><dd id="afterTaxMonthlyValue">0円</dd></div>
+                <div><dt>火災保険料の月割</dt><dd id="afterFireMonthlyValue">0円</dd></div>
+                <div><dt>その他費用</dt><dd id="afterOtherValue">0円</dd></div>
+                <div class="total-row"><dt>合計</dt><dd id="afterTotalValue">0円</dd></div>
+              </dl>
+            </article>
+          </div>
+        </section>
+
+        <section class="result-section">
+          <h3>金利比較</h3>
+          <div class="table-wrap">
+            <table class="compare-table">
+              <thead><tr><th>金利条件</th><th>想定借入額</th><th>自己資金込み購入可能額</th></tr></thead>
+              <tbody id="interest-comparison-body"><tr><td colspan="3" class="empty-row">入力すると比較結果が表示されます。</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="result-section">
+          <h3>返済年数比較</h3>
+          <div class="table-wrap">
+            <table class="compare-table">
+              <thead><tr><th>返済年数</th><th>想定借入額</th><th>自己資金込み購入可能額</th></tr></thead>
+              <tbody id="years-comparison-body"><tr><td colspan="3" class="empty-row">入力すると比較結果が表示されます。</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="result-section">
+          <h3>補足</h3>
+          <div class="insight-list">
+            <article class="insight-card"><p>家賃と住宅ローン返済額だけを単純比較せず、購入後の固定費まで含めて確認することが大切です。</p></article>
+            <article class="insight-card"><p>購入後は管理費、修繕積立金、税金、保険なども継続負担になります。</p></article>
+            <article class="insight-card"><p>返済年数を延ばすと購入予算は上がりやすい一方で、総返済額は増えやすくなります。</p></article>
+            <article class="insight-card"><p>金利が高いほど購入予算は下がりやすくなります。</p></article>
+          </div>
+        </section>
+
+        <section class="result-section guide-section">
+          <h3>次の確認へ進む</h3>
+          <div class="guide-actions">
+            <a class="guide-button primary" href="../borrowing-capacity-calculator/">年収から借入可能額を確認する</a>
+            <a class="guide-button secondary" href="../mortgage-calculator/">この条件で詳しい返済シミュレーションを見る</a>
+          </div>
+          <p class="guide-note">将来的な値引き継ぎを想定し、関連ツールへつなげやすい構成にしています。</p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
