@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ツール一覧 | toolbox</title>
-  <meta name="description" content="toolbox の公開ツール一覧ページです。">
+  <meta name="description" content="toolbox の各ツールへ直接移動できる一覧ページです。">
   <style>
     :root {
       --main: #008080;
@@ -95,6 +95,7 @@
       box-shadow: var(--shadow);
       color: inherit;
       text-decoration: none;
+      transition: transform 0.18s ease;
     }
 
     .card:hover,
@@ -145,103 +146,103 @@
     <section class="hero">
       <span class="hero-badge">Tool Index</span>
       <h1>ツール一覧</h1>
-      <p>売買・賃貸・ヒアリング・PDF関連など、実務で使いやすいツールをまとめています。GitHub Pages 上でそのまま使える静的ツールです。</p>
+      <p>各ツールに直接移動できる静的一覧です。トップページでは `tools-data.js` をもとにカテゴリ別一覧を描画しています。</p>
     </section>
 
     <section class="grid">
       <a class="card" href="./buy-cost-calculator/">
         <h2>売買諸費用計算ツール</h2>
-        <p>購入時にかかる諸費用や初期費用の目安を確認できるツール</p>
+        <p>購入時にかかる諸費用の目安を項目別に確認できます。</p>
         <span class="meta">カテゴリ: 売買 / 諸費用</span>
       </a>
 
       <a class="card" href="./mortgage-calculator/">
         <h2>住宅ローン返済シミュレーター</h2>
-        <p>借入額、金利、返済期間から毎月返済額を確認できるツール</p>
+        <p>金利や返済期間から毎月返済額の目安を確認できます。</p>
         <span class="meta">カテゴリ: 売買 / 住宅ローン</span>
       </a>
 
       <a class="card" href="./borrowing-capacity-calculator/">
         <h2>借入可能額シミュレーター</h2>
-        <p>年収や返済条件から借入可能額の目安を確認できるツール</p>
+        <p>年収や返済比率から借入可能額の目安を確認できます。</p>
         <span class="meta">カテゴリ: 売買 / 借入可能額</span>
       </a>
 
       <a class="card" href="./rent-to-budget-calculator/">
-        <h2>賃料から見る購入予算シミュレーター</h2>
-        <p>現在の賃料から、無理のない購入予算の目安を確認できるツール</p>
+        <h2>家賃から見る購入予算シミュレーター</h2>
+        <p>現在の家賃から無理のない購入予算の目安を確認できます。</p>
         <span class="meta">カテゴリ: 売買 / 資金計画</span>
       </a>
 
       <a class="card" href="./property-tax-proration/">
-        <h2>固定資産税・都市計画税 日割り精算計算ツール</h2>
-        <p>引渡し時の固定資産税・都市計画税の精算額を、日数・日額・税目別内訳・計算根拠つきで確認できるツール</p>
-        <span class="meta">カテゴリ: 売買 / 税金精算</span>
+        <h2>固定資産税・都市計画税日割り精算計算ツール</h2>
+        <p>固定資産税と都市計画税の日割り精算額を、引渡日ベースで確認できます。</p>
+        <span class="meta">カテゴリ: 売買 / 税金</span>
       </a>
 
       <a class="card" href="./rental-initial-cost/">
         <h2>賃貸初期費用計算ツール</h2>
-        <p>賃貸契約時にかかる初期費用を項目別に確認できるツール</p>
+        <p>賃貸契約時にかかる初期費用を項目別に確認できます。</p>
         <span class="meta">カテゴリ: 賃貸 / 初期費用</span>
       </a>
 
       <a class="card" href="./rent-increase-check/">
         <h2>賃料増額リスク診断</h2>
-        <p>賃料増額請求のリスクや注意点を整理するためのツール</p>
+        <p>賃料増額請求のリスクや確認事項を整理できるツールです。</p>
         <span class="meta">カテゴリ: 賃貸 / 賃料改定</span>
       </a>
 
       <a class="card" href="./restoration-cost-estimator/">
         <h2>原状回復費用の概算ツール</h2>
-        <p>退去時の原状回復費用の目安と説明材料を整理できるツール</p>
+        <p>退去時の原状回復費用の目安を確認しやすいツールです。</p>
         <span class="meta">カテゴリ: 賃貸 / 原状回復</span>
       </a>
 
       <a class="card" href="./corporate-lease-risk-check/">
         <h2>法人契約リスクチェックツール</h2>
-        <p>法人契約時の確認項目や注意点を整理できるチェックツール</p>
+        <p>法人契約時の確認項目や見落としやすい論点を整理できます。</p>
         <span class="meta">カテゴリ: 賃貸 / 法人契約</span>
       </a>
 
       <a class="card" href="./seller-hearing-sheet/">
         <h2>売主ヒアリングシート</h2>
-        <p>売却相談時に必要な確認項目を整理しやすいヒアリングツール</p>
+        <p>売却相談時に確認したい事項を整理しやすいヒアリングシートです。</p>
         <span class="meta">カテゴリ: ヒアリング / 売主</span>
       </a>
 
       <a class="card" href="./rental-hearing-form/">
         <h2>賃貸ヒアリングフォーム</h2>
-        <p>賃貸のお客様向けヒアリング項目を整理しやすいフォーム</p>
-        <span class="meta">カテゴリ: ヒアリング / 準備中</span>
+        <p>賃貸のお部屋探しで必要な条件整理に使えるフォームです。</p>
+        <span class="meta">カテゴリ: ヒアリング / 公開準備中</span>
       </a>
 
       <a class="card" href="./pdf-to-image/">
-        <h2>PDF画像変換</h2>
-        <p>PDFのページを画像化して保存できるツール</p>
-        <span class="meta">カテゴリ: PDF / 画像変換</span>
+        <h2>PDF画像化ツール</h2>
+        <p>PDFのページを画像として書き出せるツールです。</p>
+        <span class="meta">カテゴリ: 書面・PDF / 画像化</span>
       </a>
 
       <a class="card" href="./pdf-overlay-export/">
-        <h2>PDF画像付き書き出し</h2>
-        <p>PDFに画像や注記を重ねて書き出しできるツール</p>
-        <span class="meta">カテゴリ: PDF / 書き出し</span>
+        <h2>PDF重ね書き出しツール</h2>
+        <p>PDFに画像や注記を重ねて書き出せるツールです。</p>
+        <span class="meta">カテゴリ: 書面・PDF / 注記</span>
       </a>
 
       <a class="card" href="./floorplan-cleaner/">
         <h2>間取り画像クリーナー</h2>
-        <p>間取り画像を見やすく整えるための画像補正ツール</p>
-        <span class="meta">カテゴリ: 図面 / 画像補正</span>
+        <p>間取り画像を見やすく整えるための補助ツールです。</p>
+        <span class="meta">カテゴリ: 書面・PDF / 画像</span>
       </a>
 
       <a class="card" href="./seal-generator/">
         <h2>印鑑ジェネレーター</h2>
-        <p>簡易的な印影画像を生成できるツール</p>
-        <span class="meta">カテゴリ: その他 / 印鑑</span>
+        <p>簡易な印影イメージを作成できるツールです。</p>
+        <span class="meta">カテゴリ: その他 / 画像</span>
       </a>
 
       <a class="card" href="./naiken-gacha/">
         <h2>内見ガチャ</h2>
-        <p>SNSや企画用に使いやすい、内見ネタ向けのガチャツール</p>
+        <p>SNSや企画用に使いやすい、内見ネタ向けのガチャツールです。</p>
         <span class="meta">カテゴリ: その他 / 企画</span>
       </a>
     </section>

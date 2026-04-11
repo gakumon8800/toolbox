@@ -259,6 +259,27 @@ code {
   gap: 22px;
 }
 
+.tools-feedback {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #ffffff;
+  color: var(--text);
+}
+
+.tools-feedback.is-warning {
+  background: var(--warning-bg);
+  border-color: #f0d7a2;
+  color: var(--warning-text);
+}
+
+.tools-feedback.is-error {
+  background: #fdeceb;
+  border-color: #efc0bb;
+  color: #9b3026;
+}
+
 .category-section {
   scroll-margin-top: 94px;
   padding: 28px;
@@ -276,6 +297,15 @@ code {
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--main-dark);
+}
+
+.category-empty {
+  margin: 0;
+  padding: 18px;
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  color: var(--muted);
+  background: #fbfdfd;
 }
 
 .tools-grid {

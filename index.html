@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>不動産AIツール | toolbox</title>
   <meta
     name="description"
-    content="売買・賃貸・実務で使えるシンプルなWebツールを、カテゴリ別に整理して掲載しています。"
-  />
-  <link rel="stylesheet" href="./styles.css" />
+    content="売買・賃貸・ヒアリング・書面業務に使えるシンプルな不動産実務ツール集です。GitHub Pages 上で相対パスのまま安定して使える構成にしています。"
+  >
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <header class="site-header">
@@ -27,37 +27,41 @@
         <span class="hero-badge">売買・賃貸の実務向け</span>
         <h1>不動産AIツール</h1>
         <p>
-          売買・賃貸・実務で使えるシンプルなWebツール集です。
-          用途ごとに探しやすいよう、カテゴリ別に整理して掲載しています。
+          不動産売買、賃貸仲介、ヒアリング、書面整理に使いやすい実務ツールをまとめています。
+          追加したツールは `tools-data.js` を通じて一覧に反映され、GitHub Pages の `/toolbox/` 配下でも相対パスで動作します。
         </p>
       </div>
       <div class="hero-actions">
         <a class="hero-button primary" href="#category-nav">ツールを見る</a>
-        <a class="hero-button secondary" href="https://x.com/ai_gakumon" target="_blank" rel="noopener noreferrer">Xを見る</a>
+        <a class="hero-button secondary" href="./tools/">一覧ページ</a>
       </div>
     </section>
 
     <section class="category-nav-section" aria-labelledby="category-nav-title">
       <div class="section-heading">
-        <p class="eyebrow">カテゴリ別一覧</p>
-        <h2 id="category-nav-title">目的から探す</h2>
+        <div>
+          <p class="eyebrow">カテゴリ一覧</p>
+          <h2 id="category-nav-title">目的から探す</h2>
+        </div>
       </div>
       <nav class="category-nav" id="category-nav" aria-label="カテゴリナビ"></nav>
     </section>
+
+    <div id="tools-feedback" class="tools-feedback" role="status" aria-live="polite" hidden></div>
 
     <section class="category-list" id="categories-root" aria-label="カテゴリ別ツール一覧"></section>
 
     <section class="note-box" aria-labelledby="maintenance-note-title">
       <h2 id="maintenance-note-title">運用メモ</h2>
       <p>
-        トップページ掲載ツールは <code>tools-data.js</code> で管理しています。
-        新しいツールを追加するときは、ツール情報を1件追加するとトップページに反映されます。
+        トップページの一覧は <code>tools-data.js</code> の内容を読み込んで描画しています。
+        新しいツールを追加するときは、必須項目と相対パスをそろえて登録すると GitHub Pages 上でも安定して表示されます。
       </p>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>© toolbox / 賃貸管理・不動産の窓口</p>
+    <p>&copy; toolbox / 不動産業務の実務支援ツール</p>
     <a href="https://x.com/ai_gakumon" target="_blank" rel="noopener noreferrer">X : @ai_gakumon</a>
   </footer>
 
