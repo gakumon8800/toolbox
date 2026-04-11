@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>固定資産税・都市計画税 日割り精算計算ツール | toolbox</title>
+  <meta
+    name="description"
+    content="不動産売買の引渡し時に行う、固定資産税・都市計画税の精算額を日割りで概算できるツールです。年税額、起算日、引渡日、日割りルールを入力すると、売主負担分・買主負担分・税目ごとの内訳・合計額をわかりやすく表示します。"
+  >
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="../">← toolbox一覧へ戻る</a>
+
+    <section class="hero">
+      <span class="hero-badge">Property Tax Proration</span>
+      <h1>固定資産税・都市計画税 日割り精算計算ツール</h1>
+      <p class="hero-text">
+        不動産売買の引渡し時に行う、固定資産税・都市計画税の精算額を日割りで概算できるツールです。
+        年税額、起算日、引渡日、日割りルールを入力すると、売主負担分・買主負担分・税目ごとの内訳・合計額をわかりやすく表示します。
+        実際の精算方法は契約内容や地域慣行によって異なるため、最終確認は契約書・精算書類に基づいて行ってください。
+      </p>
+    </section>
+
+    <section class="layout">
+      <form class="panel input-panel" id="calculator-form" novalidate>
+        <div class="panel-heading">
+          <h2>入力項目</h2>
+          <p>年税額、起算日、引渡日、日割り条件を入力して精算額を計算します。</p>
+        </div>
+
+        <div id="form-error" class="form-error" role="alert" aria-live="polite" hidden></div>
+
+        <section class="group">
+          <h3>税額</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label for="fixedAssetTax">固定資産税 年額</label>
+              <div class="input-wrap">
+                <input id="fixedAssetTax" name="fixedAssetTax" type="text" inputmode="numeric" autocomplete="off" placeholder="80,000">
+                <span>円</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="cityPlanningTax">都市計画税 年額</label>
+              <div class="input-wrap">
+                <input id="cityPlanningTax" name="cityPlanningTax" type="text" inputmode="numeric" autocomplete="off" placeholder="20,000">
+                <span>円</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="group">
+          <h3>日付</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label for="baseDate">起算日</label>
+              <input id="baseDate" name="baseDate" type="date">
+              <p class="field-hint">初期値は当年の1月1日です。</p>
+            </div>
+
+            <div class="field">
+              <label for="deliveryDate">引渡日</label>
+              <input id="deliveryDate" name="deliveryDate" type="date">
+            </div>
+          </div>
+        </section>
+
+        <section class="group">
+          <h3>計算条件</h3>
+
+          <div class="option-block">
+            <p class="option-title">日割りルール</p>
+            <div class="radio-list">
+              <label class="choice-card">
+                <input type="radio" name="prorationRule" value="seller_includes_delivery" checked>
+                <span>引渡日当日まで売主負担（買主負担は翌日から）</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="prorationRule" value="buyer_includes_delivery">
+                <span>引渡日当日から買主負担</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="option-block">
+            <p class="option-title">年の日数</p>
+            <div class="radio-list compact-list">
+              <label class="choice-card">
+                <input type="radio" name="yearDaysMode" value="auto" checked>
+                <span>自動判定（うるう年対応）</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="yearDaysMode" value="365">
+                <span>365日固定</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="yearDaysMode" value="366">
+                <span>366日固定</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="option-block">
+            <p class="option-title">端数処理</p>
+            <div class="radio-list compact-list">
+              <label class="choice-card">
+                <input type="radio" name="roundingMode" value="floor" checked>
+                <span>円未満切り捨て</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="roundingMode" value="round">
+                <span>四捨五入</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="roundingMode" value="ceil">
+                <span>円未満切り上げ</span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <div class="action-row">
+          <button class="sub-button" type="button" id="sample-button">サンプル値入力</button>
+          <button class="sub-button" type="button" id="reset-button">リセット</button>
+          <button class="primary-button" type="submit" id="calculate-button">計算する</button>
+          <button class="sub-button" type="button" id="print-button">印刷</button>
+        </div>
+      </form>
+
+      <section class="panel result-panel" id="print-area" aria-live="polite">
+        <div class="panel-heading">
+          <h2>計算結果</h2>
+          <p>買主が売主へ支払う精算金を中心に、日数・内訳・計算根拠をまとめて表示します。</p>
+        </div>
+
+        <div id="empty-state" class="empty-state">
+          入力後に「計算する」を押すと、精算額の合計、税目別内訳、計算根拠を表示します。
+        </div>
+
+        <div id="result-content" hidden>
+          <section class="summary-grid">
+            <article class="summary-card summary-card-accent">
+              <span>買主が売主へ支払う精算額 合計</span>
+              <strong id="totalBuyerAmount">0円</strong>
+            </article>
+            <article class="summary-card">
+              <span>売主負担日数</span>
+              <strong id="sellerDays">0日</strong>
+            </article>
+            <article class="summary-card">
+              <span>買主負担日数</span>
+              <strong id="buyerDays">0日</strong>
+            </article>
+            <article class="summary-card">
+              <span>適用日数</span>
+              <strong id="appliedYearDays">365日</strong>
+            </article>
+          </section>
+
+          <section class="result-block">
+            <div class="result-block-head">
+              <h3>税目別内訳</h3>
+              <p id="periodSummary" class="result-note"></p>
+            </div>
+
+            <div class="table-wrap">
+              <table class="result-table">
+                <thead>
+                  <tr>
+                    <th>税目</th>
+                    <th class="number-cell">年額</th>
+                    <th class="number-cell">日額</th>
+                    <th class="number-cell">売主負担額</th>
+                    <th class="number-cell">買主負担額</th>
+                  </tr>
+                </thead>
+                <tbody id="breakdown-body"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="result-block">
+            <div class="result-block-head">
+              <h3>計算根拠</h3>
+              <p class="result-note">あとから説明しやすいように、税目ごとに日額と負担額の計算式を表示しています。</p>
+            </div>
+            <div id="formula-list" class="formula-list"></div>
+          </section>
+
+          <section class="result-block">
+            <div class="result-block-head">
+              <h3>注意事項</h3>
+            </div>
+            <ul class="note-list">
+              <li>本ツールは概算計算です。</li>
+              <li>実際の精算方法は契約内容、地域慣行、実務ルールにより異なる場合があります。</li>
+              <li>固定資産税・都市計画税の納税義務者そのものを変更するものではなく、あくまで売買代金精算上の負担調整を想定したものです。</li>
+              <li>最終的には契約書、重要事項説明書、精算書類等をご確認ください。</li>
+            </ul>
+          </section>
+
+          <section class="result-block guide-block">
+            <div class="result-block-head">
+              <h3>関連ツール案内</h3>
+            </div>
+            <p class="result-note">
+              今後、以下のような関連ツールにもつなげやすい想定です。
+              管理費・修繕積立金の日割り精算、賃料等の日割り計算、売買諸費用計算。
+            </p>
+          </section>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>

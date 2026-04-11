@@ -2,91 +2,99 @@ window.CATEGORY_DEFINITIONS = [
   {
     id: "buying",
     label: "売買",
-    description: "購入資金計画や比較検討で使うツール"
+    description: "不動産売買の資金計画や費用確認に使うツール"
   },
   {
     id: "rental",
     label: "賃貸",
-    description: "賃貸契約や管理実務で使うツール"
+    description: "賃貸実務や管理業務で使いやすいツール"
   },
   {
     id: "hearing",
-    label: "接客・ヒアリング",
-    description: "初回面談や条件整理を進めるツール"
+    label: "ヒアリング",
+    description: "接客や聞き取り、確認項目の整理に使うツール"
   },
   {
     id: "docs",
-    label: "書類・PDF",
-    description: "PDF加工や資料づくりに使うツール"
+    label: "図面・PDF",
+    description: "図面、PDF、画像まわりの実務ツール"
   },
   {
     id: "other",
     label: "その他",
-    description: "実験的な機能や補助ツール"
+    description: "上記以外の便利ツール"
   }
 ];
 
 window.TOOLS_DATA = [
   {
-    title: "購入諸費用計算ツール",
+    title: "売買諸費用計算ツール",
     path: "./tools/buy-cost-calculator/",
-    description: "物件購入時の諸費用を概算できるツール",
+    description: "購入時にかかる諸費用や初期費用の目安を確認できるツール",
     category: "buying",
-    tags: ["売買", "諸費用", "試算"],
+    tags: ["売買", "諸費用", "資金計画"],
     order: 10
   },
   {
     title: "住宅ローン返済シミュレーター",
     path: "./tools/mortgage-calculator/",
-    description: "借入額・金利・期間から毎月返済額を試算",
+    description: "借入額、金利、返済期間から毎月返済額を確認できるツール",
     category: "buying",
-    tags: ["売買", "ローン", "返済"],
+    tags: ["売買", "住宅ローン", "返済"],
     order: 20
   },
   {
     title: "借入可能額シミュレーター",
     path: "./tools/borrowing-capacity-calculator/",
-    description: "年収や返済条件から借入可能額の目安を試算",
+    description: "年収や返済条件から借入可能額の目安を確認できるツール",
     category: "buying",
-    tags: ["売買", "ローン", "借入可能額"],
+    tags: ["売買", "住宅ローン", "借入可能額"],
     order: 30
   },
   {
-    title: "家賃から購入予算逆算ツール",
+    title: "賃料から見る購入予算シミュレーター",
     path: "./tools/rent-to-budget-calculator/",
-    description: "今の家賃感覚から購入予算の目安を逆算",
+    description: "現在の賃料から、無理のない購入予算の目安を確認できるツール",
     category: "buying",
-    tags: ["売買", "住み替え", "比較"],
+    tags: ["売買", "資金計画", "購入予算"],
     order: 40
+  },
+  {
+    title: "固定資産税・都市計画税 日割り精算計算ツール",
+    path: "./tools/property-tax-proration/",
+    description: "引渡し時の固定資産税・都市計画税の精算額を、税目別内訳と計算根拠つきで確認できるツール",
+    category: "buying",
+    tags: ["売買", "税金精算", "日割り計算"],
+    order: 50
   },
   {
     title: "賃貸初期費用計算ツール",
     path: "./tools/rental-initial-cost/",
-    description: "敷金・礼金・仲介手数料など賃貸契約時の初期費用を概算",
+    description: "賃貸契約時にかかる初期費用を項目別に確認できるツール",
     category: "rental",
-    tags: ["賃貸", "初期費用", "見積り"],
+    tags: ["賃貸", "初期費用", "見積もり"],
     order: 10
   },
   {
-    title: "家賃値上げリスク診断",
+    title: "賃料増額リスク診断",
     path: "./tools/rent-increase-check/",
-    description: "現在賃料と提案条件から値上げリスクを整理するツール",
+    description: "賃料増額請求のリスクや注意点を整理するためのツール",
     category: "rental",
-    tags: ["賃貸", "管理", "更新"],
+    tags: ["賃貸", "賃料改定", "診断"],
     order: 20
   },
   {
     title: "原状回復費用の概算ツール",
     path: "./tools/restoration-cost-estimator/",
-    description: "退去前に原状回復費用の目安と確認ポイントを整理",
+    description: "退去時の原状回復費用の目安と説明材料を整理できるツール",
     category: "rental",
-    tags: ["賃貸", "退去", "原状回復"],
+    tags: ["賃貸", "原状回復", "見積もり"],
     order: 30
   },
   {
-    title: "法人賃貸借契約リスク判定ツール",
+    title: "法人契約リスクチェックツール",
     path: "./tools/corporate-lease-risk-check/",
-    description: "法人契約を受け付ける際のリスクを社内判断向けに整理",
+    description: "法人契約時の確認項目や注意点を整理できるチェックツール",
     category: "rental",
     tags: ["賃貸", "法人契約", "チェック"],
     order: 40
@@ -94,58 +102,58 @@ window.TOOLS_DATA = [
   {
     title: "売主ヒアリングシート",
     path: "./tools/seller-hearing-sheet/",
-    description: "売却相談時の聞き取り項目を整理できるフォーム",
+    description: "売却相談時に必要な確認項目を整理しやすいヒアリングツール",
     category: "hearing",
-    tags: ["売買", "接客", "ヒアリング"],
+    tags: ["売買", "ヒアリング", "売主"],
     order: 10
   },
   {
     title: "賃貸ヒアリングフォーム",
     path: "./tools/rental-hearing-form/",
-    description: "お部屋探しのお客様向けヒアリングフォーム",
+    description: "賃貸のお客様向けヒアリング項目を整理しやすいフォーム",
     category: "hearing",
-    tags: ["賃貸", "接客", "ヒアリング"],
+    tags: ["賃貸", "ヒアリング", "接客"],
     status: "coming_soon",
     order: 20
   },
   {
-    title: "PDF→画像変換",
+    title: "PDF画像変換",
     path: "./tools/pdf-to-image/",
-    description: "PDFを画像化して扱いやすくするツール",
+    description: "PDFのページを画像化して保存できるツール",
     category: "docs",
-    tags: ["PDF", "変換", "画像"],
+    tags: ["PDF", "画像", "変換"],
     order: 10
   },
   {
-    title: "PDF画像重ね合わせ",
+    title: "PDF画像付き書き出し",
     path: "./tools/pdf-overlay-export/",
-    description: "PDF上に画像を重ねて出力できるツール",
+    description: "PDFに画像や注記を重ねて書き出しできるツール",
     category: "docs",
-    tags: ["PDF", "マイソク", "加工"],
+    tags: ["PDF", "書き出し", "注記"],
     order: 20
   },
   {
-    title: "間取り図クリーナー",
+    title: "間取り画像クリーナー",
     path: "./tools/floorplan-cleaner/",
-    description: "古い図面画像を見ながら見やすい間取り図に清書するツール",
+    description: "間取り画像を見やすく整えるための画像補正ツール",
     category: "docs",
-    tags: ["図面", "画像", "清書"],
+    tags: ["図面", "画像", "補正"],
     order: 30
   },
   {
     title: "内見ガチャ",
     path: "./tools/naiken-gacha/",
-    description: "内見・発信向けのアイデア出しツール",
+    description: "SNSや企画用に使いやすい、内見ネタ向けのガチャツール",
     category: "other",
-    tags: ["実験", "アイデア"],
+    tags: ["その他", "企画", "SNS"],
     order: 10
   },
   {
-    title: "印鑑生成ツール",
+    title: "印鑑ジェネレーター",
     path: "./tools/seal-generator/",
-    description: "印鑑風の画像を生成するツール",
+    description: "簡易的な印影画像を生成できるツール",
     category: "other",
-    tags: ["実験", "画像"],
+    tags: ["その他", "画像", "印鑑"],
     order: 20
   }
 ];
