@@ -113,7 +113,6 @@ window.TOOLS_DATA = [
     description: "賃貸のお部屋探しで必要な条件整理に使えるフォームです。",
     category: "hearing",
     tags: ["賃貸", "ヒアリング", "接客"],
-    status: "coming_soon",
     order: 20
   },
   {
