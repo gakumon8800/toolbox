@@ -109,6 +109,17 @@ window.TOOLS_DATA = [
   },
   {
     title: "賃貸ヒアリングフォーム",
+    path: "./tools/inheritance-family-tree/",
+    title: "相続家系図・共有持分シミュレーター",
+    description: "家族関係を図で整理し、法定相続分の目安と不動産の共有化イメージを確認できる参考ツールです。",
+    tags: ["相続", "家系図", "共有持分"],
+    description: "家族関係を図で整理し、法定相続分の目安と不動産の共有化イメージを確認できる参考ツールです。",
+    category: "hearing",
+    tags: ["相続", "家系図", "共有持分"],
+    order: 15
+  },
+  {
+    title: "雉・ｲｸ繝偵い繝ｪ繝ｳ繧ｰ繝輔か繝ｼ繝",
     path: "./tools/rental-hearing-form/",
     description: "賃貸のお部屋探しで必要な条件整理に使えるフォームです。",
     category: "hearing",
