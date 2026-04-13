@@ -94,14 +94,19 @@ function bindStaticEvents() {
     });
 
   elements.tabButtons.forEach((button) => {
-    button.addEventListener("click", () => setActiveTab(button.dataset.tab));
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      setActiveTab(button.dataset.tab);
+    });
   });
 }
 
 function handleAddPerson() {
   addPerson();
-  renderPeopleSection();
-  renderDecedentSelect();
+  preserveViewport(() => {
+    renderPeopleSection();
+    renderDecedentSelect();
+  });
   persistState();
   showStatus("人物カードを追加しました。");
 }
@@ -239,7 +244,9 @@ function updatePersonTextField(personId, fieldName, value, card) {
 
   person[fieldName] = String(value || "");
   persistState();
-  updatePersonCardHeader(card, person);
+  if (fieldName === "name") {
+    card.dataset.personNameDraft = person.name;
+  }
 }
 
 function updatePersonCardHeader(card, person) {
@@ -268,8 +275,10 @@ function updatePersonRelationshipField(personId, fieldName, value) {
   normalizePerson(person);
   maintainSpouseIntegrity(personId, fieldName);
   persistState();
-  renderPeopleSection();
-  renderDecedentSelect();
+  preserveViewport(() => {
+    renderPeopleSection();
+    renderDecedentSelect();
+  });
 }
 
 function renderDecedentSelect() {
@@ -737,6 +746,10 @@ function removePerson(personId) {
     state.decedentId = state.people[0] ? state.people[0].id : "";
   }
   persistState();
+  preserveViewport(() => {
+    renderPeopleSection();
+    renderDecedentSelect();
+  });
 }
 
 function maintainSpouseIntegrity(personId, fieldName) {
@@ -903,13 +916,22 @@ function serializeState() {
 }
 
 function setActiveTab(tabId) {
-  state.activeTab = TAB_ORDER.includes(tabId) ? tabId : TAB_ORDER[0];
+  const availableTabs = elements.tabButtons.map((button) => button.dataset.tab).filter(Boolean);
+  const fallbackTab = availableTabs[0] || TAB_ORDER[0];
+  state.activeTab = availableTabs.includes(tabId) ? tabId : fallbackTab;
   elements.tabButtons.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.tab === state.activeTab);
   });
   elements.tabPanels.forEach((panel) => {
     panel.classList.toggle("is-active", panel.dataset.panel === state.activeTab);
   });
+}
+
+function preserveViewport(callback) {
+  const scrollX = window.scrollX;
+  const scrollY = window.scrollY;
+  callback();
+  window.scrollTo(scrollX, scrollY);
 }
 
 function createFraction(numerator, denominator) {
