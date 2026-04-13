@@ -1,6 +1,6 @@
-const STORAGE_KEY = "toolbox_inheritance_family_tree_v4";
+const STORAGE_KEY = "toolbox_inheritance_family_tree_v6";
 const DEFAULT_CONSULTATION_URL = "https://example.com/contact";
-const TAB_ORDER = ["family", "heirs", "shares", "ownership", "notes"];
+const DEFAULT_TAB = "family";
 const OWNERSHIP_COLORS = ["#2f6f9f", "#5c86ac", "#7d99b4", "#7f76a7", "#5d8377", "#8b9960"];
 
 const elements = {
@@ -46,52 +46,77 @@ const state = {
     ownerSharePercent: 100
   },
   consultationUrl: DEFAULT_CONSULTATION_URL,
-  activeTab: TAB_ORDER[0]
+  activeTab: DEFAULT_TAB,
+  lastSimulation: null
 };
 
-startApp();
+let saveTimerId = 0;
 
-function startApp() {
-  try {
-    bindStaticEvents();
-    loadPersistedState();
+init();
 
-    if (!state.people.length) {
-      loadSampleData("basic");
-      showStatus("サンプル1を初期表示しました。");
-      return;
-    }
+function init() {
+  bindStaticEvents();
+  loadPersistedState();
 
-    fullRender();
-  } catch (error) {
-    console.error(error);
-    showErrors(["初期化中に問題が発生しました。ページを再読み込みしても改善しない場合はリセットをお試しください。"]);
-    renderResultPlaceholder("初期化エラーにより結果を表示できません。");
+  if (!state.people.length) {
+    restoreState(buildSampleState("basic"));
+    showStatus("サンプル1を初期表示しました。");
   }
+
+  renderInitialView();
 }
 
 function bindStaticEvents() {
-  elements.addPersonButton.addEventListener("click", handleAddPerson);
-  elements.runSimulationButton.addEventListener("click", () => simulateAndRender(true));
-  elements.sampleBasicButton.addEventListener("click", () => loadSampleData("basic"));
-  elements.sampleRepresentationButton.addEventListener("click", () => loadSampleData("representation"));
-  elements.resetButton.addEventListener("click", handleReset);
-  elements.exportJsonButton.addEventListener("click", handleExportJson);
-  elements.importJsonInput.addEventListener("change", handleImportJson);
+  elements.addPersonButton.addEventListener("click", () => {
+    addPerson();
+    renderPeopleList();
+    renderDecedentSelect();
+    queuePersist();
+    showStatus("人物カードを追加しました。");
+  });
+
+  elements.runSimulationButton.addEventListener("click", () => {
+    simulateAndRender(true);
+  });
+
+  elements.sampleBasicButton.addEventListener("click", () => {
+    restoreState(buildSampleState("basic"));
+    renderInitialView();
+    showStatus("サンプル1を読み込みました。");
+  });
+
+  elements.sampleRepresentationButton.addEventListener("click", () => {
+    restoreState(buildSampleState("representation"));
+    renderInitialView();
+    showStatus("サンプル2を読み込みました。");
+  });
+
+  elements.resetButton.addEventListener("click", () => {
+    localStorage.removeItem(STORAGE_KEY);
+    restoreState(buildSampleState("basic"));
+    renderInitialView();
+    showStatus("入力内容をリセットしました。");
+  });
+
+  elements.exportJsonButton.addEventListener("click", exportJson);
+  elements.importJsonInput.addEventListener("change", importJson);
   elements.printButton.addEventListener("click", () => window.print());
 
   elements.decedentSelect.addEventListener("change", (event) => {
-    state.decedentId = event.target.value;
-    persistState();
+    state.decedentId = String(event.target.value || "");
+    queuePersist();
   });
 
-  [elements.propertyName, elements.propertyMemo, elements.propertyTargetShare, elements.propertyOwnerShare, elements.consultationUrl]
-    .forEach((input) => {
-      input.addEventListener("input", () => {
-        syncEstateFromInputs();
-        persistState();
-      });
-    });
+  [
+    elements.propertyName,
+    elements.propertyMemo,
+    elements.propertyTargetShare,
+    elements.propertyOwnerShare,
+    elements.consultationUrl
+  ].forEach((input) => {
+    input.addEventListener("input", syncEstateFromInputs);
+    input.addEventListener("change", syncEstateFromInputs);
+  });
 
   elements.tabButtons.forEach((button) => {
     button.addEventListener("click", (event) => {
@@ -101,190 +126,221 @@ function bindStaticEvents() {
   });
 }
 
-function handleAddPerson() {
-  addPerson();
-  preserveViewport(() => {
-    renderPeopleSection();
-    renderDecedentSelect();
-  });
-  persistState();
-  showStatus("人物カードを追加しました。");
-}
-
-function handleReset() {
-  localStorage.removeItem(STORAGE_KEY);
-  loadSampleData("basic");
-  showStatus("入力内容をリセットし、サンプル1を再読み込みしました。");
-}
-
-function handleExportJson() {
-  persistState();
-  const payload = JSON.stringify(serializeState(), null, 2);
-  const blob = new Blob([payload], { type: "application/json;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  triggerDownload(url, `inheritance-family-tree-${getTodayString()}.json`);
-  URL.revokeObjectURL(url);
-  showStatus("JSONをエクスポートしました。");
-}
-
-function handleImportJson(event) {
-  const file = event.target.files && event.target.files[0];
-  if (!file) {
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      restoreState(JSON.parse(String(reader.result || "{}")));
-      fullRender();
-      showStatus("JSONを読み込みました。");
-    } catch (error) {
-      console.error(error);
-      showErrors(["JSONの読み込みに失敗しました。ファイル形式を確認してください。"]);
-    } finally {
-      elements.importJsonInput.value = "";
-    }
-  };
-  reader.readAsText(file);
-}
-
-function fullRender() {
-  renderPeopleSection();
+function renderInitialView() {
+  clearMessages();
+  renderPeopleList();
   renderDecedentSelect();
   fillEstateInputs();
-  setActiveTab(state.activeTab);
-  simulateAndRender(false);
+  renderResultPlaceholder("シミュレーション実行時に結果を表示します。");
+  renderNotes(null);
+  setActiveTab(state.activeTab || DEFAULT_TAB);
 }
 
-function renderPeopleSection() {
+function renderPeopleList() {
   if (!state.people.length) {
-    elements.peopleList.innerHTML = '<div class="empty-state">人物が未登録です。「人物を追加」またはサンプル読込から始めてください。</div>';
+    elements.peopleList.innerHTML = '<div class="empty-state">人物がありません。「人物を追加」またはサンプル読込から始めてください。</div>';
     return;
   }
 
-  elements.peopleList.innerHTML = state.people.map((person) => buildPersonCardHtml(person)).join("");
-  elements.peopleList.querySelectorAll("[data-person-id]").forEach((card) => bindPersonCardEvents(card));
+  const cards = state.people.map((person) => createPersonCard(person));
+  elements.peopleList.replaceChildren(...cards);
 }
 
-function buildPersonCardHtml(person) {
-  return `
-    <article class="person-card" data-person-id="${person.id}">
-      <div class="person-card-header">
-        <div class="person-card-title">
-          <div class="person-meta">
-            <span class="relation-badge">人物ID: ${escapeHtml(person.id)}</span>
-            <span class="state-badge ${person.alive ? "" : "is-deceased"}">${person.alive ? "生存" : "死亡"}</span>
-          </div>
-          <h3>${escapeHtml(person.name || "氏名未入力")}</h3>
-          <p class="mini-help">${escapeHtml(buildPersonHint(person))}</p>
+function createPersonCard(person) {
+  const card = document.createElement("article");
+  card.className = "person-card";
+  card.dataset.personId = person.id;
+
+  card.innerHTML = `
+    <div class="person-card-header">
+      <div class="person-card-title">
+        <div class="person-meta">
+          <span class="relation-badge">人物ID: ${escapeHtml(person.id)}</span>
+          <span class="state-badge ${person.alive ? "" : "is-deceased"}" data-role="alive-badge">${person.alive ? "生存" : "死亡"}</span>
         </div>
-        <button type="button" class="danger-button" data-action="delete-person">削除</button>
+        <h3 data-role="name-label">${escapeHtml(person.name.trim() || "氏名未入力")}</h3>
+        <p class="mini-help" data-role="hint-label">${escapeHtml(buildPersonHint(person))}</p>
       </div>
-      <div class="form-grid">
-        <div class="field">
-          <label for="person-name-${person.id}">氏名</label>
-          <input id="person-name-${person.id}" type="text" data-field="name" value="${escapeHtml(person.name)}" placeholder="例：山田 太郎">
-        </div>
-        <div class="field">
-          <label for="person-gender-${person.id}">性別（任意）</label>
-          <select id="person-gender-${person.id}" data-field="gender">${buildOptionHtml([
-            { value: "", label: "未選択" },
-            { value: "male", label: "男性" },
-            { value: "female", label: "女性" },
-            { value: "other", label: "その他" }
-          ], person.gender)}</select>
-        </div>
-        <div class="field">
-          <label for="person-alive-${person.id}">生存状況</label>
-          <select id="person-alive-${person.id}" data-field="alive">${buildOptionHtml([
-            { value: "alive", label: "生存" },
-            { value: "deceased", label: "死亡" }
-          ], person.alive ? "alive" : "deceased")}</select>
-        </div>
-        <div class="field">
-          <label for="person-spouse-${person.id}">配偶者</label>
-          <select id="person-spouse-${person.id}" data-field="spouseId">${buildPeopleSelectOptions(person.id, person.spouseId, "選択しない")}</select>
-        </div>
-        <div class="field">
-          <label for="person-father-${person.id}">父ID</label>
-          <select id="person-father-${person.id}" data-field="fatherId">${buildPeopleSelectOptions(person.id, person.fatherId, "未設定")}</select>
-        </div>
-        <div class="field">
-          <label for="person-mother-${person.id}">母ID</label>
-          <select id="person-mother-${person.id}" data-field="motherId">${buildPeopleSelectOptions(person.id, person.motherId, "未設定")}</select>
-        </div>
-        <div class="field full">
-          <label for="person-notes-${person.id}">備考（任意）</label>
-          <textarea id="person-notes-${person.id}" data-field="notes" placeholder="例：父より先に死亡">${escapeHtml(person.notes)}</textarea>
-        </div>
+      <button type="button" class="danger-button" data-action="delete-person">削除</button>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label for="person-name-${person.id}">氏名</label>
+        <input id="person-name-${person.id}" type="text" data-field="name" value="${escapeHtml(person.name)}" placeholder="例: 山田 太郎">
       </div>
-    </article>
+      <div class="field">
+        <label for="person-gender-${person.id}">性別（任意）</label>
+        <select id="person-gender-${person.id}" data-field="gender"></select>
+      </div>
+      <div class="field">
+        <label for="person-alive-${person.id}">生存状況</label>
+        <select id="person-alive-${person.id}" data-field="alive"></select>
+      </div>
+      <div class="field">
+        <label for="person-spouse-${person.id}">配偶者</label>
+        <select id="person-spouse-${person.id}" data-field="spouseId"></select>
+      </div>
+      <div class="field">
+        <label for="person-father-${person.id}">父ID</label>
+        <select id="person-father-${person.id}" data-field="fatherId"></select>
+      </div>
+      <div class="field">
+        <label for="person-mother-${person.id}">母ID</label>
+        <select id="person-mother-${person.id}" data-field="motherId"></select>
+      </div>
+      <div class="field full">
+        <label for="person-notes-${person.id}">備考（任意）</label>
+        <textarea id="person-notes-${person.id}" data-field="notes" placeholder="例: 被相続人より先に死亡">${escapeHtml(person.notes)}</textarea>
+      </div>
+    </div>
   `;
+
+  refreshPersonCardOptions(card, person);
+  bindPersonCardEvents(card);
+  return card;
 }
 
 function bindPersonCardEvents(card) {
   const personId = card.dataset.personId;
-  card.querySelector('[data-action="delete-person"]').addEventListener("click", () => removePerson(personId));
+  const nameInput = card.querySelector('[data-field="name"]');
+  const notesInput = card.querySelector('[data-field="notes"]');
+  const genderSelect = card.querySelector('[data-field="gender"]');
+  const aliveSelect = card.querySelector('[data-field="alive"]');
 
-  card.querySelectorAll("[data-field]").forEach((field) => {
-    if (field.tagName === "INPUT" || field.tagName === "TEXTAREA") {
-      field.addEventListener("input", (event) => updatePersonTextField(personId, event.target.dataset.field, event.target.value, card));
-    } else {
-      field.addEventListener("change", (event) => updatePersonRelationshipField(personId, event.target.dataset.field, event.target.value));
-    }
+  card.querySelector('[data-action="delete-person"]').addEventListener("click", () => {
+    removePerson(personId);
+    renderPeopleList();
+    renderDecedentSelect();
+    queuePersist();
+    showStatus("人物カードを削除しました。");
+  });
+
+  nameInput.addEventListener("input", (event) => {
+    updatePersonText(personId, "name", event.target.value);
+    updatePersonCardMeta(card, findPerson(personId));
+  });
+
+  notesInput.addEventListener("input", (event) => {
+    updatePersonText(personId, "notes", event.target.value);
+  });
+
+  genderSelect.addEventListener("change", (event) => {
+    updatePersonText(personId, "gender", event.target.value);
+    updatePersonCardMeta(card, findPerson(personId));
+    queuePersist();
+  });
+
+  aliveSelect.addEventListener("change", (event) => {
+    updatePersonRelation(personId, "alive", event.target.value === "alive");
+  });
+
+  ["fatherId", "motherId", "spouseId"].forEach((fieldName) => {
+    card.querySelector(`[data-field="${fieldName}"]`).addEventListener("change", (event) => {
+      updatePersonRelation(personId, fieldName, event.target.value);
+    });
   });
 }
 
-function updatePersonTextField(personId, fieldName, value, card) {
+function updatePersonText(personId, fieldName, value) {
   const person = findPerson(personId);
   if (!person) {
     return;
   }
-
   person[fieldName] = String(value || "");
-  persistState();
-  if (fieldName === "name") {
-    card.dataset.personNameDraft = person.name;
-  }
+  queuePersist();
 }
 
-function updatePersonCardHeader(card, person) {
-  const title = card.querySelector("h3");
-  const hint = card.querySelector(".mini-help");
-  if (title) {
-    title.textContent = person.name.trim() || "氏名未入力";
-  }
-  if (hint) {
-    hint.textContent = buildPersonHint(person);
-  }
-}
-
-function updatePersonRelationshipField(personId, fieldName, value) {
+function updatePersonRelation(personId, fieldName, value) {
   const person = findPerson(personId);
   if (!person) {
     return;
   }
 
   if (fieldName === "alive") {
-    person.alive = value === "alive";
+    person.alive = Boolean(value);
   } else {
     person[fieldName] = String(value || "");
   }
 
   normalizePerson(person);
   maintainSpouseIntegrity(personId, fieldName);
-  persistState();
-  preserveViewport(() => {
-    renderPeopleSection();
-    renderDecedentSelect();
+  refreshAllCardOptions();
+  renderDecedentSelect();
+  queuePersist();
+}
+
+function refreshAllCardOptions() {
+  elements.peopleList.querySelectorAll(".person-card").forEach((card) => {
+    const person = findPerson(card.dataset.personId);
+    if (!person) {
+      return;
+    }
+    refreshPersonCardOptions(card, person);
+    updatePersonCardMeta(card, person);
   });
 }
 
+function refreshPersonCardOptions(card, person) {
+  const genderSelect = card.querySelector('[data-field="gender"]');
+  const aliveSelect = card.querySelector('[data-field="alive"]');
+  const fatherSelect = card.querySelector('[data-field="fatherId"]');
+  const motherSelect = card.querySelector('[data-field="motherId"]');
+  const spouseSelect = card.querySelector('[data-field="spouseId"]');
+
+  setSelectOptions(
+    genderSelect,
+    [
+      { value: "", label: "未選択" },
+      { value: "male", label: "男性" },
+      { value: "female", label: "女性" },
+      { value: "other", label: "その他" }
+    ],
+    person.gender
+  );
+
+  setSelectOptions(
+    aliveSelect,
+    [
+      { value: "alive", label: "生存" },
+      { value: "deceased", label: "死亡" }
+    ],
+    person.alive ? "alive" : "deceased"
+  );
+
+  setSelectOptions(fatherSelect, buildPeopleOptionList(person.id, "父を選択"), person.fatherId);
+  setSelectOptions(motherSelect, buildPeopleOptionList(person.id, "母を選択"), person.motherId);
+  setSelectOptions(spouseSelect, buildPeopleOptionList(person.id, "配偶者を選択"), person.spouseId);
+}
+
+function setSelectOptions(select, options, selectedValue) {
+  const currentValue = String(selectedValue || "");
+  select.innerHTML = options
+    .map((option) => `<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`)
+    .join("");
+  select.value = options.some((option) => option.value === currentValue) ? currentValue : "";
+}
+
 function renderDecedentSelect() {
-  const options = ['<option value="">被相続人を選択してください</option>']
-    .concat(state.people.map((person) => `<option value="${person.id}" ${person.id === state.decedentId ? "selected" : ""}>${escapeHtml(formatPersonLabel(person))}</option>`));
-  elements.decedentSelect.innerHTML = options.join("");
+  const options = [{ value: "", label: "被相続人を選択してください" }]
+    .concat(state.people.map((person) => ({ value: person.id, label: formatPersonLabel(person) })));
+  setSelectOptions(elements.decedentSelect, options, state.decedentId);
+}
+
+function fillEstateInputs() {
+  elements.propertyName.value = state.estate.propertyName;
+  elements.propertyMemo.value = state.estate.propertyMemo;
+  elements.propertyTargetShare.value = state.estate.targetSharePercent;
+  elements.propertyOwnerShare.value = state.estate.ownerSharePercent;
+  elements.consultationUrl.value = state.consultationUrl;
+}
+
+function syncEstateFromInputs() {
+  state.estate.propertyName = elements.propertyName.value.trim();
+  state.estate.propertyMemo = elements.propertyMemo.value.trim();
+  state.estate.targetSharePercent = clampPercent(elements.propertyTargetShare.value, 100);
+  state.estate.ownerSharePercent = clampPercent(elements.propertyOwnerShare.value, 100);
+  state.consultationUrl = elements.consultationUrl.value.trim() || DEFAULT_CONSULTATION_URL;
+  queuePersist();
 }
 
 function simulateAndRender(showStatusMessage) {
@@ -294,18 +350,22 @@ function simulateAndRender(showStatusMessage) {
   const errors = validateForSimulation();
   if (errors.length) {
     showErrors(errors);
-    renderResultPlaceholder("入力内容を整えると結果を表示できます。");
-    renderNotesSection(null);
+    state.lastSimulation = null;
+    renderResultPlaceholder("入力内容を確認すると結果を表示できます。");
+    renderNotes(null);
+    setActiveTab(state.activeTab);
     return;
   }
 
   const simulation = buildSimulationResult();
+  state.lastSimulation = simulation;
   renderFamilyTree(simulation);
   renderHeirCandidates(simulation);
   renderShareTable(simulation);
-  renderOwnershipSection(simulation);
-  renderNotesSection(simulation);
-  persistState();
+  renderOwnership(simulation);
+  renderNotes(simulation);
+  setActiveTab(state.activeTab);
+  persistStateNow();
 
   if (showStatusMessage) {
     showStatus("シミュレーション結果を更新しました。");
@@ -321,12 +381,15 @@ function validateForSimulation() {
       errors.push(`人物ID ${person.id}: 氏名を入力してください。`);
     }
 
-    ["fatherId", "motherId", "spouseId"].forEach((key) => {
-      if (person[key] && !idSet.has(person[key])) {
-        errors.push(`${person.name || `人物ID ${person.id}`}: ${fieldLabel(key)}に存在しないIDは設定できません。`);
+    ["fatherId", "motherId", "spouseId"].forEach((fieldName) => {
+      if (!person[fieldName]) {
+        return;
       }
-      if (person[key] && person[key] === person.id) {
-        errors.push(`${person.name || `人物ID ${person.id}`}: 自分自身を${fieldLabel(key)}に設定できません。`);
+      if (!idSet.has(person[fieldName])) {
+        errors.push(`${person.name || `人物ID ${person.id}`}: ${fieldLabel(fieldName)}に存在しない人物IDが設定されています。`);
+      }
+      if (person[fieldName] === person.id) {
+        errors.push(`${person.name || `人物ID ${person.id}`}: 自分自身を${fieldLabel(fieldName)}に設定できません。`);
       }
     });
 
@@ -346,12 +409,12 @@ function validateForSimulation() {
     if (!decedent) {
       errors.push("選択された被相続人が人物一覧に存在しません。");
     } else if (decedent.alive) {
-      errors.push("被相続人は死亡として登録してください。");
+      errors.push("被相続人は死亡として設定してください。");
     }
   }
 
   if (state.estate.targetSharePercent <= 0 || state.estate.ownerSharePercent <= 0) {
-    errors.push("持分割合は0より大きい値を入力してください。");
+    errors.push("相続対象持分と被相続人の持分は0より大きい値を入力してください。");
   }
 
   return [...new Set(errors)];
@@ -361,47 +424,57 @@ function buildSimulationResult() {
   const decedent = findPerson(state.decedentId);
   const spouse = getLivingSpouse(decedent.id);
   const descendantBranches = getDescendantBranches(decedent.id);
-  const livingParents = getParents(decedent.id).filter((person) => person.alive);
+  const parents = getParents(decedent.id).filter((person) => person.alive);
   const siblingBranches = getSiblingBranches(decedent.id);
 
   let group = "none";
-  let explanation = "この簡易ルールでは相続分の目安を算出できませんでした。";
-  let drafts = [];
+  let explanation = "このケースでは一般的な相続順位を整理できませんでした。個別事情の確認が必要です。";
+  let shareDrafts = [];
 
   if (descendantBranches.length) {
     group = "descendants";
-    drafts = buildDescendantShareDrafts(descendantBranches, spouse);
+    shareDrafts = buildDescendantShares(descendantBranches, spouse);
     explanation = spouse
-      ? "このケースでは、配偶者と子系統が相続人候補となるため、配偶者1/2、子系統全体で1/2が目安です。死亡した子の枝は孫が均等に承継する簡易計算です。"
-      : "このケースでは、子系統のみが相続人候補となるため、子系統で均等に整理しています。死亡した子の枝は孫が均等に承継する簡易計算です。";
-  } else if (livingParents.length) {
+      ? "このケースでは、配偶者と子系統が相続人候補となるため、配偶者1/2、子系統全体で1/2が目安です。"
+      : "このケースでは、子系統のみが相続人候補となるため、子系統で均等または代襲枝ごとに按分するのが目安です。";
+  } else if (parents.length) {
     group = "parents";
-    drafts = buildParentShareDrafts(livingParents, spouse);
+    shareDrafts = buildParentShares(parents, spouse);
     explanation = spouse
       ? "このケースでは、配偶者と直系尊属が相続人候補となるため、配偶者2/3、直系尊属全体で1/3が目安です。"
-      : "このケースでは、直系尊属のみが相続人候補となるため、直系尊属で均等に整理しています。";
+      : "このケースでは、直系尊属のみが相続人候補となるため、直系尊属で均等に分けるのが目安です。";
   } else if (siblingBranches.length) {
     group = "siblings";
-    drafts = buildSiblingShareDrafts(siblingBranches, spouse);
+    shareDrafts = buildSiblingShares(siblingBranches, spouse);
     explanation = spouse
       ? "このケースでは、配偶者と兄弟姉妹が相続人候補となるため、配偶者3/4、兄弟姉妹全体で1/4が目安です。"
-      : "このケースでは、兄弟姉妹のみが相続人候補となるため、兄弟姉妹で均等に整理しています。";
+      : "このケースでは、兄弟姉妹のみが相続人候補となるため、兄弟姉妹で均等に分けるのが目安です。";
   } else if (spouse) {
     group = "spouseOnly";
-    drafts = [{ personId: spouse.id, relation: "配偶者", detail: "配偶者のみ", fraction: createFraction(1, 1) }];
+    shareDrafts = [
+      {
+        personId: spouse.id,
+        relation: "配偶者",
+        detail: "配偶者のみ",
+        fraction: createFraction(1, 1)
+      }
+    ];
     explanation = "このケースでは、配偶者のみが相続人候補となるため、配偶者1/1が目安です。";
   }
 
   const transferFraction = multiplyFraction(
-    createFraction(state.estate.ownerSharePercent, 100),
-    createFraction(state.estate.targetSharePercent, 100)
+    createFraction(state.estate.targetSharePercent, 100),
+    createFraction(state.estate.ownerSharePercent, 100)
   );
 
-  const shares = drafts.map((draft) => ({
-    ...draft,
-    person: findPerson(draft.personId),
-    propertyFraction: multiplyFraction(draft.fraction, transferFraction)
-  }));
+  const shares = shareDrafts.map((draft) => {
+    const person = findPerson(draft.personId);
+    return {
+      ...draft,
+      person,
+      propertyFraction: multiplyFraction(draft.fraction, transferFraction)
+    };
+  });
 
   return {
     decedent,
@@ -410,24 +483,25 @@ function buildSimulationResult() {
     explanation,
     transferFraction,
     shares,
-    candidates: buildCandidateRows(decedent, spouse, descendantBranches, livingParents, siblingBranches, shares)
+    candidates: buildCandidateRows(decedent, spouse, descendantBranches, parents, siblingBranches, shares)
   };
 }
 
-function buildCandidateRows(decedent, spouse, descendantBranches, livingParents, siblingBranches, shares) {
-  const chosenIds = new Set(shares.map((share) => share.personId));
+function buildCandidateRows(decedent, spouse, descendantBranches, parents, siblingBranches, shares) {
+  const shareIds = new Set(shares.map((share) => share.personId));
+
   return state.people
     .filter((person) => person.id !== decedent.id)
     .map((person) => ({
-      name: person.name,
+      name: person.name || `人物ID ${person.id}`,
       relation: getRelationLabel(person.id, decedent.id),
-      aliveLabel: person.alive ? "生存" : "死亡",
-      candidateLabel: chosenIds.has(person.id) ? "候補" : "対象外",
-      reason: getCandidateReason(person.id, spouse, descendantBranches, livingParents, siblingBranches)
+      alive: person.alive ? "生存" : "死亡",
+      candidate: shareIds.has(person.id) ? "候補" : "対象外",
+      reason: getCandidateReason(person.id, spouse, descendantBranches, parents, siblingBranches)
     }));
 }
 
-function getCandidateReason(personId, spouse, descendantBranches, livingParents, siblingBranches) {
+function getCandidateReason(personId, spouse, descendantBranches, parents, siblingBranches) {
   if (spouse && spouse.id === personId) {
     return "配偶者";
   }
@@ -436,15 +510,15 @@ function getCandidateReason(personId, spouse, descendantBranches, livingParents,
       ? "死亡した子に代わる孫"
       : "子";
   }
-  if (livingParents.some((parent) => parent.id === personId)) {
+  if (parents.some((parent) => parent.id === personId)) {
     return "直系尊属";
   }
   if (siblingBranches.some((branch) => branch.heirs.some((heir) => heir.id === personId))) {
-    return siblingBranches.some((branch) => branch.type === "niece" && branch.heirs.some((heir) => heir.id === personId))
+    return siblingBranches.some((branch) => branch.type === "niece-nephew" && branch.heirs.some((heir) => heir.id === personId))
       ? "死亡した兄弟姉妹に代わる甥姪"
       : "兄弟姉妹";
   }
-  return "今回の簡易ルールでは該当なし";
+  return "今回の簡易ルールでは対象外";
 }
 
 function renderFamilyTree(simulation) {
@@ -456,108 +530,130 @@ function renderFamilyTree(simulation) {
   ].filter((level) => level.people.length);
 
   if (!levels.length) {
-    elements.familyTree.innerHTML = '<div class="empty-state">家系図を表示する情報が不足しています。</div>';
+    elements.familyTree.innerHTML = '<div class="empty-state">表示できる家系情報がありません。</div>';
     return;
   }
 
-  elements.familyTree.innerHTML = levels.map((level) => `
-    <section class="tree-level">
-      <p class="tree-level-title">${escapeHtml(level.label)}</p>
-      <div class="tree-row">
-        ${level.people.map((person) => `
-          <article class="tree-node ${person.id === simulation.decedent.id ? "is-decedent" : ""} ${person.alive ? "" : "is-deceased"}">
-            <div class="tree-node-name">${escapeHtml(person.name)}</div>
-            <div class="tree-node-meta">
-              <span class="state-badge ${person.alive ? "" : "is-deceased"}">${person.alive ? "生存" : "死亡"}</span>
-              <span class="relation-badge">${escapeHtml(getRelationLabel(person.id, simulation.decedent.id) === "本人" ? "被相続人" : getRelationLabel(person.id, simulation.decedent.id))}</span>
-            </div>
-            <p class="tree-node-text">${escapeHtml(person.notes || "備考なし")}</p>
-          </article>
-        `).join("")}
-      </div>
-    </section>
-  `).join("");
+  elements.familyTree.innerHTML = levels
+    .map((level) => `
+      <section class="tree-level">
+        <p class="tree-level-title">${escapeHtml(level.label)}</p>
+        <div class="tree-row">
+          ${level.people
+            .map((person) => `
+              <article class="tree-node ${person.id === simulation.decedent.id ? "is-decedent" : ""} ${person.alive ? "" : "is-deceased"}">
+                <div class="tree-node-name">${escapeHtml(person.name || `人物ID ${person.id}`)}</div>
+                <div class="tree-node-meta">
+                  <span class="state-badge ${person.alive ? "" : "is-deceased"}">${person.alive ? "生存" : "死亡"}</span>
+                  <span class="relation-badge">${escapeHtml(person.id === simulation.decedent.id ? "被相続人" : getRelationLabel(person.id, simulation.decedent.id))}</span>
+                </div>
+                <p class="tree-node-text">${escapeHtml(person.notes || "備考なし")}</p>
+              </article>
+            `)
+            .join("")}
+        </div>
+      </section>
+    `)
+    .join("");
 }
 
 function renderHeirCandidates(simulation) {
   elements.heirCandidatesBody.innerHTML = simulation.candidates.length
-    ? simulation.candidates.map((row) => `
-      <tr>
-        <td>${escapeHtml(row.name)}</td>
-        <td>${escapeHtml(row.relation)}</td>
-        <td>${escapeHtml(row.aliveLabel)}</td>
-        <td>${escapeHtml(row.candidateLabel)}</td>
-        <td>${escapeHtml(row.reason)}</td>
-      </tr>
-    `).join("")
-    : '<tr><td colspan="5">候補者情報がありません。</td></tr>';
+    ? simulation.candidates
+        .map((row) => `
+          <tr>
+            <td>${escapeHtml(row.name)}</td>
+            <td>${escapeHtml(row.relation)}</td>
+            <td>${escapeHtml(row.alive)}</td>
+            <td>${escapeHtml(row.candidate)}</td>
+            <td>${escapeHtml(row.reason)}</td>
+          </tr>
+        `)
+        .join("")
+    : '<tr><td colspan="5">相続人候補はありません。</td></tr>';
 }
 
 function renderShareTable(simulation) {
   if (!simulation.shares.length) {
-    elements.shareTableBody.innerHTML = '<tr><td colspan="5">この簡易ルールでは相続分の目安を算出できませんでした。</td></tr>';
+    elements.shareTableBody.innerHTML = '<tr><td colspan="5">今回の簡易ルールでは相続分の目安を表示できません。</td></tr>';
     elements.shareSummary.textContent = simulation.explanation;
     return;
   }
 
-  elements.shareTableBody.innerHTML = simulation.shares.map((share) => `
-    <tr>
-      <td>${escapeHtml(share.person.name)}</td>
-      <td>${escapeHtml(share.relation)}</td>
-      <td>${escapeHtml(formatFraction(share.fraction))}</td>
-      <td>${escapeHtml(formatPercent(fractionToPercent(share.fraction)))}</td>
-      <td>${escapeHtml(share.detail)}</td>
-    </tr>
-  `).join("");
+  elements.shareTableBody.innerHTML = simulation.shares
+    .map((share) => `
+      <tr>
+        <td>${escapeHtml(share.person.name || `人物ID ${share.person.id}`)}</td>
+        <td>${escapeHtml(share.relation)}</td>
+        <td>${escapeHtml(formatFraction(share.fraction))}</td>
+        <td>${escapeHtml(formatPercent(fractionToPercent(share.fraction)))}</td>
+        <td>${escapeHtml(share.detail)}</td>
+      </tr>
+    `)
+    .join("");
+
   elements.shareSummary.textContent = simulation.explanation;
 }
 
-function renderOwnershipSection(simulation) {
+function renderOwnership(simulation) {
+  const transferPercent = fractionToPercent(simulation.transferFraction);
+  const propertyName = state.estate.propertyName || "対象不動産";
+
   elements.ownershipBefore.innerHTML = `
-    <strong>${escapeHtml(simulation.decedent.name)}</strong> ${escapeHtml(formatPercent(fractionToPercent(simulation.transferFraction)))}
-    <div class="mini-help">${escapeHtml(state.estate.propertyName || "対象不動産")} における今回の計算対象持分です。</div>
+    <strong>${escapeHtml(simulation.decedent.name || `人物ID ${simulation.decedent.id}`)}</strong> ${escapeHtml(formatPercent(transferPercent))}
+    <div class="mini-help">${escapeHtml(propertyName)} における被相続人の対象持分です。</div>
   `;
 
   if (!simulation.shares.length) {
-    elements.ownershipBar.innerHTML = '<div class="empty-state">共有持分イメージを表示できません。</div>';
+    const empty = '<div class="empty-state">共有持分イメージを表示できません。</div>';
+    elements.ownershipBar.innerHTML = empty;
     elements.ownershipCards.innerHTML = "";
-    elements.ownershipNotice.textContent = "共有持分のイメージは、相続分の目安が出るケースで表示されます。";
+    elements.ownershipNotice.textContent = "共有持分の表示には相続人候補と相続分の目安が必要です。";
     return;
   }
 
-  elements.ownershipBar.innerHTML = simulation.shares.map((share, index) => {
-    const percent = fractionToPercent(share.propertyFraction);
-    const label = percent >= 12 ? escapeHtml(share.person.name) : "";
-    return `
-      <div class="ownership-segment" style="width:${percent}%;background:${OWNERSHIP_COLORS[index % OWNERSHIP_COLORS.length]};" title="${escapeHtml(share.person.name)} ${escapeHtml(formatPercent(percent))}">
-        ${label}
-      </div>
-    `;
-  }).join("");
+  elements.ownershipBar.innerHTML = simulation.shares
+    .map((share, index) => {
+      const percent = fractionToPercent(share.propertyFraction);
+      const label = percent >= 14 ? escapeHtml(share.person.name || `人物ID ${share.person.id}`) : "";
+      return `
+        <div
+          class="ownership-segment"
+          style="width:${percent}%;background:${OWNERSHIP_COLORS[index % OWNERSHIP_COLORS.length]};"
+          title="${escapeHtml(share.person.name || `人物ID ${share.person.id}`)} ${escapeHtml(formatPercent(percent))}"
+        >${label}</div>
+      `;
+    })
+    .join("");
 
-  elements.ownershipCards.innerHTML = simulation.shares.map((share) => `
-    <article class="ownership-card">
-      <strong>${escapeHtml(share.person.name)}</strong>
-      <div>${escapeHtml(share.relation)} / 法定相続分の目安 ${escapeHtml(formatFraction(share.fraction))}</div>
-      <div>不動産上の持分イメージ ${escapeHtml(formatPercent(fractionToPercent(share.propertyFraction)))}</div>
-    </article>
-  `).join("");
+  elements.ownershipCards.innerHTML = simulation.shares
+    .map((share) => `
+      <article class="ownership-card">
+        <strong>${escapeHtml(share.person.name || `人物ID ${share.person.id}`)}</strong>
+        <div>${escapeHtml(share.relation)} / 法定相続分の目安 ${escapeHtml(formatFraction(share.fraction))}</div>
+        <div>不動産上の共有持分イメージ ${escapeHtml(formatPercent(fractionToPercent(share.propertyFraction)))}</div>
+      </article>
+    `)
+    .join("");
 
   elements.ownershipNotice.textContent = simulation.shares.length > 1
     ? "相続後は複数名の共有状態となる想定です。売却・賃貸・管理・修繕等で意思決定が複雑になる場合があります。"
-    : "今回の簡易シミュレーションでは単独承継の形です。遺産分割協議や遺言で結果が変わる可能性があります。";
+    : "このケースでは単独取得の目安です。実際の分け方は遺産分割協議や遺言で変わる可能性があります。";
 }
 
-function renderNotesSection(simulation) {
+function renderNotes(simulation) {
   const items = [
-    "遺言の有無や内容で結果は変わる可能性があります。",
-    "相続放棄、養子縁組、特別受益、寄与分、代襲の範囲など個別事情はこの簡易計算に反映していません。",
-    "不動産が共有になると、売却・賃貸・管理で共有者間の調整が必要になることがあります。"
+    "遺言の有無で結果は変わる可能性があります。",
+    "相続放棄、養子縁組、特別受益、寄与分などの個別事情はこの参考表示に反映されません。",
+    "不動産が共有になると、売却や管理で調整が必要になることがあります。"
   ];
+
   if (simulation && simulation.group === "siblings") {
     items.push("兄弟姉妹の代襲は甥姪までの簡易対応です。");
   }
+
   elements.noteList.innerHTML = items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+
   const href = sanitizeUrl(state.consultationUrl || DEFAULT_CONSULTATION_URL);
   elements.consultationLink.href = href;
   elements.consultationLink.textContent = href === "#" ? "相談先URLを入力してください" : "相談先を開く";
@@ -572,62 +668,107 @@ function renderResultPlaceholder(message) {
   elements.ownershipBefore.innerHTML = empty;
   elements.ownershipBar.innerHTML = empty;
   elements.ownershipCards.innerHTML = "";
-  elements.ownershipNotice.textContent = "共有持分のイメージは結果表示後に確認できます。";
+  elements.ownershipNotice.textContent = "共有持分イメージはシミュレーション後に表示されます。";
 }
 
-function buildDescendantShareDrafts(branches, spouse) {
-  const drafts = [];
-  if (spouse) {
-    drafts.push({ personId: spouse.id, relation: "配偶者", detail: "配偶者は1/2の目安", fraction: createFraction(1, 2) });
-  }
-  const total = spouse ? createFraction(1, 2) : createFraction(1, 1);
-  const branchShare = divideFraction(total, branches.length);
+function buildDescendantShares(branches, spouse) {
+  const base = spouse ? createFraction(1, 2) : createFraction(1, 1);
+  const branchFraction = divideFraction(base, branches.length);
+  const shares = [];
+
   branches.forEach((branch) => {
-    const each = divideFraction(branchShare, branch.heirs.length);
+    if (branch.type === "child") {
+      shares.push({
+        personId: branch.heirs[0].id,
+        relation: "子",
+        detail: "子として均等取得",
+        fraction: branchFraction
+      });
+      return;
+    }
+
+    const perHeir = divideFraction(branchFraction, branch.heirs.length);
     branch.heirs.forEach((heir) => {
-      drafts.push({
+      shares.push({
         personId: heir.id,
-        relation: getRelationLabel(heir.id, state.decedentId),
-        detail: branch.type === "representation" ? "死亡した子の枝を孫で均等配分" : "子の枝を均等配分",
-        fraction: each
+        relation: "孫",
+        detail: "死亡した子の持分を代襲",
+        fraction: perHeir
       });
     });
   });
-  return drafts;
+
+  if (spouse) {
+    shares.unshift({
+      personId: spouse.id,
+      relation: "配偶者",
+      detail: "配偶者として取得",
+      fraction: createFraction(1, 2)
+    });
+  }
+
+  return shares;
 }
 
-function buildParentShareDrafts(parents, spouse) {
-  const drafts = [];
+function buildParentShares(parents, spouse) {
+  const base = spouse ? createFraction(1, 3) : createFraction(1, 1);
+  const perParent = divideFraction(base, parents.length);
+  const shares = parents.map((parent) => ({
+    personId: parent.id,
+    relation: "直系尊属",
+    detail: "直系尊属で均等取得",
+    fraction: perParent
+  }));
+
   if (spouse) {
-    drafts.push({ personId: spouse.id, relation: "配偶者", detail: "配偶者は2/3の目安", fraction: createFraction(2, 3) });
+    shares.unshift({
+      personId: spouse.id,
+      relation: "配偶者",
+      detail: "配偶者として取得",
+      fraction: createFraction(2, 3)
+    });
   }
-  const total = spouse ? createFraction(1, 3) : createFraction(1, 1);
-  const each = divideFraction(total, parents.length);
-  parents.forEach((parent) => {
-    drafts.push({ personId: parent.id, relation: getRelationLabel(parent.id, state.decedentId), detail: "直系尊属で均等配分", fraction: each });
-  });
-  return drafts;
+
+  return shares;
 }
 
-function buildSiblingShareDrafts(branches, spouse) {
-  const drafts = [];
-  if (spouse) {
-    drafts.push({ personId: spouse.id, relation: "配偶者", detail: "配偶者は3/4の目安", fraction: createFraction(3, 4) });
-  }
-  const total = spouse ? createFraction(1, 4) : createFraction(1, 1);
-  const branchShare = divideFraction(total, branches.length);
+function buildSiblingShares(branches, spouse) {
+  const base = spouse ? createFraction(1, 4) : createFraction(1, 1);
+  const branchFraction = divideFraction(base, branches.length);
+  const shares = [];
+
   branches.forEach((branch) => {
-    const each = divideFraction(branchShare, branch.heirs.length);
+    if (branch.type === "sibling") {
+      shares.push({
+        personId: branch.heirs[0].id,
+        relation: "兄弟姉妹",
+        detail: "兄弟姉妹として均等取得",
+        fraction: branchFraction
+      });
+      return;
+    }
+
+    const perHeir = divideFraction(branchFraction, branch.heirs.length);
     branch.heirs.forEach((heir) => {
-      drafts.push({
+      shares.push({
         personId: heir.id,
-        relation: getRelationLabel(heir.id, state.decedentId),
-        detail: branch.type === "niece" ? "甥姪までの簡易代襲" : "兄弟姉妹で均等配分",
-        fraction: each
+        relation: "甥姪",
+        detail: "死亡した兄弟姉妹の持分を簡易代襲",
+        fraction: perHeir
       });
     });
   });
-  return drafts;
+
+  if (spouse) {
+    shares.unshift({
+      personId: spouse.id,
+      relation: "配偶者",
+      detail: "配偶者として取得",
+      fraction: createFraction(3, 4)
+    });
+  }
+
+  return shares;
 }
 
 function getLivingSpouse(personId) {
@@ -639,8 +780,8 @@ function getLivingSpouse(personId) {
   return spouse && spouse.alive ? spouse : null;
 }
 
-function getChildren(personId) {
-  return state.people.filter((person) => person.fatherId === personId || person.motherId === personId);
+function getChildren(parentId) {
+  return state.people.filter((person) => person.fatherId === parentId || person.motherId === parentId);
 }
 
 function getParents(personId) {
@@ -648,7 +789,10 @@ function getParents(personId) {
   if (!person) {
     return [];
   }
-  return [findPerson(person.fatherId), findPerson(person.motherId)].filter(Boolean);
+
+  return [person.fatherId, person.motherId]
+    .map((id) => findPerson(id))
+    .filter(Boolean);
 }
 
 function getSiblings(personId) {
@@ -656,233 +800,308 @@ function getSiblings(personId) {
   if (!person) {
     return [];
   }
+
   return state.people.filter((candidate) => {
-    if (candidate.id === person.id) {
+    if (candidate.id === personId) {
       return false;
     }
-    return (person.fatherId && candidate.fatherId === person.fatherId) || (person.motherId && candidate.motherId === person.motherId);
+
+    const sameFather = person.fatherId && candidate.fatherId && person.fatherId === candidate.fatherId;
+    const sameMother = person.motherId && candidate.motherId && person.motherId === candidate.motherId;
+    return sameFather || sameMother;
   });
 }
 
 function getDescendantBranches(personId) {
   return getChildren(personId).flatMap((child) => {
     if (child.alive) {
-      return [{ type: "child", heirs: [child] }];
+      return [{ type: "child", source: child, heirs: [child] }];
     }
+
     const livingGrandchildren = getChildren(child.id).filter((grandchild) => grandchild.alive);
-    return livingGrandchildren.length ? [{ type: "representation", heirs: livingGrandchildren }] : [];
+    if (!livingGrandchildren.length) {
+      return [];
+    }
+
+    return [{ type: "representation", source: child, heirs: livingGrandchildren }];
   });
 }
 
 function getSiblingBranches(personId) {
   return getSiblings(personId).flatMap((sibling) => {
     if (sibling.alive) {
-      return [{ type: "sibling", heirs: [sibling] }];
+      return [{ type: "sibling", source: sibling, heirs: [sibling] }];
     }
-    const livingChildren = getChildren(sibling.id).filter((child) => child.alive);
-    return livingChildren.length ? [{ type: "niece", heirs: livingChildren }] : [];
+
+    const livingNieces = getChildren(sibling.id).filter((niece) => niece.alive);
+    if (!livingNieces.length) {
+      return [];
+    }
+
+    return [{ type: "niece-nephew", source: sibling, heirs: livingNieces }];
   });
 }
 
-function getRelationLabel(personId, decedentId) {
-  if (personId === decedentId) {
+function getRelationLabel(targetId, baseId) {
+  if (targetId === baseId) {
     return "本人";
   }
-  const decedent = findPerson(decedentId);
-  if (!decedent) {
-    return "関係未判定";
+
+  const target = findPerson(targetId);
+  const base = findPerson(baseId);
+  if (!target || !base) {
+    return "関係不明";
   }
-  if (decedent.spouseId === personId) return "配偶者";
-  if (decedent.fatherId === personId) return "父";
-  if (decedent.motherId === personId) return "母";
-  if (getChildren(decedentId).some((child) => child.id === personId)) return "子";
-  if (getChildren(decedentId).some((child) => getChildren(child.id).some((grandchild) => grandchild.id === personId))) return "孫";
-  if (getSiblings(decedentId).some((sibling) => sibling.id === personId)) return "兄弟姉妹";
-  if (getSiblings(decedentId).some((sibling) => getChildren(sibling.id).some((child) => child.id === personId))) return "甥姪";
-  return "親族";
+
+  if (base.spouseId === targetId || target.spouseId === baseId) {
+    return "配偶者";
+  }
+  if (target.fatherId === baseId || target.motherId === baseId) {
+    return "子";
+  }
+  if (base.fatherId === targetId || base.motherId === targetId) {
+    return "父母";
+  }
+  if (getChildren(baseId).some((child) => child.id === target.fatherId || child.id === target.motherId)) {
+    return "孫";
+  }
+  if (getChildren(targetId).some((child) => child.id === base.fatherId || child.id === base.motherId)) {
+    return "祖父母";
+  }
+  if (getSiblings(baseId).some((sibling) => sibling.id === targetId)) {
+    return "兄弟姉妹";
+  }
+  if (getSiblings(baseId).some((sibling) => getChildren(sibling.id).some((child) => child.id === targetId))) {
+    return "甥姪";
+  }
+
+  return "関係不明";
 }
 
-function hasAncestorLoop(personId, visited = new Set()) {
-  if (!personId) {
-    return false;
-  }
-  if (visited.has(personId)) {
-    return true;
-  }
-  const person = findPerson(personId);
-  if (!person) {
-    return false;
-  }
-  const nextVisited = new Set(visited);
-  nextVisited.add(personId);
-  return [person.fatherId, person.motherId].filter(Boolean).some((parentId) => hasAncestorLoop(parentId, nextVisited));
+function addPerson() {
+  const person = createEmptyPerson(String(state.nextId));
+  state.nextId += 1;
+  state.people.push(person);
 }
 
-function addPerson(data = {}) {
-  state.people.push(normalizePerson({
-    id: String(state.nextId++),
+function removePerson(personId) {
+  state.people = state.people.filter((person) => person.id !== personId);
+  state.people.forEach((person) => {
+    if (person.fatherId === personId) {
+      person.fatherId = "";
+    }
+    if (person.motherId === personId) {
+      person.motherId = "";
+    }
+    if (person.spouseId === personId) {
+      person.spouseId = "";
+    }
+  });
+
+  if (state.decedentId === personId) {
+    state.decedentId = "";
+  }
+
+  if (state.lastSimulation && state.lastSimulation.decedent && state.lastSimulation.decedent.id === personId) {
+    state.lastSimulation = null;
+    renderResultPlaceholder("被相続人が削除されたため、再シミュレーションしてください。");
+    renderNotes(null);
+  }
+}
+
+function createEmptyPerson(id) {
+  return {
+    id,
     name: "",
     gender: "",
     alive: true,
     fatherId: "",
     motherId: "",
     spouseId: "",
-    notes: "",
-    ...data
-  }));
-  if (!state.decedentId && state.people[0]) {
-    state.decedentId = state.people[0].id;
-  }
+    notes: ""
+  };
 }
 
-function removePerson(personId) {
-  state.people = state.people.filter((person) => person.id !== personId);
-  state.people.forEach((person) => {
-    if (person.fatherId === personId) person.fatherId = "";
-    if (person.motherId === personId) person.motherId = "";
-    if (person.spouseId === personId) person.spouseId = "";
-  });
-  if (state.decedentId === personId) {
-    state.decedentId = state.people[0] ? state.people[0].id : "";
+function normalizePerson(person) {
+  person.name = String(person.name || "");
+  person.gender = String(person.gender || "");
+  person.fatherId = String(person.fatherId || "");
+  person.motherId = String(person.motherId || "");
+  person.spouseId = String(person.spouseId || "");
+  person.notes = String(person.notes || "");
+  person.alive = Boolean(person.alive);
+
+  if (person.fatherId === person.id) {
+    person.fatherId = "";
   }
-  persistState();
-  preserveViewport(() => {
-    renderPeopleSection();
-    renderDecedentSelect();
-  });
+  if (person.motherId === person.id) {
+    person.motherId = "";
+  }
+  if (person.spouseId === person.id) {
+    person.spouseId = "";
+  }
+  if (person.fatherId && person.fatherId === person.motherId) {
+    person.motherId = "";
+  }
 }
 
 function maintainSpouseIntegrity(personId, fieldName) {
   if (fieldName !== "spouseId") {
     return;
   }
-  const source = findPerson(personId);
-  if (!source) {
+
+  const person = findPerson(personId);
+  if (!person) {
     return;
   }
-  state.people.forEach((person) => {
-    if (person.id !== source.id && person.spouseId === source.id && source.spouseId !== person.id) {
-      person.spouseId = "";
+
+  state.people.forEach((candidate) => {
+    if (candidate.id !== person.id && candidate.spouseId === person.id && candidate.id !== person.spouseId) {
+      candidate.spouseId = "";
     }
   });
-  if (source.spouseId) {
-    const spouse = findPerson(source.spouseId);
-    if (spouse) {
-      spouse.spouseId = source.id;
+
+  if (!person.spouseId) {
+    return;
+  }
+
+  const spouse = findPerson(person.spouseId);
+  if (!spouse || spouse.id === person.id) {
+    person.spouseId = "";
+    return;
+  }
+
+  if (spouse.spouseId && spouse.spouseId !== person.id) {
+    const oldSpouse = findPerson(spouse.spouseId);
+    if (oldSpouse) {
+      oldSpouse.spouseId = "";
     }
   }
+
+  spouse.spouseId = person.id;
 }
 
-function normalizePerson(person) {
-  person.id = String(person.id || "");
-  person.name = String(person.name || "").trimStart();
-  person.gender = String(person.gender || "");
-  person.alive = Boolean(person.alive);
-  person.fatherId = String(person.fatherId || "");
-  person.motherId = String(person.motherId || "");
-  person.spouseId = String(person.spouseId || "");
-  person.notes = String(person.notes || "");
-  return person;
-}
-
-function buildPeopleSelectOptions(currentId, selectedValue, emptyLabel) {
-  return buildOptionHtml(
-    [{ value: "", label: emptyLabel }].concat(
-      state.people
-        .filter((person) => person.id !== currentId)
-        .map((person) => ({ value: person.id, label: formatPersonLabel(person) }))
-    ),
-    selectedValue
+function buildPeopleOptionList(selfId, placeholder) {
+  return [{ value: "", label: placeholder }].concat(
+    state.people
+      .filter((person) => person.id !== selfId)
+      .map((person) => ({
+        value: person.id,
+        label: formatPersonLabel(person)
+      }))
   );
 }
 
-function buildOptionHtml(options, selectedValue) {
-  return options.map((option) => `
-    <option value="${escapeHtml(option.value)}" ${option.value === selectedValue ? "selected" : ""}>${escapeHtml(option.label)}</option>
-  `).join("");
+function updatePersonCardMeta(card, person) {
+  if (!card || !person) {
+    return;
+  }
+
+  const nameLabel = card.querySelector('[data-role="name-label"]');
+  const hintLabel = card.querySelector('[data-role="hint-label"]');
+  const aliveBadge = card.querySelector('[data-role="alive-badge"]');
+
+  if (nameLabel) {
+    nameLabel.textContent = person.name.trim() || "氏名未入力";
+  }
+  if (hintLabel) {
+    hintLabel.textContent = buildPersonHint(person);
+  }
+  if (aliveBadge) {
+    aliveBadge.textContent = person.alive ? "生存" : "死亡";
+    aliveBadge.classList.toggle("is-deceased", !person.alive);
+  }
 }
 
 function buildPersonHint(person) {
-  const parts = [];
-  if (person.fatherId) parts.push(`父: ${(findPerson(person.fatherId) || {}).name || person.fatherId}`);
-  if (person.motherId) parts.push(`母: ${(findPerson(person.motherId) || {}).name || person.motherId}`);
-  if (person.spouseId) parts.push(`配偶者: ${(findPerson(person.spouseId) || {}).name || person.spouseId}`);
-  return parts.length ? parts.join(" / ") : "親子関係・配偶者関係は未設定です。";
+  const pieces = [];
+
+  if (person.gender === "male") {
+    pieces.push("男性");
+  } else if (person.gender === "female") {
+    pieces.push("女性");
+  } else if (person.gender === "other") {
+    pieces.push("その他");
+  }
+
+  pieces.push(person.alive ? "生存" : "死亡");
+
+  if (!person.alive && person.notes.trim()) {
+    pieces.push("先死亡メモあり");
+  }
+
+  if (person.spouseId) {
+    const spouse = findPerson(person.spouseId);
+    pieces.push(`配偶者: ${spouse ? spouse.name || `人物ID ${spouse.id}` : "未設定"}`);
+  }
+
+  return pieces.join(" / ");
 }
 
-function formatPersonLabel(person) {
-  return `${person.name || `ID${person.id}`} (${person.alive ? "生存" : "死亡"})`;
-}
-
-function syncEstateFromInputs() {
-  state.estate.propertyName = elements.propertyName.value.trim();
-  state.estate.propertyMemo = elements.propertyMemo.value.trim();
-  state.estate.targetSharePercent = clampPercent(elements.propertyTargetShare.value, 100);
-  state.estate.ownerSharePercent = clampPercent(elements.propertyOwnerShare.value, 100);
-  state.consultationUrl = elements.consultationUrl.value.trim() || DEFAULT_CONSULTATION_URL;
-}
-
-function fillEstateInputs() {
-  elements.propertyName.value = state.estate.propertyName;
-  elements.propertyMemo.value = state.estate.propertyMemo;
-  elements.propertyTargetShare.value = state.estate.targetSharePercent;
-  elements.propertyOwnerShare.value = state.estate.ownerSharePercent;
-  elements.consultationUrl.value = state.consultationUrl;
-}
-
-function loadSampleData(type) {
-  restoreState(type === "representation"
-    ? {
-      nextId: 6,
-      decedentId: "1",
-      consultationUrl: DEFAULT_CONSULTATION_URL,
-      estate: {
-        propertyName: "横浜市神奈川区サンプルマンション",
-        propertyMemo: "被相続人持分を100%と仮定",
-        targetSharePercent: 100,
-        ownerSharePercent: 100
-      },
+function buildSampleState(type) {
+  if (type === "representation") {
+    return {
       people: [
-        { id: "1", name: "父", gender: "male", alive: false, spouseId: "2", fatherId: "", motherId: "", notes: "被相続人" },
-        { id: "2", name: "母", gender: "female", alive: true, spouseId: "1", fatherId: "", motherId: "", notes: "" },
-        { id: "3", name: "子A", gender: "male", alive: false, spouseId: "", fatherId: "1", motherId: "2", notes: "父より先に死亡" },
-        { id: "4", name: "孫A1", gender: "female", alive: true, spouseId: "", fatherId: "3", motherId: "", notes: "" },
-        { id: "5", name: "孫A2", gender: "male", alive: true, spouseId: "", fatherId: "3", motherId: "", notes: "" }
-      ]
-    }
-    : {
-      nextId: 5,
+        { id: "1", name: "山田 太郎", gender: "male", alive: false, fatherId: "", motherId: "", spouseId: "2", notes: "被相続人" },
+        { id: "2", name: "山田 花子", gender: "female", alive: true, fatherId: "", motherId: "", spouseId: "1", notes: "配偶者" },
+        { id: "3", name: "山田 一郎", gender: "male", alive: true, fatherId: "1", motherId: "2", spouseId: "", notes: "長男" },
+        { id: "4", name: "山田 次郎", gender: "male", alive: false, fatherId: "1", motherId: "2", spouseId: "", notes: "次男。被相続人より先に死亡" },
+        { id: "5", name: "山田 さくら", gender: "female", alive: true, fatherId: "4", motherId: "", spouseId: "", notes: "次男の子" },
+        { id: "6", name: "山田 ひなた", gender: "female", alive: true, fatherId: "4", motherId: "", spouseId: "", notes: "次男の子" }
+      ],
+      nextId: 7,
       decedentId: "1",
-      consultationUrl: DEFAULT_CONSULTATION_URL,
       estate: {
         propertyName: "横浜市神奈川区○○マンション",
-        propertyMemo: "相続整理用のサンプル",
+        propertyMemo: "被相続人単独名義",
         targetSharePercent: 100,
         ownerSharePercent: 100
       },
-      people: [
-        { id: "1", name: "父", gender: "male", alive: false, spouseId: "2", fatherId: "", motherId: "", notes: "被相続人" },
-        { id: "2", name: "母", gender: "female", alive: true, spouseId: "1", fatherId: "", motherId: "", notes: "" },
-        { id: "3", name: "子A", gender: "female", alive: true, spouseId: "", fatherId: "1", motherId: "2", notes: "" },
-        { id: "4", name: "子B", gender: "male", alive: true, spouseId: "", fatherId: "1", motherId: "2", notes: "" }
-      ]
-    });
+      consultationUrl: DEFAULT_CONSULTATION_URL,
+      activeTab: DEFAULT_TAB
+    };
+  }
 
-  fullRender();
+  return {
+    people: [
+      { id: "1", name: "佐藤 一郎", gender: "male", alive: false, fatherId: "", motherId: "", spouseId: "2", notes: "被相続人" },
+      { id: "2", name: "佐藤 和子", gender: "female", alive: true, fatherId: "", motherId: "", spouseId: "1", notes: "配偶者" },
+      { id: "3", name: "佐藤 太郎", gender: "male", alive: true, fatherId: "1", motherId: "2", spouseId: "", notes: "長男" },
+      { id: "4", name: "佐藤 花", gender: "female", alive: true, fatherId: "1", motherId: "2", spouseId: "", notes: "長女" }
+    ],
+    nextId: 5,
+    decedentId: "1",
+    estate: {
+      propertyName: "横浜市神奈川区○○マンション",
+      propertyMemo: "被相続人単独名義",
+      targetSharePercent: 100,
+      ownerSharePercent: 100
+    },
+    consultationUrl: DEFAULT_CONSULTATION_URL,
+    activeTab: DEFAULT_TAB
+  };
 }
 
-function restoreState(data) {
-  state.people = Array.isArray(data.people) ? data.people.map((person) => normalizePerson({ ...person })) : [];
-  state.nextId = Number(data.nextId) || calculateNextId(state.people);
-  state.decedentId = String(data.decedentId || "");
+function restoreState(snapshot) {
+  state.people = (snapshot.people || []).map((person) => {
+    const normalized = createEmptyPerson(String(person.id || ""));
+    Object.assign(normalized, person);
+    normalized.id = String(normalized.id || "");
+    normalizePerson(normalized);
+    return normalized;
+  });
+
+  state.nextId = Number(snapshot.nextId || getNextId(state.people));
+  state.decedentId = String(snapshot.decedentId || "");
   state.estate = {
-    propertyName: String(data.estate?.propertyName || ""),
-    propertyMemo: String(data.estate?.propertyMemo || ""),
-    targetSharePercent: clampPercent(data.estate?.targetSharePercent ?? 100, 100),
-    ownerSharePercent: clampPercent(data.estate?.ownerSharePercent ?? 100, 100)
+    propertyName: String(snapshot.estate?.propertyName || ""),
+    propertyMemo: String(snapshot.estate?.propertyMemo || ""),
+    targetSharePercent: clampPercent(snapshot.estate?.targetSharePercent, 100),
+    ownerSharePercent: clampPercent(snapshot.estate?.ownerSharePercent, 100)
   };
-  state.consultationUrl = String(data.consultationUrl || DEFAULT_CONSULTATION_URL);
-  persistState();
+  state.consultationUrl = String(snapshot.consultationUrl || DEFAULT_CONSULTATION_URL);
+  state.activeTab = isValidTab(snapshot.activeTab) ? snapshot.activeTab : DEFAULT_TAB;
+  state.lastSimulation = null;
 }
 
 function loadPersistedState() {
@@ -891,123 +1110,107 @@ function loadPersistedState() {
     if (!raw) {
       return;
     }
-    restoreState(JSON.parse(raw));
+
+    const parsed = JSON.parse(raw);
+    restoreState(parsed);
   } catch (error) {
-    console.error(error);
+    console.warn("Failed to load inheritance simulator state.", error);
+    localStorage.removeItem(STORAGE_KEY);
   }
 }
 
-function persistState() {
+function queuePersist() {
+  window.clearTimeout(saveTimerId);
+  saveTimerId = window.setTimeout(() => {
+    persistStateNow();
+  }, 120);
+}
+
+function persistStateNow() {
+  window.clearTimeout(saveTimerId);
+  saveTimerId = 0;
+
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeState()));
   } catch (error) {
-    console.error(error);
+    console.warn("Failed to persist inheritance simulator state.", error);
   }
 }
 
 function serializeState() {
   return {
-    people: state.people,
+    people: state.people.map((person) => ({
+      id: person.id,
+      name: person.name,
+      gender: person.gender,
+      alive: person.alive,
+      fatherId: person.fatherId,
+      motherId: person.motherId,
+      spouseId: person.spouseId,
+      notes: person.notes
+    })),
     nextId: state.nextId,
     decedentId: state.decedentId,
-    estate: state.estate,
-    consultationUrl: state.consultationUrl
+    estate: {
+      propertyName: state.estate.propertyName,
+      propertyMemo: state.estate.propertyMemo,
+      targetSharePercent: state.estate.targetSharePercent,
+      ownerSharePercent: state.estate.ownerSharePercent
+    },
+    consultationUrl: state.consultationUrl,
+    activeTab: state.activeTab
   };
+}
+
+function exportJson() {
+  syncEstateFromInputs();
+  persistStateNow();
+  triggerDownload(
+    `inheritance-family-tree-${getTodayString()}.json`,
+    JSON.stringify(serializeState(), null, 2)
+  );
+  showStatus("JSONをエクスポートしました。");
+}
+
+function importJson(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) {
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(String(reader.result || "{}"));
+      restoreState(parsed);
+      renderInitialView();
+      showStatus("JSONを読み込みました。");
+    } catch (error) {
+      showErrors(["JSONの読み込みに失敗しました。形式を確認してください。"]);
+    } finally {
+      elements.importJsonInput.value = "";
+    }
+  };
+  reader.readAsText(file);
 }
 
 function setActiveTab(tabId) {
-  const availableTabs = elements.tabButtons.map((button) => button.dataset.tab).filter(Boolean);
-  const fallbackTab = availableTabs[0] || TAB_ORDER[0];
-  state.activeTab = availableTabs.includes(tabId) ? tabId : fallbackTab;
+  const nextTab = isValidTab(tabId) ? tabId : DEFAULT_TAB;
+  state.activeTab = nextTab;
+
   elements.tabButtons.forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.tab === state.activeTab);
+    button.classList.toggle("is-active", button.dataset.tab === nextTab);
   });
+
   elements.tabPanels.forEach((panel) => {
-    panel.classList.toggle("is-active", panel.dataset.panel === state.activeTab);
+    panel.classList.toggle("is-active", panel.dataset.panel === nextTab);
   });
+
+  queuePersist();
 }
 
-function preserveViewport(callback) {
-  const scrollX = window.scrollX;
-  const scrollY = window.scrollY;
-  callback();
-  window.scrollTo(scrollX, scrollY);
-}
-
-function createFraction(numerator, denominator) {
-  const divisor = greatestCommonDivisor(Math.abs(numerator), Math.abs(denominator));
-  return {
-    numerator: numerator / divisor || 0,
-    denominator: denominator / divisor || 1
-  };
-}
-
-function multiplyFraction(left, right) {
-  return createFraction(left.numerator * right.numerator, left.denominator * right.denominator);
-}
-
-function divideFraction(fraction, divisor) {
-  return createFraction(fraction.numerator, fraction.denominator * divisor);
-}
-
-function fractionToPercent(fraction) {
-  return (fraction.numerator / fraction.denominator) * 100;
-}
-
-function formatFraction(fraction) {
-  return `${fraction.numerator}/${fraction.denominator}`;
-}
-
-function formatPercent(value) {
-  return `${Number(value).toFixed(value >= 10 ? 1 : 2).replace(/\.0+$/, "").replace(/(\.\d*[1-9])0+$/, "$1")}%`;
-}
-
-function greatestCommonDivisor(left, right) {
-  return right ? greatestCommonDivisor(right, left % right) : (left || 1);
-}
-
-function clampPercent(value, fallback) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? Math.min(100, Math.max(0, parsed)) : fallback;
-}
-
-function calculateNextId(people) {
-  return people.reduce((max, person) => Math.max(max, Number(person.id) || 0), 0) + 1;
-}
-
-function uniquePeople(people) {
-  return people.filter((person, index, array) => person && array.findIndex((item) => item.id === person.id) === index);
-}
-
-function fieldLabel(key) {
-  return { fatherId: "父ID", motherId: "母ID", spouseId: "配偶者ID" }[key] || key;
-}
-
-function findPerson(id) {
-  return state.people.find((person) => person.id === String(id)) || null;
-}
-
-function sanitizeUrl(value) {
-  try {
-    const url = new URL(value);
-    return ["http:", "https:"].includes(url.protocol) ? url.toString() : "#";
-  } catch (_error) {
-    return "#";
-  }
-}
-
-function triggerDownload(url, filename) {
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-}
-
-function getTodayString() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+function isValidTab(tabId) {
+  return elements.tabPanels.some((panel) => panel.dataset.panel === tabId);
 }
 
 function showStatus(message) {
@@ -1015,7 +1218,9 @@ function showStatus(message) {
 }
 
 function showErrors(errors) {
-  elements.errorArea.innerHTML = errors.map((error) => `<div class="error-message">${escapeHtml(error)}</div>`).join("");
+  elements.errorArea.innerHTML = errors
+    .map((message) => `<div class="error-message">${escapeHtml(message)}</div>`)
+    .join("");
 }
 
 function clearMessages() {
@@ -1023,11 +1228,175 @@ function clearMessages() {
   elements.errorArea.innerHTML = "";
 }
 
+function triggerDownload(filename, content) {
+  const blob = new Blob([content], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function sanitizeUrl(url) {
+  if (!url) {
+    return "#";
+  }
+  try {
+    const parsed = new URL(url);
+    return /^https?:$/i.test(parsed.protocol) ? parsed.toString() : "#";
+  } catch (error) {
+    return "#";
+  }
+}
+
+function getTodayString() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}${month}${day}`;
+}
+
+function findPerson(personId) {
+  return state.people.find((person) => person.id === String(personId || ""));
+}
+
+function uniquePeople(people) {
+  const seen = new Set();
+  return people.filter((person) => {
+    if (!person || seen.has(person.id)) {
+      return false;
+    }
+    seen.add(person.id);
+    return true;
+  });
+}
+
+function hasAncestorLoop(personId, visited = new Set()) {
+  if (visited.has(personId)) {
+    return true;
+  }
+
+  const person = findPerson(personId);
+  if (!person) {
+    return false;
+  }
+
+  const nextVisited = new Set(visited);
+  nextVisited.add(personId);
+
+  return [person.fatherId, person.motherId]
+    .filter(Boolean)
+    .some((parentId) => hasAncestorLoop(parentId, nextVisited));
+}
+
+function formatPersonLabel(person) {
+  const name = person.name.trim() || `人物ID ${person.id}`;
+  return `${name}（${person.alive ? "生存" : "死亡"}）`;
+}
+
+function fieldLabel(fieldName) {
+  if (fieldName === "fatherId") return "父ID";
+  if (fieldName === "motherId") return "母ID";
+  if (fieldName === "spouseId") return "配偶者";
+  return fieldName;
+}
+
+function getNextId(people) {
+  return people.reduce((max, person) => Math.max(max, Number(person.id || 0)), 0) + 1;
+}
+
+function clampPercent(value, fallback) {
+  const numberValue = Number(value);
+  if (!Number.isFinite(numberValue)) {
+    return fallback;
+  }
+  return Math.max(0, Math.min(100, numberValue));
+}
+
+function createFraction(numerator, denominator) {
+  const safeNumerator = Number(numerator);
+  const safeDenominator = Number(denominator);
+
+  if (!Number.isFinite(safeNumerator) || !Number.isFinite(safeDenominator) || safeDenominator === 0) {
+    return { numerator: 0, denominator: 1 };
+  }
+
+  return reduceFraction({
+    numerator: safeNumerator,
+    denominator: safeDenominator
+  });
+}
+
+function reduceFraction(fraction) {
+  const sign = fraction.denominator < 0 ? -1 : 1;
+  const numerator = fraction.numerator * sign;
+  const denominator = fraction.denominator * sign;
+  const divisor = gcd(Math.round(Math.abs(numerator)), Math.round(Math.abs(denominator))) || 1;
+  return {
+    numerator: numerator / divisor,
+    denominator: denominator / divisor
+  };
+}
+
+function divideFraction(fraction, divisor) {
+  return reduceFraction({
+    numerator: fraction.numerator,
+    denominator: fraction.denominator * divisor
+  });
+}
+
+function multiplyFraction(a, b) {
+  return reduceFraction({
+    numerator: a.numerator * b.numerator,
+    denominator: a.denominator * b.denominator
+  });
+}
+
+function fractionToPercent(fraction) {
+  return (fraction.numerator / fraction.denominator) * 100;
+}
+
+function formatFraction(fraction) {
+  if (!fraction || fraction.denominator === 0) {
+    return "-";
+  }
+  if (fraction.numerator === 0) {
+    return "0";
+  }
+  if (fraction.denominator === 1) {
+    return `${fraction.numerator}`;
+  }
+  return `${fraction.numerator}/${fraction.denominator}`;
+}
+
+function formatPercent(value) {
+  const rounded = Math.round(value * 100) / 100;
+  const formatted = Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2).replace(/\.?0+$/, "");
+  return `${formatted}%`;
+}
+
+function gcd(a, b) {
+  let x = Math.abs(a);
+  let y = Math.abs(b);
+
+  while (y) {
+    const temp = x % y;
+    x = y;
+    y = temp;
+  }
+
+  return x || 1;
+}
+
 function escapeHtml(value) {
-  return String(value == null ? "" : value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }

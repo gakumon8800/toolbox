@@ -15,18 +15,18 @@
     <a class="back-link" href="../../">← toolbox 一覧へ戻る</a>
 
     <section class="hero card">
-      <p class="eyebrow">相続関係の初期整理</p>
+      <p class="eyebrow">相続整理の参考ツール</p>
       <h1>相続家系図・共有持分シミュレーター</h1>
       <p class="hero-text">家族関係と相続の流れを図で整理し、不動産の共有化イメージまで確認できる参考ツールです。</p>
       <div class="notice-stack">
         <p class="notice-card notice-card-warning">
           このツールは一般的な相続関係整理の参考用です。個別事情・遺言・養子縁組・相続放棄・特別受益・寄与分などは反映しない場合があります。最終判断は専門家にご相談ください。
         </p>
-        <p class="notice-card">データはこの端末のブラウザ内にのみ保存されます。外部送信は行いません。</p>
+        <p class="notice-card">入力データはこのブラウザ内にのみ保存されます。外部送信は行いません。</p>
       </div>
     </section>
 
-    <section class="toolbar card" aria-label="補助操作">
+    <section class="toolbar card" aria-label="操作メニュー">
       <div class="toolbar-group">
         <button type="button" class="secondary-button" id="sampleBasicButton">サンプル1を読込</button>
         <button type="button" class="secondary-button" id="sampleRepresentationButton">サンプル2を読込</button>
@@ -52,7 +52,7 @@
               <p class="section-label">入力</p>
               <h2 id="people-title">1. 人物一覧</h2>
             </div>
-            <p class="section-text">人物カードごとに氏名・生存状況・親子関係・配偶者関係を入力してください。</p>
+            <p class="section-text">人物カードごとに氏名・生死・親子関係・配偶者関係を入力してください。</p>
           </div>
           <div id="peopleList" class="people-list"></div>
         </section>
@@ -63,7 +63,7 @@
               <p class="section-label">設定</p>
               <h2 id="simulation-title">2. 被相続人・不動産設定</h2>
             </div>
-            <p class="section-text">相続開始時点を想定して、被相続人と対象不動産の持分を設定します。</p>
+            <p class="section-text">相続開始時点を前提に、被相続人と対象不動産の持分を設定します。</p>
           </div>
           <div class="form-grid">
             <div class="field full">
@@ -72,22 +72,22 @@
             </div>
             <div class="field">
               <label for="propertyName">不動産名</label>
-              <input id="propertyName" type="text" placeholder="例：横浜市神奈川区○○マンション">
+              <input id="propertyName" type="text" placeholder="例: 横浜市神奈川区○○マンション">
             </div>
             <div class="field">
               <label for="propertyMemo">評価メモ</label>
-              <input id="propertyMemo" type="text" placeholder="例：路線価ベースで概算確認">
+              <input id="propertyMemo" type="text" placeholder="例: 査定メモや補足">
             </div>
             <div class="field">
               <label for="propertyTargetShare">相続対象持分（%）</label>
               <input id="propertyTargetShare" type="number" inputmode="decimal" min="0" max="100" step="0.01">
             </div>
             <div class="field">
-              <label for="propertyOwnerShare">被相続人が持っていた割合（%）</label>
+              <label for="propertyOwnerShare">被相続人の持分（%）</label>
               <input id="propertyOwnerShare" type="number" inputmode="decimal" min="0" max="100" step="0.01">
             </div>
             <div class="field full">
-              <label for="consultationUrl">相談導線リンク先URL</label>
+              <label for="consultationUrl">相談導線リンクURL</label>
               <input id="consultationUrl" type="url" placeholder="https://example.com/contact">
             </div>
           </div>
@@ -101,10 +101,10 @@
         <section class="card section-card result-card" aria-labelledby="result-title">
           <div class="section-head">
             <div>
-              <p class="section-label">出力</p>
+              <p class="section-label">結果</p>
               <h2 id="result-title">3. シミュレーション結果</h2>
             </div>
-            <p class="section-text">家系図、相続人候補、法定相続分の目安、不動産共有イメージを順に確認できます。</p>
+            <p class="section-text">家系図、相続人候補、法定相続分の目安、不動産共有イメージを確認できます。</p>
           </div>
 
           <nav class="tab-nav" aria-label="結果タブ">
@@ -176,7 +176,7 @@
               <ul class="note-list" id="noteList"></ul>
               <div class="consultation-box">
                 <p class="consultation-title">相続不動産の売却・共有整理・賃貸活用のご相談はこちら</p>
-                <p class="consultation-text">遺言や共有整理、売却の進め方などは個別事情で大きく変わるため、実務判断は専門家への確認が安心です。</p>
+                <p class="consultation-text">実際の遺産分割や共有整理は個別事情の確認が重要です。必要に応じて専門家へご相談ください。</p>
                 <a id="consultationLink" class="primary-button consultation-link" href="#" target="_blank" rel="noopener noreferrer">相談先を開く</a>
               </div>
             </div>
